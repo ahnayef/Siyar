@@ -31,7 +31,7 @@ const enhanceEventPrompt = ai.definePrompt({
   name: 'enhanceEventPrompt',
   input: {schema: EnhanceEventDetailsInputSchema},
   output: {schema: EnhanceEventDetailsOutputSchema},
-  prompt: `You are a helpful AI buddy for ChronoFlow, a timeline app designed for students to keep track of their academic and social stuff with a clear, no-nonsense (but still cool) neo-brutalist vibe.
+  prompt: `You are a helpful AI buddy for Siyar, a timeline app designed for students to keep track of their academic and social stuff with a clear, no-nonsense (but still cool) neo-brutalist vibe.
 The user is creating/editing an event and needs some ideas for the '{{enhancementType}}'.
 
 Current {{enhancementType}}: "{{currentText}}"

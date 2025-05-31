@@ -46,7 +46,7 @@ export default function SignupPage() {
         await setDoc(usernameDocRef, { userId: userFB.uid });
       }
       
-      toast({ title: "Signup Successful", description: "Welcome to ChronoFlow!" });
+      toast({ title: "Signup Successful", description: "Welcome to Siyar!" });
       logAnalyticsEvent('sign_up', { method: 'email_password', user_id: userFB?.uid });
       router.push('/dashboard');
     } catch (error: any) {
@@ -79,7 +79,7 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
       <div className="mb-8 text-center">
-        <h1 className="text-4xl font-archivo text-foreground">Create Your ChronoFlow Account</h1>
+        <h1 className="text-4xl font-archivo text-foreground">Create Your Siyar Account</h1>
         <p className="text-muted-foreground mt-2 text-body-md">Start managing your timelines like a pro.</p>
       </div>
       <AuthForm mode="signup" onSubmit={handleSignup} />

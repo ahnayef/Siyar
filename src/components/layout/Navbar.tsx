@@ -84,7 +84,7 @@ export default function Navbar() {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="text-2xl font-archivo text-primary hover:opacity-80 transition-opacity flex items-center gap-2">
           <Workflow className="h-7 w-7 text-primary"/>
-          ChronoFlow
+          Siyar
         </Link>
         
         {/* Desktop Menu */}

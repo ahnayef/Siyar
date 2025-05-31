@@ -57,7 +57,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
       <div className="mb-8 text-center">
-        <h1 className="text-4xl font-archivo text-foreground">Log In to ChronoFlow</h1>
+        <h1 className="text-4xl font-archivo text-foreground">Log In to Siyar</h1>
         <p className="text-muted-foreground mt-2 text-body-md">Access your timelines and stay organized.</p>
       </div>
       <AuthForm mode="login" onSubmit={handleLogin} />

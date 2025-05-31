@@ -9,7 +9,7 @@ export default function HomePage() {
     <div className="flex flex-col items-center min-h-screen bg-background text-foreground text-center p-4 overflow-hidden">
       <header className="container mx-auto py-16 md:py-24">
         <h1 className="text-5xl md:text-7xl font-extrabold text-foreground mb-6">
-          ChronoFlow
+          Siyar
         </h1>
         <p className="text-body-lg text-muted-foreground mb-10 max-w-3xl mx-auto">
           Organize your world with timelines. Clear, focused, and built with neo-brutalist precision.
@@ -25,7 +25,7 @@ export default function HomePage() {
       </header>
 
       <section className="container mx-auto py-16 md:py-24">
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12">Why ChronoFlow?</h2>
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12">Why Siyar?</h2>
         <div className="grid md:grid-cols-3 gap-8">
           <div className="p-8 neo-card">
             <Zap className="h-10 w-10 text-primary mx-auto mb-4" />
@@ -56,7 +56,7 @@ export default function HomePage() {
           <div className="md:w-1/2 text-left">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">Visualize. Plan. Achieve.</h2>
             <p className="text-body-lg text-muted-foreground mb-8">
-              ChronoFlow&apos;s design philosophy is simple: maximum clarity, zero distraction. Stay sharp, stay organized.
+              Siyar&apos;s design philosophy is simple: maximum clarity, zero distraction. Stay sharp, stay organized.
             </p>
             <Button size="lg" asChild className="neo-button px-10 py-3">
               <Link href="/signup">Create Your First Timeline</Link>
@@ -76,7 +76,7 @@ export default function HomePage() {
       </section>
 
       <footer className="py-10 text-muted-foreground text-sm">
-        © {new Date().getFullYear()} ChronoFlow. Built with clarity.
+        © {new Date().getFullYear()} Siyar. Built with clarity.
       </footer>
     </div>
   );

@@ -25,7 +25,7 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'ChronoFlow - Timeline Manager',
+  title: 'Siyar - Timeline Manager',
   description: 'Visualize and manage your academic commitments with neo-brutalist clarity.',
 };
 
