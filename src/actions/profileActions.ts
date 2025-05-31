@@ -2,7 +2,7 @@
 "use server";
 
 import { db } from "@/lib/firebase";
-import { doc, updateDoc, getDoc, collection, query, where, writeBatch, getDocs } from "firebase/firestore"; // Added getDocs
+import { doc, updateDoc, getDoc, collection, query, where, writeBatch, getDocs, serverTimestamp } from "firebase/firestore";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -48,10 +48,14 @@ export async function updateUserUsernameAction(userId: string, newUsername: stri
      batch.set(usernameDocRef, { userId: userId });
   }
 
+  // Update username and updatedAt in timelines
   const timelinesQuery = query(collection(db, "timelines"), where("userId", "==", userId));
-  const timelinesSnapshot = await getDocs(timelinesQuery); // Correctly uses imported getDocs
+  const timelinesSnapshot = await getDocs(timelinesQuery);
   timelinesSnapshot.forEach(timelineDoc => {
-    batch.update(timelineDoc.ref, { username: newUsername });
+    batch.update(timelineDoc.ref, { 
+      username: newUsername,
+      updatedAt: serverTimestamp() // Add serverTimestamp for updatedAt
+    });
   });
 
   await batch.commit();
