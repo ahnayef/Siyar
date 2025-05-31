@@ -224,14 +224,14 @@ export default function TimelineViewPage() {
                 <React.Fragment key={event.id}>
                   {gapIndicatorText && (
                     <div className="relative h-16 flex items-center justify-center my-2">
-                       <div className="bg-card border-t-2 border-r-2 border-b-2 border-strong-border-color shadow-neo-active p-2 rounded-tr-[4px] rounded-br-[4px] text-xs font-space-mono text-muted-foreground flex items-center gap-1.5 z-10">
+                       <div className="bg-card border-2 border-strong-border-color shadow-neo-active p-2 rounded-[4px] text-xs font-space-mono text-muted-foreground flex items-center gap-1.5 z-10">
                         <CalendarClock className="h-3.5 w-3.5" />
                         {gapIndicatorText} later
                       </div>
                     </div>
                   )}
                   <div className="flex items-start mb-12 relative">
-                    <div className="absolute left-[-20px] top-1 flex flex-col items-center"> {/* Removed h-full here to let content dictate height */}
+                    <div className="absolute left-[-20px] top-1 flex flex-col items-center"> 
                       <div className={cn(`
                         w-6 h-6 border-2 flex-shrink-0 z-10 rounded-sm
                         shadow-neo-active`,
@@ -241,7 +241,7 @@ export default function TimelineViewPage() {
                       )}></div>
                       {index < events.length - 1 && ( 
                         <div className={cn(
-                            "w-1 flex-grow bg-strong-border-color mt-1 min-h-[8rem]", // Increased min-height for the stem
+                            "w-1 flex-grow bg-strong-border-color mt-1 min-h-[10rem]", 
                         )}></div>
                       )}
                     </div>
