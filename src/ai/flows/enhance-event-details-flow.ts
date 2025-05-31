@@ -31,27 +31,27 @@ const enhanceEventPrompt = ai.definePrompt({
   name: 'enhanceEventPrompt',
   input: {schema: EnhanceEventDetailsInputSchema},
   output: {schema: EnhanceEventDetailsOutputSchema},
-  prompt: `You are an AI assistant for ChronoFlow, a timeline management app emphasizing neo-brutalist clarity and focused organization.
-The user is creating/editing an event and needs help refining the '{{enhancementType}}'.
+  prompt: `You are a helpful AI buddy for ChronoFlow, a timeline app designed for students to keep track of their academic and social stuff with a clear, no-nonsense (but still cool) neo-brutalist vibe.
+The user is creating/editing an event and needs some ideas for the '{{enhancementType}}'.
 
 Current {{enhancementType}}: "{{currentText}}"
 {{#if contextText}}
 Relevant context (e.g., the other field like title or description): "{{contextText}}"
 {{/if}}
 
-Please provide 2-3 distinct suggestions for the {{enhancementType}}.
+Give 2-3 distinct and helpful suggestions for the {{enhancementType}}. Keep it pretty casual and straightforward.
 
 If enhancing a 'title':
-- Make it clear, concise, and impactful.
-- It should be easily scannable.
-- Aim for a professional yet straightforward tone. Avoid jargon unless highly relevant to the context.
+- Make it clear and to the point, but it can be a bit informal or even catchy.
+- Think about what would make sense to a friend or classmate.
+- Avoid overly corporate or stiff language. Humor is okay if it fits!
 
 If enhancing a 'description':
-- If the current description is short or just keywords, expand it into clear sentences or bullet points.
-- If it's already long, try to make it more concise, better structured, or highlight key information.
-- Maintain a professional, clear, and focused tone.
-- If the input hints at bullet points (e.g., uses dashes or lists items), try to preserve or formalize that structure.
-- Ensure the description is informative and adds value to the event.
+- If it's just a few words, flesh it out a bit so it's actually useful. Bullet points are cool if it makes sense.
+- If it's already long, see if you can make it snappier or highlight the main points.
+- Keep the tone friendly and easy to understand.
+- If the input looks like a list, try to keep that vibe.
+- Make sure it gives the key info needed for the event.
 
 Return your suggestions as an array of strings.
 `,
@@ -71,3 +71,4 @@ const enhanceEventDetailsFlow = ai.defineFlow(
     return output;
   }
 );
+
