@@ -47,6 +47,9 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
   const [titleSuggestionsOpen, setTitleSuggestionsOpen] = useState(false);
   const [descriptionSuggestionsOpen, setDescriptionSuggestionsOpen] = useState(false);
 
+  const [hasUsedAITitle, setHasUsedAITitle] = useState(false);
+  const [hasUsedAIDescription, setHasUsedAIDescription] = useState(false);
+
 
   const { control, register, handleSubmit, reset, setValue, getValues, formState: { errors } } = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
@@ -58,7 +61,7 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
   });
 
   useEffect(() => {
-    if (isOpen) { // Only reset/populate when modal opens
+    if (isOpen) { 
       if (eventToEdit) {
         setValue('title', eventToEdit.title);
         setValue('description', eventToEdit.description || '');
@@ -70,6 +73,8 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
       setDescriptionSuggestions([]);
       setTitleSuggestionsOpen(false);
       setDescriptionSuggestionsOpen(false);
+      setHasUsedAITitle(false); 
+      setHasUsedAIDescription(false);
     }
   }, [eventToEdit, isOpen, reset, setValue]);
 
@@ -89,9 +94,11 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
       if (type === 'title') {
         setTitleSuggestions(result.suggestions);
         setTitleSuggestionsOpen(true);
+        setHasUsedAITitle(true);
       } else {
         setDescriptionSuggestions(result.suggestions);
         setDescriptionSuggestionsOpen(true);
+        setHasUsedAIDescription(true);
       }
     } catch (error: any) {
       toast({
@@ -138,8 +145,8 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
       
       toast({ title: eventToEdit ? "Event Updated" : "Event Added", description: `"${data.title}" has been committed.` });
       onEventAddedOrUpdated(savedEvent);
-      reset(); // Reset form fields
-      setIsOpen(false); // Close modal
+      reset(); 
+      setIsOpen(false); 
     } catch (error: any) {
       toast({
         title: "Error Saving Event",
@@ -153,11 +160,13 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
   
   const onModalOpenChange = (open: boolean) => {
     setIsOpen(open);
-    if (!open) { // Reset suggestions when modal closes
+    if (!open) { 
         setTitleSuggestions([]);
         setDescriptionSuggestions([]);
         setTitleSuggestionsOpen(false);
         setDescriptionSuggestionsOpen(false);
+        setHasUsedAITitle(false);
+        setHasUsedAIDescription(false);
     }
   };
 
@@ -174,9 +183,9 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
               <Label htmlFor="title" className="text-card-foreground font-semibold font-inter">Title</Label>
               <Popover open={titleSuggestionsOpen} onOpenChange={setTitleSuggestionsOpen}>
                 <PopoverTrigger asChild>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => handleSuggest('title')} disabled={isSuggestingTitle} className="px-2 py-1 text-xs text-primary hover:bg-primary/10">
+                  <Button type="button" variant="ghost" size="sm" onClick={() => handleSuggest('title')} disabled={isSuggestingTitle || hasUsedAITitle} className="px-2 py-1 text-xs text-primary hover:bg-primary/10">
                     {isSuggestingTitle ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 mr-1" />}
-                    AI Suggest
+                    AI Suggest {hasUsedAITitle && "(Used)"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-2 space-y-1 neo-card" align="end">
@@ -196,9 +205,9 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
               <Label htmlFor="description" className="text-card-foreground font-semibold font-inter">Description</Label>
                <Popover open={descriptionSuggestionsOpen} onOpenChange={setDescriptionSuggestionsOpen}>
                 <PopoverTrigger asChild>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => handleSuggest('description')} disabled={isSuggestingDescription} className="px-2 py-1 text-xs text-primary hover:bg-primary/10">
+                  <Button type="button" variant="ghost" size="sm" onClick={() => handleSuggest('description')} disabled={isSuggestingDescription || hasUsedAIDescription} className="px-2 py-1 text-xs text-primary hover:bg-primary/10">
                     {isSuggestingDescription ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 mr-1" />}
-                    AI Suggest
+                    AI Suggest {hasUsedAIDescription && "(Used)"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto max-w-sm p-2 space-y-1 neo-card" align="end">
@@ -258,3 +267,4 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
     </Dialog>
   );
 }
+
