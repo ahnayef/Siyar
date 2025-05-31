@@ -9,12 +9,12 @@ import Navbar from '@/components/layout/Navbar';
 const inter = Inter({ 
   subsets: ['latin'], 
   variable: '--font-inter',
-  weight: ['400', '600', '700', '800', '900'] // Added bolder weights
+  weight: ['400', '500', '600', '700', '800'] 
 });
 
 export const metadata: Metadata = {
   title: 'ChronoFlow',
-  description: 'Neo-Brutalist Timeline Management. Visualize. Execute. Dominate.',
+  description: 'Timeline Management with Neo-Brutalist Clarity.',
 };
 
 export default function RootLayout({
@@ -27,8 +27,7 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Using the Inter variable font for more weight options if needed, or keep specific weights */}
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased bg-background text-foreground">
         <Providers>

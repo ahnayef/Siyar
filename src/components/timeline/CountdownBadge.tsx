@@ -2,10 +2,10 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { differenceInSeconds, formatDistanceStrict, intervalToDuration } from 'date-fns';
+import { differenceInSeconds, intervalToDuration } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Hourglass, CheckCircle2, AlertTriangle, Zap } from 'lucide-react';
-import { cn } from '@/lib/utils'; // Added missing import
+import { cn } from '@/lib/utils';
 
 interface CountdownBadgeProps {
   dueDate: Date | string;
@@ -16,7 +16,7 @@ const calculateTimeLeft = (targetDate: Date) => {
   const secondsRemaining = differenceInSeconds(targetDate, now);
 
   if (secondsRemaining <= 0) {
-    return { text: "Past Due", isPast: true, variant: 'destructive' as const, icon: <AlertTriangle className="h-3 w-3 mr-1" /> };
+    return { text: "Past Due", isPast: true, variant: 'destructive' as const, icon: <AlertTriangle className="h-3.5 w-3.5 mr-1" /> };
   }
 
   const duration = intervalToDuration({ start: now, end: targetDate });
@@ -25,30 +25,27 @@ const calculateTimeLeft = (targetDate: Date) => {
   if (duration.years && duration.years > 0) text += `${duration.years}y `;
   if (duration.months && duration.months > 0) text += `${duration.months}m `;
   if (duration.days && duration.days > 0) text += `${duration.days}d `;
-  // Show hours only if less than a few days, or if it's the largest unit
-  if (duration.hours && duration.hours > 0 && (!duration.days || duration.days < 3) && !duration.months && !duration.years) text += `${duration.hours}h `;
-  if (duration.minutes && duration.minutes > 0 && !duration.days && !duration.months && !duration.years) text += `${duration.minutes}min `;
-  if (duration.seconds && duration.seconds > 0 && !duration.hours && !duration.days && !duration.months && !duration.years) text += `${duration.seconds}s`;
+  if (duration.hours && duration.hours > 0 && (!duration.days || duration.days < 2) && !duration.months && !duration.years) text += `${duration.hours}h `;
+  if (duration.minutes && duration.minutes > 0 && !duration.days && !duration.months && !duration.years && !duration.hours) text += `${duration.minutes}min`;
   
-  text = text.trim() || `${secondsRemaining}s left`;
+  text = text.trim() || (secondsRemaining < 60 ? `${secondsRemaining}s` : "Soon");
 
 
   let variantStyle: 'default' | 'secondary' | 'destructive' | 'outline' = 'default';
-  let icon = <Hourglass className="h-3 w-3 mr-1" />;
+  let icon = <Hourglass className="h-3.5 w-3.5 mr-1" />;
 
   if (secondsRemaining < 3600 * 24) { // Less than 1 day
-    variantStyle = 'destructive';
-    icon = <Zap className="h-3 w-3 mr-1 text-destructive-foreground" />; // Use Zap for urgency
+    variantStyle = 'destructive'; // Red
+    icon = <Zap className="h-3.5 w-3.5 mr-1" />; 
   } else if (secondsRemaining < 3600 * 24 * 3) { // Less than 3 days
-    variantStyle = 'secondary'; // Pink
-    icon = <Hourglass className="h-3 w-3 mr-1 text-secondary-foreground" />;
+    variantStyle = 'secondary'; // Orange
+    icon = <Hourglass className="h-3.5 w-3.5 mr-1" />;
   } else { // More than 3 days
-    variantStyle = 'default'; // Yellow
-    icon = <CheckCircle2 className="h-3 w-3 mr-1 text-primary-foreground" />;
+    variantStyle = 'default'; // Blue
+    icon = <CheckCircle2 className="h-3.5 w-3.5 mr-1" />;
   }
 
-
-  return { text, isPast: false, variant: variantStyle, icon };
+  return { text: text + (secondsRemaining > 0 && text !== "Soon" ? " left" : ""), isPast: false, variant: variantStyle, icon };
 };
 
 export default function CountdownBadge({ dueDate }: CountdownBadgeProps) {
@@ -60,29 +57,27 @@ export default function CountdownBadge({ dueDate }: CountdownBadgeProps) {
 
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft(target));
-    }, 1000);
+    }, 1000 * 30); // Update less frequently for performance, e.g., every 30 secs
 
     return () => clearInterval(timer);
   }, [target, timeLeft.isPast]);
   
   if (target.toString() === "Invalid Date") {
-    return <Badge variant="outline" className="border-2 border-foreground text-xs text-muted-foreground">Invalid Date</Badge>;
+    return <Badge variant="outline" className="border-2 border-strong-border text-xs text-muted-foreground">Invalid Date</Badge>;
   }
 
-  // Custom styling for neo-brutalism: thick border, specific bg/text based on variant
-  let badgeClasses = "border-2 text-xs font-semibold px-2 py-1 shadow-[1px_1px_0px_0px_black]";
+  let badgeClasses = "border-2 border-strong-border text-xs font-medium px-2 py-0.5 shadow-neo-button-active-light rounded-sm";
   if (timeLeft.variant === 'destructive') {
-    badgeClasses += " bg-destructive text-destructive-foreground border-black";
+    badgeClasses += " bg-destructive text-destructive-foreground";
   } else if (timeLeft.variant === 'secondary') {
-    badgeClasses += " bg-secondary text-secondary-foreground border-black";
-  } else { // default variant (primary)
-    badgeClasses += " bg-primary text-primary-foreground border-black";
+    badgeClasses += " bg-secondary text-secondary-foreground";
+  } else { 
+    badgeClasses += " bg-primary text-primary-foreground";
   }
-
 
   return (
-    <div className={cn('inline-flex items-center rounded-sm', badgeClasses)}>
-      {timeLeft.icon}
+    <div className={cn('inline-flex items-center', badgeClasses)}>
+      {React.cloneElement(timeLeft.icon, {className: cn(timeLeft.icon.props.className, "text-current")})}
       {timeLeft.text}
     </div>
   );

@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -27,7 +28,6 @@ export default function LoginPage() {
         description: errorMessage,
         variant: "destructive",
       });
-      // Re-throw to be caught by AuthForm's error handler if needed, or handle specific messages here
       throw new Error(errorMessage); 
     }
   };
@@ -35,7 +35,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
       <div className="mb-8 text-center">
-        <h1 className="text-4xl font-extrabold text-primary">Log In to ChronoFlow</h1>
+        <h1 className="text-4xl font-extrabold text-foreground">Log In to ChronoFlow</h1>
         <p className="text-muted-foreground mt-2">Access your timelines and stay organized.</p>
       </div>
       <AuthForm mode="login" onSubmit={handleLogin} />

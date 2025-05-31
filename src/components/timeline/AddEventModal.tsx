@@ -128,9 +128,9 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) setAISuggestion(null); }}>
-      <DialogContent className="neo-card sm:max-w-lg border-secondary shadow-[6px_6px_0px_0px_hsl(var(--secondary))]">
+      <DialogContent className="neo-card sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-secondary">{eventToEdit ? 'Edit Event' : 'Add New Event'}</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-primary">{eventToEdit ? 'Edit Event' : 'Add New Event'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 py-4">
           <div>
@@ -159,7 +159,7 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
                       {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 neo-card border-foreground" align="start">
+                  <PopoverContent className="w-auto p-0 neo-card border-border" align="start">
                     <Calendar
                       mode="single"
                       selected={field.value}
@@ -175,20 +175,20 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
           </div>
 
           {aiSuggestion && (
-            <div className="p-3 bg-accent/20 border-l-4 border-accent rounded text-sm text-accent-foreground">
-                <p className="font-semibold">AI Suggestion: <span className="font-normal">{format(parseISO(aiSuggestion.date), 'PPP')}</span></p>
+            <div className="p-3 bg-secondary/10 border-l-4 border-secondary rounded text-sm text-foreground">
+                <p className="font-semibold text-secondary">AI Suggestion: <span className="font-normal">{format(parseISO(aiSuggestion.date), 'PPP')}</span></p>
                 <p className="text-xs text-muted-foreground mt-1">{aiSuggestion.reasoning}</p>
             </div>
           )}
 
-          <Button type="button" onClick={handleAISuggest} disabled={isAISuggesting || !eventDescriptionForAI || !user} variant="outline" className="w-full neo-button bg-accent text-accent-foreground hover:bg-accent/80 border-black shadow-[2px_2px_0px_0px_black]">
+          <Button type="button" onClick={handleAISuggest} disabled={isAISuggesting || !eventDescriptionForAI || !user} variant="outline" className="w-full neo-button-secondary">
             {isAISuggesting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
             Suggest Date with AI
           </Button>
 
           <DialogFooter>
             <DialogClose asChild>
-                <Button type="button" variant="outline" className="neo-button bg-muted text-muted-foreground hover:bg-muted/90 border-foreground shadow-[2px_2px_0px_0px_hsl(var(--foreground))]">Cancel</Button>
+                <Button type="button" variant="outline" className="neo-button-outline">Cancel</Button>
             </DialogClose>
             <Button type="submit" disabled={isLoading || !user} className="neo-button">
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

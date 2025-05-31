@@ -47,23 +47,18 @@ export default function AuthForm({ mode, onSubmit, socialLogins }: AuthFormProps
     try {
       await onSubmit(data);
     } catch (error: any) {
-      // Toast is handled by the page calling onSubmit now
-      // toast({
-      //   title: "Authentication Error",
-      //   description: error.message || "An unknown error occurred.",
-      //   variant: "destructive",
-      // });
+      // Toast is handled by the page
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 p-8 neo-card rounded-lg w-full max-w-md border-2 border-primary shadow-[6px_6px_0px_0px_hsl(var(--primary))]">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 p-8 neo-card w-full max-w-md">
       {mode === 'signup' && (
         <div className="space-y-1">
           <Label htmlFor="username" className="text-card-foreground font-semibold">Username</Label>
-          <Input id="username" type="text" {...register('username')} className="neo-input" placeholder="your_epic_username" />
+          <Input id="username" type="text" {...register('username')} className="neo-input" placeholder="your_username" />
           {errors.username && <p className="text-sm text-destructive">{errors.username.message}</p>}
         </div>
       )}
@@ -89,7 +84,7 @@ export default function AuthForm({ mode, onSubmit, socialLogins }: AuthFormProps
       </div>
       <Button type="submit" disabled={isLoading} className="w-full neo-button text-lg py-3">
         {isLoading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
-        {mode === 'login' ? 'Log In & Conquer' : 'Sign Up & Dominate'}
+        {mode === 'login' ? 'Log In' : 'Sign Up'}
       </Button>
       {socialLogins && (
         <>

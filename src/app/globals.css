@@ -4,90 +4,63 @@
 
 @layer base {
   :root {
-    /* Supercell Inspired Neo-Brutalist Dark Theme */
-    --background: 220 13% 10%; /* Very Dark Blue/Black */
-    --foreground: 0 0% 98%; /* Off-White (for general text, bright borders on dark cards) */
+    /* Figma-Inspired Neo-Brutalist Light Theme */
+    --background: 220 20% 97%; /* Very Light Grey */
+    --foreground: 220 15% 20%; /* Dark Grey/Near Black */
 
-    --card: 220 13% 14%; /* Slightly Lighter Dark for card backgrounds */
-    --card-foreground: 0 0% 98%; /* Off-White for text on cards */
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 220 15% 20%; /* Dark Grey/Near Black */
 
-    --popover: 220 13% 14%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 100%; /* White */
+    --popover-foreground: 220 15% 20%; /* Dark Grey/Near Black */
 
-    --primary: 57 98% 51%; /* Vibrant Yellow (e.g., FCEE06) */
-    --primary-foreground: 220 13% 5%; /* Very Dark (for text on yellow buttons) */
+    --primary: 217 91% 60%; /* Vibrant Blue */
+    --primary-foreground: 0 0% 100%; /* White */
 
-    --secondary: 325 93% 48%; /* Vibrant Pink (e.g., EE097C) */
-    --secondary-foreground: 0 0% 98%; /* Off-White (for text on pink elements) */
+    --secondary: 25 95% 53%; /* Bright Orange */
+    --secondary-foreground: 220 15% 15%; /* Dark for text on orange */
 
-    --muted: 220 13% 25%; /* Darker Grey for muted elements */
-    --muted-foreground: 220 10% 65%; /* Lighter Grey for muted text */
+    --muted: 220 15% 90%; /* Lighter Grey for muted elements */
+    --muted-foreground: 220 10% 45%; /* Medium Grey for muted text */
 
-    --accent: 180 96% 48%; /* Cyan/Teal (e.g., 04F4F3) */
-    --accent-foreground: 220 13% 5%; /* Very Dark (for text on cyan elements) */
-
+    --accent: 25 95% 53%; /* Bright Orange (can be same as secondary or different) */
+    --accent-foreground: 0 0% 100%; /* White for text on orange */
+    
     --destructive: 0 84.2% 60.2%; /* Standard Red */
     --destructive-foreground: 0 0% 98%; /* Off-White/White */
 
-    --border: 0 0% 98%; /* Off-White (used for main element borders like on cards) */
-    --input: 220 13% 20%; /* Darker input background */
-    --ring: 57 98% 51%; /* Vibrant Yellow for focus rings */
+    --border: 220 10% 85%; /* Light Grey border for inputs, subtle lines */
+    --strong-border: 220 15% 20%; /* Dark Grey/Black for neo-brutalist borders */
+    
+    --input: 0 0% 100%; /* White for input background */
+    --input-border: 220 10% 75%; /* Slightly darker grey for input borders */
+    --ring: 217 91% 60%; /* Vibrant Blue for focus rings */
 
-    --radius: 0.3rem; /* Sharper corners */
+    --radius: 0.3rem; /* Slightly sharper corners still, but not 0 */
 
-    --chart-1: 57 98% 51%; /* Yellow */
-    --chart-2: 325 93% 48%; /* Pink */
-    --chart-3: 180 96% 48%; /* Cyan */
-    --chart-4: 280 65% 60%; /* Purple (example) */
-    --chart-5: 340 75% 55%; /* Another Red/Orange (example) */
+    --chart-1: 217 91% 60%; /* Blue */
+    --chart-2: 25 95% 53%; /* Orange */
+    --chart-3: 150 70% 45%; /* A Green */
+    --chart-4: 280 65% 60%; /* Purple */
+    --chart-5: 340 75% 55%; /* Red/Pink */
 
-    /* Sidebar colors adapted to the new dark theme */
-    --sidebar-background: 220 13% 12%; /* Slightly different dark for sidebar */
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 57 98% 51%;
-    --sidebar-primary-foreground: 220 13% 5%;
-    --sidebar-accent: 325 93% 48%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 220 13% 20%;
-    --sidebar-ring: 57 98% 51%;
+    /* Sidebar colors adapted to the new light theme */
+    --sidebar-background: 220 20% 95%; 
+    --sidebar-foreground: 220 15% 20%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 25 95% 53%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 220 10% 85%;
+    --sidebar-ring: 217 91% 60%;
   }
 
-  .dark {
-    /* Making dark theme visually identical to the new base "light" (which is dark) theme */
-    --background: 220 13% 10%;
-    --foreground: 0 0% 98%;
-    --card: 220 13% 14%;
-    --card-foreground: 0 0% 98%;
-    --popover: 220 13% 14%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 57 98% 51%;
-    --primary-foreground: 220 13% 5%;
-    --secondary: 325 93% 48%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 220 13% 25%;
-    --muted-foreground: 220 10% 65%;
-    --accent: 180 96% 48%;
-    --accent-foreground: 220 13% 5%;
-    --destructive: 0 70% 50%; /* Slightly darker red for dark destructive */
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 98%;
-    --input: 220 13% 20%;
-    --ring: 57 98% 51%;
-
-    --sidebar-background: 220 13% 12%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 57 98% 51%;
-    --sidebar-primary-foreground: 220 13% 5%;
-    --sidebar-accent: 325 93% 48%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 220 13% 20%;
-    --sidebar-ring: 57 98% 51%;
-  }
+  /* No separate .dark class needed if default is light and it's the only theme */
 }
 
 @layer base {
   * {
-    @apply border-border; /* Default border color for elements if not overridden */
+    @apply border-border; 
   }
   body {
     @apply bg-background text-foreground;
@@ -98,23 +71,40 @@
   }
 }
 
-/* Neo-brutalism base styles updated */
+/* Neo-brutalism base styles updated for light theme */
 .neo-card {
-    /* Uses --card for bg, --foreground for border and shadow color */
-    @apply bg-card border-2 border-foreground shadow-[4px_4px_0px_0px_hsl(var(--foreground))];
+  @apply bg-card border-2 border-strong-border shadow-neo-light rounded-md;
 }
 
 .neo-button {
-    /* Specific black border and shadow for buttons, primary bg (yellow), primary-foreground text (dark) */
-    @apply border-2 border-black bg-primary text-primary-foreground 
-           font-semibold 
-           shadow-[2px_2px_0px_0px_black] 
-           hover:bg-primary/90 
-           active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0px_0px_black] 
-           transition-transform duration-75;
+  @apply border-2 border-strong-border bg-primary text-primary-foreground 
+         font-semibold 
+         shadow-neo-button-light
+         hover:bg-primary/90 
+         active:translate-x-[2px] active:translate-y-[2px] active:shadow-neo-button-active-light
+         transition-all duration-100 rounded-md;
 }
 
+.neo-button-secondary {
+   @apply border-2 border-strong-border bg-secondary text-secondary-foreground
+         font-semibold
+         shadow-neo-button-light
+         hover:bg-secondary/90
+         active:translate-x-[2px] active:translate-y-[2px] active:shadow-neo-button-active-light
+         transition-all duration-100 rounded-md;
+}
+
+.neo-button-outline {
+  @apply border-2 border-strong-border bg-card text-foreground
+         font-semibold 
+         shadow-neo-button-light
+         hover:bg-muted 
+         active:translate-x-[2px] active:translate-y-[2px] active:shadow-neo-button-active-light
+         transition-all duration-100 rounded-md;
+}
+
+
 .neo-input {
-    /* Uses --input for bg, --border for border (light), --ring (yellow) for focus */
-    @apply border-2 border-border bg-input focus:ring-2 focus:ring-ring focus:border-ring;
+  @apply border-2 border-input-border bg-input rounded-md
+         focus:ring-2 focus:ring-ring focus:border-primary;
 }

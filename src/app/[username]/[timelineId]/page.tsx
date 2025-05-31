@@ -108,7 +108,7 @@ export default function TimelineViewPage() {
       try {
         await deleteTimelineEventAction(authUser.uid, timeline.id, eventId);
         setEvents(prevEvents => prevEvents.filter(e => e.id !== eventId));
-        toast({ title: "Event Deleted", description: "The event has been obliterated." });
+        toast({ title: "Event Deleted", description: "The event has been removed." });
       } catch (err: any) {
         toast({ title: "Error Deleting Event", description: err.message, variant: "destructive" });
       }
@@ -155,8 +155,8 @@ export default function TimelineViewPage() {
           {[1, 2, 3].map(i => (
             <div key={i} className="flex items-start">
               <div className="flex flex-col items-center mr-6 mt-1">
-                <Skeleton className="w-6 h-6 bg-muted/50" /> {/* Square dot */}
-                <Skeleton className="w-1.5 h-24 mt-1 bg-muted/50" /> {/* Stem */}
+                <Skeleton className="w-8 h-8 bg-muted/50 rounded-sm" /> {/* Square dot */}
+                <Skeleton className="w-1.5 h-24 mt-2 bg-muted/50" /> {/* Stem */}
               </div>
               <Skeleton className="h-40 w-full rounded-lg flex-1 bg-muted/30" />
             </div>
@@ -169,7 +169,7 @@ export default function TimelineViewPage() {
   if (error) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
-        <div className="neo-card p-8 rounded-lg">
+        <div className="neo-card p-8">
           <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-4" />
           <h2 className="text-3xl font-bold mb-2 text-destructive">Access Denied or Not Found</h2>
           <p className="text-muted-foreground mb-6">{error}</p>
@@ -180,10 +180,9 @@ export default function TimelineViewPage() {
   }
 
   if (!timeline) {
-    // This case should ideally be covered by error or loading, but as a fallback:
     return (
       <div className="container mx-auto px-4 py-16 text-center">
-        <div className="neo-card p-8 rounded-lg">
+        <div className="neo-card p-8">
           <AlertTriangle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <h2 className="text-3xl font-bold mb-2 text-muted-foreground">Timeline Not Found</h2>
           <p className="text-muted-foreground mb-6">The requested timeline could not be loaded.</p>
@@ -198,34 +197,34 @@ export default function TimelineViewPage() {
       <HeaderBar timeline={timeline} onAddEventClick={handleAddEventClick} />
       <div className="container mx-auto px-4 py-8">
         {events.length === 0 ? (
-          <div className="text-center py-12 neo-card rounded-lg">
+          <div className="text-center py-12 neo-card">
             <CalendarPlus className="h-20 w-20 text-muted-foreground mx-auto mb-6" />
-            <h2 className="text-3xl font-bold text-primary mb-3">Timeline Is Blank!</h2>
-            <p className="text-muted-foreground mb-6 max-w-md mx-auto">This timeline craves events. {isOwner ? "Forge the first one to kick things off." : "The creator hasn't added any events yet."}</p>
+            <h2 className="text-3xl font-bold text-primary mb-3">Timeline Is Empty!</h2>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              This timeline is awaiting its first event. {isOwner ? "Add an event to get started." : "The creator hasn't added any events yet."}
+            </p>
             {isOwner && <Button size="lg" onClick={handleAddEventClick} className="neo-button">Add First Event</Button>}
           </div>
         ) : (
-          <div className="relative">
-            {/* This div could act as the main timeline line if needed, but we'll draw per segment */}
+          <div className="relative pl-5"> {/* Padding for the stem and markers */}
             {events.map((event, index) => (
-              <div key={event.id} className="flex items-start mb-10 md:mb-12">
-                {/* Timestamp & Connector */}
-                <div className="flex flex-col items-center mr-4 md:mr-8 shrink-0">
-                  {/* Event Marker (Square) */}
+              <div key={event.id} className="flex items-start mb-12 relative">
+                {/* Event Marker (Square) & Stem */}
+                <div className="absolute left-[-20px] top-1 flex flex-col items-center h-full">
                   <div className={`
-                    w-6 h-6 border-2 bg-card flex-shrink-0 mt-1
+                    w-6 h-6 border-2 bg-card flex-shrink-0 z-10 rounded-sm
                     ${event.id === nextUpcomingEventId 
-                      ? 'border-primary ring-2 ring-primary shadow-[2px_2px_0px_0px_hsl(var(--primary))]' 
-                      : 'border-foreground shadow-[2px_2px_0px_0px_hsl(var(--foreground))]'}
+                      ? 'border-primary bg-primary shadow-neo-button-light' 
+                      : 'border-strong-border bg-muted shadow-neo-button-light'}
                   `}></div>
                   {/* Vertical Line connecting to next event */}
                   {index < events.length - 1 && (
-                    <div className="w-1.5 flex-grow bg-primary mt-1 min-h-[6rem] md:min-h-[8rem]"></div>
+                    <div className="w-1 flex-grow bg-strong-border mt-1 min-h-[calc(100%_-_1.5rem)]"></div>
                   )}
                 </div>
 
                 {/* Event Card (takes remaining space) */}
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 ml-8"> {/* Margin to accommodate marker and stem */}
                   <EventCard
                     event={event}
                     previousEventDueDate={index > 0 ? events[index - 1].dueDate : null}

@@ -71,19 +71,19 @@ export default function CreateTimelineModal({ onTimelineCreated }: CreateTimelin
           <PlusCircle className="mr-2 h-5 w-5" /> Create New Timeline
         </Button>
       </DialogTrigger>
-      <DialogContent className="neo-card sm:max-w-[425px] border-primary shadow-[6px_6px_0px_0px_hsl(var(--primary))]">
+      <DialogContent className="neo-card sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-primary">Forge a New Timeline</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-primary">New Timeline</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 py-4">
           <div className="space-y-1">
             <Label htmlFor="title" className="text-card-foreground font-semibold">Timeline Title</Label>
-            <Input id="title" {...register('title')} className="neo-input" placeholder="e.g., Project Overlord Launch" />
+            <Input id="title" {...register('title')} className="neo-input" placeholder="e.g., My Next Big Project" />
             {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
           </div>
           <DialogFooter>
             <DialogClose asChild>
-                <Button type="button" variant="outline" className="neo-button bg-muted text-muted-foreground hover:bg-muted/90 border-foreground shadow-[2px_2px_0px_0px_hsl(var(--foreground))]">Cancel</Button>
+                <Button type="button" variant="outline" className="neo-button-outline">Cancel</Button>
             </DialogClose>
             <Button type="submit" disabled={isLoading || !user} className="neo-button">
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

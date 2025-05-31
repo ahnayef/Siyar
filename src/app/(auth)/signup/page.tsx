@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -14,7 +15,6 @@ export default function SignupPage() {
 
   const handleSignup = async (data: any) => {
     try {
-      // Check if username already exists
       const usernameDocRef = doc(db, "usernames", data.username.toLowerCase());
       const usernameDocSnap = await getDoc(usernameDocRef);
       if (usernameDocSnap.exists()) {
@@ -25,7 +25,6 @@ export default function SignupPage() {
       const user = userCredential.user;
 
       if (user) {
-        // Store user profile in Firestore
         const userDocRef = doc(db, "users", user.uid);
         await setDoc(userDocRef, {
           uid: user.uid,
@@ -33,7 +32,6 @@ export default function SignupPage() {
           username: data.username,
           createdAt: serverTimestamp(),
         });
-        // Store username for uniqueness check
         await setDoc(usernameDocRef, { userId: user.uid });
       }
       
@@ -59,7 +57,7 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
       <div className="mb-8 text-center">
-        <h1 className="text-4xl font-extrabold text-primary">Create Your ChronoFlow Account</h1>
+        <h1 className="text-4xl font-extrabold text-foreground">Create Your ChronoFlow Account</h1>
         <p className="text-muted-foreground mt-2">Start managing your timelines like a pro.</p>
       </div>
       <AuthForm mode="signup" onSubmit={handleSignup} />

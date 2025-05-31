@@ -2,7 +2,7 @@
 import type {Config} from 'tailwindcss';
 
 export default {
-  darkMode: ['class'],
+  darkMode: ['class'], // Keeping this in case a dark theme toggle is re-added later
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -12,7 +12,7 @@ export default {
     extend: {
       fontFamily: {
         body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'], // Can specify bolder default weight here if needed
+        headline: ['Inter', 'sans-serif'], 
         code: ['monospace'],
       },
       colors: {
@@ -46,11 +46,13 @@ export default {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
-        border: 'hsl(var(--border))', // Main border color (light for dark theme)
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))', // Focus ring (primary/yellow)
-        'button-border': '#000000', // Specific black for button borders
-        'button-shadow': '#000000', // Specific black for button shadows
+        border: 'hsl(var(--border))',
+        'strong-border': 'hsl(var(--strong-border))',
+        input: {
+          DEFAULT: 'hsl(var(--input))',
+          border: 'hsl(var(--input-border))',
+        },
+        ring: 'hsl(var(--ring))',
         chart: {
           '1': 'hsl(var(--chart-1))',
           '2': 'hsl(var(--chart-2))',
@@ -70,10 +72,10 @@ export default {
         },
       },
       borderRadius: {
-        lg: 'var(--radius)', // Default 0.3rem
-        md: 'calc(var(--radius) - 0.1rem)', // e.g., 0.2rem
-        sm: 'calc(var(--radius) - 0.15rem)', // e.g., 0.15rem
-        none: '0px', // For explicitly sharp corners
+        lg: 'var(--radius)', 
+        md: 'calc(var(--radius) - 0.1rem)', 
+        sm: 'calc(var(--radius) - 0.15rem)',
+        none: '0px',
       },
       keyframes: {
         'accordion-down': {
@@ -103,13 +105,9 @@ export default {
         'event-entry': 'event-entry 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
       },
       boxShadow: {
-        // For cards, using foreground (light) shadow on dark bg
-        'neo-sm': '2px 2px 0px 0px hsl(var(--foreground))',
-        'neo': '4px 4px 0px 0px hsl(var(--foreground))',
-        'neo-lg': '6px 6px 0px 0px hsl(var(--foreground))',
-        // For buttons, specific black shadow
-        'neo-button': '2px 2px 0px 0px #000000',
-        'neo-button-active': '1px 1px 0px 0px #000000',
+        'neo-light': '4px 4px 0px 0px hsl(var(--strong-border))',
+        'neo-button-light': '3px 3px 0px 0px hsl(var(--strong-border))',
+        'neo-button-active-light': '1px 1px 0px 0px hsl(var(--strong-border))',
       }
     },
   },

@@ -48,13 +48,19 @@ export default function VisibilityToggle({ timelineId, initialIsPublic }: Visibi
   };
 
   return (
-    <Button onClick={handleToggle} disabled={isLoading || !user} variant="outline" size="sm" className="neo-button bg-card text-card-foreground hover:bg-accent hover:text-accent-foreground">
+    <Button 
+        onClick={handleToggle} 
+        disabled={isLoading || !user} 
+        variant="outline" 
+        size="sm" 
+        className="neo-button-outline px-3 py-1.5 text-sm"
+    >
       {isLoading ? (
         <Loader2 className="h-4 w-4 animate-spin mr-2" />
       ) : isPublic ? (
-        <Unlock className="h-4 w-4 mr-2" />
+        <Unlock className="h-4 w-4 mr-1.5 text-primary" />
       ) : (
-        <Lock className="h-4 w-4 mr-2" />
+        <Lock className="h-4 w-4 mr-1.5 text-muted-foreground" />
       )}
       {isPublic ? 'Public' : 'Private'}
     </Button>

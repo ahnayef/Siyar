@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { LogOut, LogIn, UserPlus, LayoutDashboard, Home } from 'lucide-react';
+import { LogOut, LogIn, UserPlus, LayoutDashboard, HomeIcon } from 'lucide-react'; // Changed Home to HomeIcon
 
 export default function Navbar() {
   const { user, userProfile, loading } = useAuth();
@@ -23,37 +23,39 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md shadow-md border-b-2 border-black">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md shadow-sm border-b-2 border-strong-border">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="text-2xl font-extrabold text-primary hover:opacity-80 transition-opacity flex items-center gap-2">
-          <Home className="h-6 w-6"/>
+          <HomeIcon className="h-6 w-6 text-primary"/>
           ChronoFlow
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {loading ? (
             <div className="w-24 h-9 bg-muted rounded animate-pulse"></div>
           ) : user ? (
             <>
-              <span className="text-sm hidden md:inline text-muted-foreground">Welcome, {userProfile?.username || user.email}</span>
-              <Button variant="ghost" size="sm" asChild className="neo-button bg-card text-card-foreground hover:bg-muted hover:text-muted-foreground border-foreground shadow-[2px_2px_0px_0px_hsl(var(--foreground))]">
+              <span className="text-sm hidden md:inline text-muted-foreground">
+                Hi, {userProfile?.username || user.email?.split('@')[0]}
+              </span>
+              <Button variant="ghost" size="sm" asChild className="neo-button-outline px-3 py-1.5 text-sm">
                 <Link href="/dashboard">
-                  <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
+                  <LayoutDashboard className="mr-1.5 h-4 w-4" /> Dashboard
                 </Link>
               </Button>
-              <Button variant="ghost" size="icon" onClick={handleSignOut} className="neo-button bg-destructive text-destructive-foreground hover:bg-destructive/90" title="Sign Out">
+              <Button variant="ghost" size="icon" onClick={handleSignOut} className="neo-button bg-destructive text-destructive-foreground hover:bg-destructive/90 w-9 h-9" title="Sign Out">
                 <LogOut className="h-5 w-5" />
               </Button>
             </>
           ) : (
             <>
-              <Button variant="ghost" size="sm" asChild className="neo-button">
+              <Button variant="ghost" size="sm" asChild className="neo-button px-4 py-1.5 text-sm">
                 <Link href="/login">
-                  <LogIn className="mr-2 h-4 w-4" /> Login
+                  <LogIn className="mr-1.5 h-4 w-4" /> Login
                 </Link>
               </Button>
-              <Button variant="ghost" size="sm" asChild className="neo-button bg-card text-card-foreground hover:bg-muted hover:text-muted-foreground border-foreground shadow-[2px_2px_0px_0px_hsl(var(--foreground))]">
+              <Button variant="ghost" size="sm" asChild className="neo-button-outline px-3 py-1.5 text-sm">
                 <Link href="/signup">
-                  <UserPlus className="mr-2 h-4 w-4" /> Sign Up
+                  <UserPlus className="mr-1.5 h-4 w-4" /> Sign Up
                 </Link>
               </Button>
             </>
