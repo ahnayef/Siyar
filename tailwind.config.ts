@@ -9,6 +9,13 @@ export default {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
     extend: {
       fontFamily: {
         'archivo': ['"Archivo Black"', 'sans-serif'],
@@ -81,7 +88,7 @@ export default {
         lg: 'var(--radius)', 
         md: 'calc(var(--radius) - 0.1rem)', 
         sm: 'calc(var(--radius) - 0.15rem)',
-        '4px': '4px', // specific radius from guide
+        '4px': '4px', 
         none: '0px',
       },
       keyframes: {
@@ -112,11 +119,9 @@ export default {
         'event-entry': 'event-entry 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
       },
       boxShadow: {
-        // As per guide: Drop shadow offset (5px, 5px) for Timeline Card
-        // Using --strong-border-color for the shadow color
         'neo': '5px 5px 0px 0px hsl(var(--strong-border-color))',
-        'neo-hover': '3px 3px 0px 0px hsl(var(--strong-border-color))', // Example hover
-        'neo-active': '1px 1px 0px 0px hsl(var(--strong-border-color))', // Example active
+        'neo-hover': '3px 3px 0px 0px hsl(var(--strong-border-color))',
+        'neo-active': '1px 1px 0px 0px hsl(var(--strong-border-color))', 
       }
     },
   },

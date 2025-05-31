@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import type { Timeline, TimelineEvent, UserProfile } from '@/types';
@@ -11,7 +11,7 @@ import EventCard from '@/components/timeline/EventCard';
 import AddEventModal from '@/components/timeline/AddEventModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, CalendarPlus } from 'lucide-react';
+import { AlertTriangle, CalendarPlus, Smile } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { deleteTimelineEventAction } from '@/actions/timelineActions';
 
@@ -54,7 +54,7 @@ export default function TimelineViewPage() {
         const timelineData = await getTimelineByUsernameAndId(username, timelineId);
 
         if (!timelineData) {
-          throw new Error("Timeline not found.");
+          throw new Error("Timeline not found or you may not have access.");
         }
         
         if (!timelineData.isPublic && (!authUser || authUser.uid !== timelineData.userId)) {
@@ -63,6 +63,7 @@ export default function TimelineViewPage() {
         
         setTimeline(timelineData);
         const eventData = await getTimelineEvents(timelineId);
+        // Ensure events are sorted by due date after fetching
         setEvents(eventData.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime()));
 
       } catch (err: any) {
@@ -76,12 +77,13 @@ export default function TimelineViewPage() {
       }
     };
 
-    if (!authLoading) {
+    if (!authLoading) { // Only fetch data once auth state is resolved
         fetchData();
     }
-  }, [username, timelineId, authUser, authLoading, toast]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [username, timelineId, authUser, authLoading]); // toast removed to prevent excessive calls on toast obj change
 
-  const isOwner = authUser?.uid === timeline?.userId;
+  const isOwner = useMemo(() => authUser?.uid === timeline?.userId, [authUser, timeline]);
 
   const handleAddEventClick = () => {
     if (!isOwner) return;
@@ -118,10 +120,11 @@ export default function TimelineViewPage() {
   const handleEventAddedOrUpdated = (newEventOrUpdatedEvent: TimelineEvent) => {
     const processedEvent = {
       ...newEventOrUpdatedEvent,
+      // Ensure dueDate is a Date object, might already be if types are consistent
       dueDate: new Date(newEventOrUpdatedEvent.dueDate) 
     };
 
-    if (timeline) {
+    if (timeline) { // Check if timeline is loaded
       setEvents(prevEvents => {
         const existingEventIndex = prevEvents.findIndex(e => e.id === processedEvent.id);
         let newEventsList;
@@ -131,20 +134,21 @@ export default function TimelineViewPage() {
         } else {
           newEventsList = [...prevEvents, processedEvent];
         }
+        // Sort events by due date after adding/updating
         return newEventsList.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
       });
     }
   };
   
-  const getNextUpcomingEventId = (currentEvents: TimelineEvent[]) => {
+  // Memoize the calculation of the next upcoming event ID
+  const nextUpcomingEventId = useMemo(() => {
     const now = new Date();
-    const upcoming = currentEvents
+    const upcoming = events
       .filter(event => event.dueDate.getTime() > now.getTime())
-      .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
+      .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime()); // Already sorted, but good to be sure
     return upcoming.length > 0 ? upcoming[0].id : null;
-  };
+  }, [events]);
 
-  const nextUpcomingEventId = useMemo(() => getNextUpcomingEventId(events), [events]);
 
   if (authLoading || (isLoading && !error && !timeline && !params.username && !params.timelineId)) {
     return (
@@ -155,10 +159,10 @@ export default function TimelineViewPage() {
           {[1, 2, 3].map(i => (
             <div key={i} className="flex items-start">
               <div className="flex flex-col items-center mr-6 mt-1">
-                <Skeleton className="w-8 h-8 bg-muted/50 rounded-sm" /> {/* Square dot */}
-                <Skeleton className="w-1.5 h-24 mt-2 bg-muted/50 rounded-sm" /> {/* Stem */}
+                <Skeleton className="w-8 h-8 bg-primary/30 rounded-sm" /> {/* Square dot */}
+                <Skeleton className="w-1.5 h-24 mt-2 bg-strong-border-color/30 rounded-sm" /> {/* Stem */}
               </div>
-              <Skeleton className="h-40 w-full rounded-[4px] flex-1 bg-muted/30" />
+              <Skeleton className="h-40 w-full rounded-[4px] flex-1 bg-card/80 border-2 border-strong-border-color/20" />
             </div>
           ))}
         </div>
@@ -179,14 +183,14 @@ export default function TimelineViewPage() {
     );
   }
 
-  if (!timeline) {
+  if (!timeline) { // Should be caught by error state if timelineData is null due to access
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <div className="neo-card p-8">
-          <AlertTriangle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <h2 className="text-3xl font-bold mb-2 text-muted-foreground">Timeline Not Found</h2>
-          <p className="text-muted-foreground mb-6 text-body-md">The requested timeline could not be loaded.</p>
-          <Button onClick={() => router.push('/dashboard')} className="neo-button">Go to Dashboard</Button>
+          <Smile className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+          <h2 className="text-3xl font-bold mb-2 text-muted-foreground">Timeline Loading...</h2>
+          <p className="text-muted-foreground mb-6 text-body-md">Just a moment, fetching the details.</p>
+           <Button onClick={() => router.push('/dashboard')} className="neo-button">Go to Dashboard</Button>
         </div>
       </div>
     );
@@ -211,13 +215,13 @@ export default function TimelineViewPage() {
               <div key={event.id} className="flex items-start mb-12 relative">
                 {/* Event Marker (Square) & Stem */}
                 <div className="absolute left-[-20px] top-1 flex flex-col items-center h-full">
-                  <div className={`
+                  <div className={cn(`
                     w-6 h-6 border-2 bg-card flex-shrink-0 z-10 rounded-sm
-                    border-strong-border-color
-                    ${event.id === nextUpcomingEventId 
-                      ? 'bg-primary shadow-neo' 
-                      : 'bg-muted shadow-neo'}
-                  `}></div>
+                    shadow-neo-active`,
+                    event.id === nextUpcomingEventId 
+                      ? 'border-primary bg-primary/20 animate-pulse-strong-border' 
+                      : 'border-strong-border-color bg-muted'
+                  )}></div>
                   {/* Vertical Line connecting to next event */}
                   {index < events.length - 1 && (
                     <div className="w-1 flex-grow bg-strong-border-color mt-1 min-h-[calc(100%_-_1.5rem)]"></div>

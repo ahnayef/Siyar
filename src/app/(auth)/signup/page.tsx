@@ -8,10 +8,20 @@ import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import AuthForm from '@/components/auth/AuthForm';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { useEffect } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function SignupPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.push('/dashboard');
+    }
+  }, [user, authLoading, router]);
 
   const handleSignup = async (data: any) => {
     try {
@@ -22,17 +32,17 @@ export default function SignupPage() {
       }
 
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-      const user = userCredential.user;
+      const userFB = userCredential.user;
 
-      if (user) {
-        const userDocRef = doc(db, "users", user.uid);
+      if (userFB) {
+        const userDocRef = doc(db, "users", userFB.uid);
         await setDoc(userDocRef, {
-          uid: user.uid,
-          email: user.email,
+          uid: userFB.uid,
+          email: userFB.email,
           username: data.username,
           createdAt: serverTimestamp(),
         });
-        await setDoc(usernameDocRef, { userId: user.uid });
+        await setDoc(usernameDocRef, { userId: userFB.uid });
       }
       
       toast({ title: "Signup Successful", description: "Welcome to ChronoFlow!" });
@@ -53,6 +63,15 @@ export default function SignupPage() {
       throw new Error(errorMessage);
     }
   };
+
+  if (authLoading || user) {
+     return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
+        <Skeleton className="h-12 w-1/2 mb-4 bg-muted/30" />
+        <Skeleton className="h-48 w-full max-w-md bg-muted/20" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">

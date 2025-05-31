@@ -32,6 +32,11 @@ function DashboardContent() {
     setTimelines(prevTimelines => [newTimeline, ...prevTimelines]);
   };
 
+  const handleTimelineDeleted = (deletedTimelineId: string) => {
+    setTimelines(prevTimelines => prevTimelines.filter(timeline => timeline.id !== deletedTimelineId));
+  };
+
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -63,7 +68,7 @@ function DashboardContent() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {timelines.map((timeline) => (
-            <TimelineCard key={timeline.id} timeline={timeline} />
+            <TimelineCard key={timeline.id} timeline={timeline} onTimelineDeleted={handleTimelineDeleted} />
           ))}
         </div>
       )}

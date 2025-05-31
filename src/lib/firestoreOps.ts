@@ -11,16 +11,16 @@ import {
   where,
   orderBy,
   serverTimestamp,
-  Timestamp as FirebaseTimestamp, // Renamed to avoid confusion with a potential global Timestamp
+  Timestamp as FirebaseTimestamp, 
   runTransaction,
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Timeline, TimelineEvent, UserProfile } from '@/types';
 
-// Helper to convert Firestore Timestamps to Date objects in fetched data
 const processDoc = <T extends { id: string }>(docSnap: any): T => {
   const data = docSnap.data() as any;
-  if (!data) return { id: docSnap.id, ...data } as T; // Should not happen if docSnap.exists()
+  if (!data) return { id: docSnap.id, ...data } as T; 
   const processedData: any = { id: docSnap.id, ...data };
   for (const key in processedData) {
     if (processedData[key] instanceof FirebaseTimestamp) {
@@ -38,7 +38,7 @@ const processTimelineEvent = (docSnap: any): TimelineEvent => {
     dueDate: data.dueDate instanceof FirebaseTimestamp ? data.dueDate.toDate() : new Date(data.dueDate),
     createdAt: data.createdAt instanceof FirebaseTimestamp ? data.createdAt.toDate() : new Date(data.createdAt),
     updatedAt: data.updatedAt instanceof FirebaseTimestamp ? data.updatedAt.toDate() : new Date(data.updatedAt),
-  } as TimelineEvent; // Cast is okay if types/index.ts uses Date
+  } as TimelineEvent; 
 };
 
 const processTimeline = (docSnap: any): Timeline => {
@@ -48,7 +48,7 @@ const processTimeline = (docSnap: any): Timeline => {
       ...data,
       createdAt: data.createdAt instanceof FirebaseTimestamp ? data.createdAt.toDate() : new Date(data.createdAt),
       updatedAt: data.updatedAt instanceof FirebaseTimestamp ? data.updatedAt.toDate() : new Date(data.updatedAt),
-    } as Timeline; // Cast is okay if types/index.ts uses Date
+    } as Timeline; 
 }
 
 
@@ -65,7 +65,6 @@ export const createTimeline = async (userId: string, username: string, title: st
   };
   const newTimelineRef = await addDoc(timelinesColRef, newTimelineData);
   
-  // Fetch the newly created document to get server-resolved timestamps
   const newTimelineSnap = await getDoc(newTimelineRef);
   if (!newTimelineSnap.exists()) {
     throw new Error("Failed to create timeline: document not found after creation.");
@@ -102,12 +101,28 @@ export const updateTimelineVisibility = async (timelineId: string, isPublic: boo
   });
 };
 
-// Events - Omit type now refers to the updated TimelineEvent with JS Dates
+export const deleteTimeline = async (timelineId: string): Promise<void> => {
+  // Delete all events in the timeline first (batched delete)
+  const eventsColRef = collection(db, 'timelines', timelineId, 'events');
+  const eventsSnapshot = await getDocs(eventsColRef);
+  const batch = writeBatch(db);
+  eventsSnapshot.docs.forEach(eventDoc => {
+    batch.delete(eventDoc.ref);
+  });
+  await batch.commit();
+
+  // Then delete the timeline document itself
+  const timelineDocRef = doc(db, 'timelines', timelineId);
+  await deleteDoc(timelineDocRef);
+};
+
+
+// Events
 export const addEventToTimeline = async (timelineId: string, eventData: Omit<TimelineEvent, 'id' | 'timelineId' | 'createdAt' | 'updatedAt'>): Promise<string> => {
   const eventsColRef = collection(db, 'timelines', timelineId, 'events');
   const newEventRef = await addDoc(eventsColRef, {
     ...eventData,
-    dueDate: FirebaseTimestamp.fromDate(eventData.dueDate), // Convert JS Date to Firestore Timestamp for storage
+    dueDate: FirebaseTimestamp.fromDate(eventData.dueDate), 
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
@@ -125,7 +140,7 @@ export const updateTimelineEvent = async (timelineId: string, eventId: string, e
   const eventDocRef = doc(db, 'timelines', timelineId, 'events', eventId);
   const updatePayload: any = { ...eventData, updatedAt: serverTimestamp() };
   if (eventData.dueDate) {
-    updatePayload.dueDate = FirebaseTimestamp.fromDate(eventData.dueDate); // Convert JS Date to Firestore Timestamp
+    updatePayload.dueDate = FirebaseTimestamp.fromDate(eventData.dueDate); 
   }
   await updateDoc(eventDocRef, updatePayload);
 };
@@ -143,18 +158,16 @@ export const getUserByUsername = async (username: string): Promise<UserProfile |
   if (querySnapshot.empty) {
     return null;
   }
-  // Assuming UserProfile in types/index.ts has createdAt as Date after processing
   const userDoc = querySnapshot.docs[0];
   const data = userDoc.data();
   return {
-      uid: userDoc.id,
+      uid: userDoc.id, // Use userDoc.id for uid as it's the document ID
       email: data.email,
       username: data.username,
       createdAt: data.createdAt instanceof FirebaseTimestamp ? data.createdAt.toDate() : new Date(data.createdAt)
   } as UserProfile;
 };
 
-// Function to get all events data for a user for AI suggestions
 export const getAllUserEventsForAI = async (userId: string): Promise<string> => {
   const userTimelines = await getUserTimelines(userId);
   let allEventsString = "";
@@ -162,7 +175,6 @@ export const getAllUserEventsForAI = async (userId: string): Promise<string> => 
   for (const timeline of userTimelines) {
     const events = await getTimelineEvents(timeline.id);
     events.forEach(event => {
-      // event.dueDate is now a JS Date
       allEventsString += `Timeline: ${timeline.title}, Event: ${event.title}, Description: ${event.description}, Due: ${event.dueDate.toISOString().split('T')[0]};\n`;
     });
   }
