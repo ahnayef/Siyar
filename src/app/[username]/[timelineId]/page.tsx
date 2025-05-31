@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { AlertTriangle, CalendarPlus, Smile } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { deleteTimelineEventAction } from '@/actions/timelineActions';
+import { cn } from '@/lib/utils'; // Added import
 
 export default function TimelineViewPage() {
   const params = useParams();
