@@ -61,7 +61,7 @@ export default function VisibilityToggle({ timelineId, initialIsPublic, classNam
         onClick={handleToggle} 
         disabled={isLoading || !user} 
         variant="outline" 
-        className={cn("neo-button-outline px-2 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm h-8 sm:h-auto", className)}
+        className={cn("neo-button-outline", className)}
     >
       {isLoading ? (
         <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin mr-1 sm:mr-1.5" />
@@ -70,8 +70,7 @@ export default function VisibilityToggle({ timelineId, initialIsPublic, classNam
       ) : (
         <Lock className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-1.5 text-muted-foreground" />
       )}
-      <span className="hidden sm:inline">{isPublic ? 'Public' : 'Private'}</span>
-      <span className="sm:hidden">{isPublic ? 'Pub' : 'Priv'}</span>
+      <span className="inline">{isPublic ? 'Public' : 'Private'}</span>
     </Button>
   );
 }

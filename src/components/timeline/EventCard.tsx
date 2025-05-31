@@ -70,7 +70,7 @@ export default function EventCard({ event, isNextUpcoming, onEdit, onDelete, isO
     "text-body-md text-card-foreground/90 whitespace-pre-wrap mb-3", 
     {
       'line-through text-muted-foreground': isEventOverdue,
-      'line-through text-muted-foreground': eventStatus === 'complete' 
+      'line-through': eventStatus === 'complete' 
     }
   );
   
@@ -79,7 +79,11 @@ export default function EventCard({ event, isNextUpcoming, onEdit, onDelete, isO
   );
 
   return (
-    <Card className={cardClasses}>
+    <Card 
+    style={{
+      background: isNextUpcoming ? 'linear-gradient(135deg,#f6fffa,#defaea)' : 'transparent',
+     }}
+    className={cardClasses}>
       {isEventOverdue && (
         <div className="absolute top-2 right-2 bg-destructive text-destructive-foreground font-archivo p-1 px-3 text-xs border-2 border-strong-border-color shadow-neo-active rounded-[4px] z-10">
           OVERDUE

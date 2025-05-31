@@ -275,8 +275,8 @@ export default function TimelineViewPage() {
                       </div>
                     </div>
                   )}
-                  <div className="flex items-start mb-12 relative" id={`event-${event.id}`}>
-                    <div className="absolute left-[-20px] top-1 flex flex-col items-center"> 
+                  <div className="h-full flex items-start mb-12 relative" id={`event-${event.id}`}>
+                    <div className="absolute left-[-20px] top-1 flex flex-col items-center h-full"> 
                        <div className={cn(`
                         w-6 h-6 border-2 flex-shrink-0 z-10 rounded-sm
                         shadow-neo-active`,
@@ -286,7 +286,7 @@ export default function TimelineViewPage() {
                       )}></div>
                       {index < events.length - 1 && ( 
                         <div className={cn(
-                            "w-1 flex-grow bg-strong-border-color mt-1 min-h-[12rem]", // Increased min-height
+                            "w-1 flex-grow bg-strong-border-color h-full",
                         )}></div>
                       )}
                     </div>

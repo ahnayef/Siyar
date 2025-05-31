@@ -67,7 +67,9 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
       if (eventToEdit) {
         setValue('title', eventToEdit.title);
         setValue('description', eventToEdit.description || '');
-        setValue('dueDate', eventToEdit.dueDate ? new Date(eventToEdit.dueDate) : undefined);
+        if (eventToEdit.dueDate) {
+          setValue('dueDate', new Date(eventToEdit.dueDate));
+        }
       } else {
         reset({ title: '', description: '', dueDate: undefined });
       }
@@ -267,7 +269,7 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
 
           <DialogFooter>
             <DialogClose asChild>
-                <Button type="button" variant="outline" className="neo-button-outline">Cancel</Button>
+                <Button type="button" variant="outline" className="neo-button-outline my-5 md:my-0">Cancel</Button>
             </DialogClose>
             <Button type="submit" disabled={isLoading || !user} className="neo-button">
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
