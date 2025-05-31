@@ -26,7 +26,7 @@ export async function createTimelineAction(userId: string, username: string, tit
     throw new Error(validationResult.error.errors.map(e => e.message).join(", "));
   }
   // User ID and username validation is primarily for existence, actual authorization is by ownership.
-  if (!userId || !username) {
+  if (!userId || !username) { // This check is somewhat redundant due to Zod but kept for explicitness if Zod changes
     throw new Error("User ID and username are required.");
   }
   const newTimeline = await createTimelineDbOp(userId, username, title); 
@@ -37,6 +37,9 @@ export async function createTimelineAction(userId: string, username: string, tit
 export async function deleteTimelineAction(userId: string, timelineId: string): Promise<void> {
   if (!userId) {
     throw new Error("User ID is required.");
+  }
+  if (!timelineId) {
+    throw new Error("Timeline ID is required.");
   }
   const timelineDocRef = doc(db, "timelines", timelineId);
   const timelineDocSnap = await getDoc(timelineDocRef);
@@ -55,6 +58,9 @@ export async function deleteTimelineAction(userId: string, timelineId: string): 
 export async function updateTimelineVisibilityAction(userId: string, timelineId: string, isPublic: boolean): Promise<void> {
   if (!userId) {
     throw new Error("User ID is required.");
+  }
+  if (!timelineId) {
+    throw new Error("Timeline ID is required.");
   }
   const timelineDocRef = doc(db, "timelines", timelineId);
   const timelineDocSnap = await getDoc(timelineDocRef);
@@ -77,6 +83,9 @@ export async function addEventToTimelineAction(
 ): Promise<TimelineEvent> {
   if (!userId) {
     throw new Error("User ID is required.");
+  }
+  if (!timelineId) {
+    throw new Error("Timeline ID is required.");
   }
   const timelineDocRef = doc(db, "timelines", timelineId);
   const timelineDocSnap = await getDoc(timelineDocRef);
@@ -134,6 +143,12 @@ export async function updateTimelineEventAction(
   if (!userId) {
     throw new Error("User ID is required.");
   }
+  if (!timelineId) {
+    throw new Error("Timeline ID is required.");
+  }
+  if (!eventId) {
+    throw new Error("Event ID is required.");
+  }
   const timelineDocRef = doc(db, "timelines", timelineId);
   const timelineDocSnap = await getDoc(timelineDocRef);
 
@@ -190,6 +205,12 @@ export async function deleteTimelineEventAction(userId: string, timelineId: stri
   if (!userId) {
     throw new Error("User ID is required.");
   }
+  if (!timelineId) {
+    throw new Error("Timeline ID is required.");
+  }
+  if (!eventId) {
+    throw new Error("Event ID is required.");
+  }
   const timelineDocRef = doc(db, "timelines", timelineId);
   const timelineDocSnap = await getDoc(timelineDocRef);
 
@@ -212,3 +233,4 @@ export async function deleteTimelineEventAction(userId: string, timelineId: stri
     revalidatePath(`/${username}/${timelineId}`);
   }
 }
+
