@@ -116,15 +116,4 @@
     @apply border-2 border-foreground focus:ring-2 focus:ring-accent focus:border-accent;
 }
 
-/* For timeline connection lines */
-.timeline-line-vertical::before {
-  content: '';
-  @apply absolute left-1/2 top-0 bottom-0 w-0.5 bg-foreground -translate-x-1/2;
-  z-index: -1; /* Ensure it's behind event cards */
-}
-
-.timeline-line-horizontal::before {
-  content: '';
-  @apply absolute top-1/2 left-0 right-0 h-0.5 bg-foreground -translate-y-1/2;
-  z-index: -1; /* Ensure it's behind event cards */
-}
+/* Removed timeline-line-vertical and timeline-line-horizontal as they are no longer used by the new layout */

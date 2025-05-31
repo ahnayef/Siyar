@@ -11,10 +11,9 @@ import EventCard from '@/components/timeline/EventCard';
 import AddEventModal from '@/components/timeline/AddEventModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Lock, AlertTriangle, Unlock } from 'lucide-react'; 
+import { Lock, AlertTriangle, Unlock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { deleteTimelineEventAction } from '@/actions/timelineActions';
-// Removed Timestamp import as dates are now JS Date objects after processing
 
 export default function TimelineViewPage() {
   const params = useParams();
@@ -65,7 +64,6 @@ export default function TimelineViewPage() {
         
         setTimeline(timelineData);
         const eventData = await getTimelineEvents(timelineId);
-        // Sort by JS Date's getTime() method
         setEvents(eventData.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime()));
 
       } catch (err: any) {
@@ -115,7 +113,6 @@ export default function TimelineViewPage() {
   };
 
   const handleEventAddedOrUpdated = (newEventOrUpdatedEvent: TimelineEvent) => {
-    // Ensure newEventOrUpdatedEvent.dueDate is a Date object
     const processedEvent = {
       ...newEventOrUpdatedEvent,
       dueDate: new Date(newEventOrUpdatedEvent.dueDate) 
@@ -136,25 +133,31 @@ export default function TimelineViewPage() {
     }
   };
   
-  const nextUpcomingEventId = useMemo(() => {
+  const getNextUpcomingEventId = (currentEvents: TimelineEvent[]) => {
     const now = new Date();
-    const upcomingEvents = events
-      .filter(event => event.dueDate > now) // Direct comparison with Date objects
+    const upcoming = currentEvents
+      .filter(event => event.dueDate > now)
       .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
-    return upcomingEvents.length > 0 ? upcomingEvents[0].id : null;
-  }, [events]);
+    return upcoming.length > 0 ? upcoming[0].id : null;
+  };
+
+  const nextUpcomingEventId = useMemo(() => getNextUpcomingEventId(events), [events]);
 
   const isOwner = authUser?.uid === timeline?.userId;
 
-  if (authLoading || isLoading) {
+  if (authLoading || (isLoading && !error && !timeline)) {
     return (
       <div className="container mx-auto px-4 py-8">
         <Skeleton className="h-12 w-3/4 mb-4" />
         <Skeleton className="h-8 w-1/4 mb-8" /> 
-        <div className="space-y-6 md:space-y-0 md:grid md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 md:gap-6 timeline-container-vertical md:timeline-container-horizontal">
+        <div className="space-y-10">
           {[1, 2, 3].map(i => (
-            <div key={i} className="relative p-2">
-              <Skeleton className="h-40 w-full rounded-lg" />
+            <div key={i} className="flex items-start">
+              <div className="flex flex-col items-center mr-4 mt-1">
+                <Skeleton className="w-5 h-5 rounded-full" />
+                <Skeleton className="w-1 h-20 mt-1" />
+              </div>
+              <Skeleton className="h-40 w-full rounded-lg flex-1" />
             </div>
           ))}
         </div>
@@ -165,10 +168,12 @@ export default function TimelineViewPage() {
   if (error) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
-        <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-4" />
-        <h2 className="text-3xl font-bold mb-2 text-destructive">Access Denied or Not Found</h2>
-        <p className="text-muted-foreground mb-6">{error}</p>
-        <Button onClick={() => router.push('/dashboard')} className="neo-button">Go to Dashboard</Button>
+        <div className="neo-card p-8 rounded-lg">
+          <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-4" />
+          <h2 className="text-3xl font-bold mb-2 text-destructive">Access Denied or Not Found</h2>
+          <p className="text-muted-foreground mb-6">{error}</p>
+          <Button onClick={() => router.push('/dashboard')} className="neo-button">Go to Dashboard</Button>
+        </div>
       </div>
     );
   }
@@ -177,17 +182,10 @@ export default function TimelineViewPage() {
     return <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">Timeline data not available.</div>;
   }
   
-  const eventListContainerClasses = `
-    relative 
-    py-8 
-    sm:ml-6 sm:pl-8 sm:timeline-line-vertical 
-    md:ml-0 md:pl-0 md:pt-12 md:timeline-line-horizontal
-  `;
-
   return (
     <div>
       <HeaderBar timeline={timeline} onAddEventClick={handleAddEventClick} />
-      <div className="container mx-auto px-2 sm:px-4 py-8">
+      <div className="container mx-auto px-4 py-8">
         {events.length === 0 ? (
           <div className="text-center py-12 neo-card rounded-lg">
             <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground mx-auto mb-4"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M16 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path><path d="M16 18h.01"></path></svg>
@@ -196,10 +194,21 @@ export default function TimelineViewPage() {
             {isOwner && <Button onClick={handleAddEventClick} className="neo-button">Add First Event</Button>}
           </div>
         ) : (
-          <div className={eventListContainerClasses}>
-            <div className="flex flex-col gap-8 sm:gap-12 md:flex-row md:overflow-x-auto md:pb-8">
-              {events.map((event, index) => (
-                <div key={event.id} className="relative md:min-w-[350px] lg:min-w-[400px] flex-shrink-0">
+          <div className="space-y-10"> {/* Vertical stack of events */}
+            {events.map((event, index) => (
+              <div key={event.id} className="flex items-start">
+                {/* Timeline stem and dot */}
+                <div className="flex flex-col items-center mr-6 shrink-0"> {/* Increased margin, shrink-0 */}
+                  <div className={`
+                    w-5 h-5 rounded-full border-2 bg-card flex-shrink-0 mt-1
+                    ${event.id === nextUpcomingEventId ? 'border-accent ring-2 ring-accent shadow-neo-lg' : 'border-foreground shadow-md'}
+                  `}></div>
+                  {index < events.length - 1 && (
+                    <div className="w-1 flex-grow bg-foreground mt-1 min-h-[4rem]"></div> {/* Ensure line has some height */}
+                  )}
+                </div>
+                {/* Event Card */}
+                <div className="flex-1 min-w-0"> {/* min-w-0 for flex child */}
                   <EventCard
                     event={event}
                     previousEventDueDate={index > 0 ? events[index - 1].dueDate : null}
@@ -207,15 +216,14 @@ export default function TimelineViewPage() {
                     onEdit={isOwner ? handleEditEvent : undefined}
                     onDelete={isOwner ? handleDeleteEvent : undefined}
                     isOwner={isOwner}
-                    className="w-full"
                   />
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
-      {isOwner && (
+      {isOwner && timeline && (
         <AddEventModal
           timelineId={timeline.id}
           isOpen={isAddEventModalOpen}
