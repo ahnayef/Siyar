@@ -1,6 +1,7 @@
 
 "use client";
 
+import * as React from 'react'; // Added this line
 import { useState, useEffect } from 'react';
 import { differenceInSeconds, intervalToDuration } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
@@ -32,17 +33,17 @@ const calculateTimeLeft = (targetDate: Date) => {
 
 
   let variantStyle: 'default' | 'secondary' | 'destructive' | 'outline' = 'default';
-  let icon = <Hourglass className="h-3.5 w-3.5 mr-1" />;
+  let icon = <Hourglass className="h-3.5 w-3.5 mr-1 text-primary-foreground" />; // Default icon for primary badge
 
   if (secondsRemaining < 3600 * 24) { // Less than 1 day
-    variantStyle = 'destructive'; // Red
-    icon = <Zap className="h-3.5 w-3.5 mr-1" />; 
+    variantStyle = 'destructive'; 
+    icon = <Zap className="h-3.5 w-3.5 mr-1 text-destructive-foreground" />; 
   } else if (secondsRemaining < 3600 * 24 * 3) { // Less than 3 days
-    variantStyle = 'secondary'; // Orange
-    icon = <Hourglass className="h-3.5 w-3.5 mr-1" />;
+    variantStyle = 'secondary'; 
+    icon = <Hourglass className="h-3.5 w-3.5 mr-1 text-secondary-foreground" />; // Icon for secondary badge
   } else { // More than 3 days
-    variantStyle = 'default'; // Blue
-    icon = <CheckCircle2 className="h-3.5 w-3.5 mr-1" />;
+    variantStyle = 'default'; 
+    icon = <CheckCircle2 className="h-3.5 w-3.5 mr-1 text-primary-foreground" />; // Icon for primary badge
   }
 
   return { text: text + (secondsRemaining > 0 && text !== "Soon" ? " left" : ""), isPast: false, variant: variantStyle, icon };
@@ -57,16 +58,16 @@ export default function CountdownBadge({ dueDate }: CountdownBadgeProps) {
 
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft(target));
-    }, 1000 * 30); // Update less frequently for performance, e.g., every 30 secs
+    }, 1000 * 30); 
 
     return () => clearInterval(timer);
   }, [target, timeLeft.isPast]);
   
   if (target.toString() === "Invalid Date") {
-    return <Badge variant="outline" className="border-2 border-strong-border text-xs text-muted-foreground">Invalid Date</Badge>;
+    return <Badge variant="outline" className="border-2 border-strong-border text-xs text-muted-foreground shadow-neo-button-active-light rounded-sm">Invalid Date</Badge>;
   }
 
-  let badgeClasses = "border-2 border-strong-border text-xs font-medium px-2 py-0.5 shadow-neo-button-active-light rounded-sm";
+  let badgeClasses = "text-xs font-medium px-2 py-0.5 shadow-neo-button-active-light border-2 border-strong-border rounded-sm";
   if (timeLeft.variant === 'destructive') {
     badgeClasses += " bg-destructive text-destructive-foreground";
   } else if (timeLeft.variant === 'secondary') {
