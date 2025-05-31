@@ -7,14 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { db } from "@/lib/firebase";
-import { doc, updateDoc } from "firebase/firestore";
 import React, { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
-import { revalidatePath } from "next/cache";
+import { updateUserUsernameAction } from "@/actions/profileActions"; 
 
 function ProfilePageContent() {
-  const { user, userProfile, loading: authLoading } = useAuth();
+  const { user, userProfile, loading: authLoading, refreshUserProfile } = useAuth(); 
   const { toast } = useToast();
   const [username, setUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -45,16 +43,9 @@ function ProfilePageContent() {
 
     setIsSavingUsername(true);
     try {
-      // Note: Username uniqueness should ideally be checked server-side via a callable function
-      // For simplicity, we're only updating the user's document here.
-      // A real app would need to manage a "usernames" collection for uniqueness.
-      const userDocRef = doc(db, "users", user.uid);
-      await updateDoc(userDocRef, { username: username });
-      
-      // Re-fetch or update userProfile context if it's not automatically updated
-      // For now, we assume a page refresh or re-auth might be needed for navbar update, or AuthContext handles it.
+      await updateUserUsernameAction(user.uid, username);
       toast({ title: "Username Updated!", description: `Your username is now ${username}.` });
-      // Potentially update userProfile in context or trigger a re-fetch
+      if(refreshUserProfile) await refreshUserProfile(); 
     } catch (error: any) {
       toast({ title: "Error Updating Username", description: error.message, variant: "destructive" });
     } finally {
@@ -86,7 +77,7 @@ function ProfilePageContent() {
     setConfirmPassword("");
   };
 
-  if (authLoading || !userProfile) {
+  if (authLoading || !userProfile && !authLoading) { 
     return (
       <div className="container mx-auto px-4 py-8">
         <Skeleton className="h-10 w-1/3 mb-6 bg-muted/30" />
@@ -100,6 +91,15 @@ function ProfilePageContent() {
       </div>
     );
   }
+  
+  if (!userProfile && !authLoading) { 
+    return (
+        <div className="container mx-auto px-4 py-8 text-center">
+            <p className="text-destructive text-lg">Could not load user profile. Please try again later.</p>
+        </div>
+    )
+  }
+
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -124,7 +124,7 @@ function ProfilePageContent() {
               maxLength={20}
             />
           </div>
-          <Button type="submit" className="neo-button w-full" disabled={isSavingUsername || username === userProfile.username}>
+          <Button type="submit" className="neo-button w-full" disabled={isSavingUsername || username === userProfile?.username}>
             {isSavingUsername ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
             {isSavingUsername ? "Saving Username..." : "Save Username"}
           </Button>
