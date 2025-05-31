@@ -18,7 +18,7 @@ interface EventCardProps {
   className?: string;
 }
 
-const getIconForEventTitle = (title: string) => { // Simplified, as active/overdue is handled by card style
+const getIconForEventTitle = (title: string) => { 
   const lowerTitle = title.toLowerCase();
   if (lowerTitle.includes('exam') || lowerTitle.includes('test') || lowerTitle.includes('deadline')) return <AlertTriangle className="h-5 w-5 text-destructive" />;
   if (lowerTitle.includes('milestone')) return <Milestone className="h-5 w-5 text-primary" />;
@@ -51,9 +51,8 @@ export default function EventCard({ event, isNextUpcoming, onEdit, onDelete, isO
       'border-warning bg-warning/10': eventStatus === 'warning' && !isEventOverdue && !isNextUpcoming,
       'border-neutral-status bg-neutral-status/5': eventStatus === 'neutral' && !isEventOverdue && !isNextUpcoming,
       'border-complete-status bg-complete-status/10': eventStatus === 'complete',
-      // Overdue card uses default border/bg, but has opacity and strikethrough
-      'opacity-70': isEventOverdue, 
-      'shadow-neo-primary border-primary': isNextUpcoming && !isEventOverdue, // Active card gets primary shadow
+      'opacity-70': isEventOverdue,
+      'shadow-neo-primary border-primary': isNextUpcoming && !isEventOverdue, 
     },
     className
   );
@@ -62,15 +61,21 @@ export default function EventCard({ event, isNextUpcoming, onEdit, onDelete, isO
     'text-2xl font-archivo flex items-center gap-2.5 leading-tight',
     { 
       'text-foreground': eventStatus !== 'overdue' && eventStatus !== 'complete',
-      'line-through text-muted-foreground': eventStatus === 'complete' || isEventOverdue
+      'line-through text-muted-foreground': isEventOverdue,
+      'line-through text-complete-status-foreground': eventStatus === 'complete' 
     }
   );
 
   const descriptionClasses = cn(
-    "text-body-md text-card-foreground/90 whitespace-pre-wrap mb-3 ml-[calc(1.25rem_+_0.625rem_+_0.25rem)]", 
+    "text-body-md text-card-foreground/90 whitespace-pre-wrap mb-3", 
     {
-      'line-through text-muted-foreground': eventStatus === 'complete' || isEventOverdue
+      'line-through text-muted-foreground': isEventOverdue,
+      'line-through text-muted-foreground': eventStatus === 'complete' 
     }
+  );
+  
+  const contentWrapperClasses = cn(
+    {'opacity-70': isEventOverdue && !isNextUpcoming} // Dim content if overdue, but not if it's also the next upcoming (edge case)
   );
 
   return (
@@ -80,32 +85,34 @@ export default function EventCard({ event, isNextUpcoming, onEdit, onDelete, isO
           OVERDUE
         </div>
       )}
-      <CardHeader className="flex flex-row items-start justify-between gap-4 pb-2 pt-4 px-4 relative">
-        <div className="flex-1">
-          <CardTitle className={titleClasses}>
-            {getIconForEventTitle(event.title)}
-            <span>{event.title}</span>
-          </CardTitle>
-        </div>
-        {isValid(eventDueDate) && eventStatus !== 'complete' && !isEventOverdue && <CountdownBadge dueDate={eventDueDate} />}
-        {eventStatus === 'complete' && <CheckCircle2 className="h-6 w-6 text-complete-status" />}
-      </CardHeader>
+      <div className={contentWrapperClasses}>
+        <CardHeader className="flex flex-row items-start justify-between gap-4 pb-2 pt-4 px-4 relative">
+          <div className="flex-1 min-w-0"> {/* Added min-w-0 for better flex handling of long titles */}
+            <CardTitle className={titleClasses}>
+              {/* Icon removed from here based on feedback */}
+              <span>{event.title}</span>
+            </CardTitle>
+          </div>
+          {isValid(eventDueDate) && eventStatus !== 'complete' && !isEventOverdue && <CountdownBadge dueDate={eventDueDate} />}
+          {eventStatus === 'complete' && <CheckCircle2 className="h-6 w-6 text-complete-status flex-shrink-0" />}
+        </CardHeader>
 
-      <CardContent className={cn("pt-1 pb-3 px-4")}>
-        {event.description && 
-          <p className={descriptionClasses}>
-            {event.description}
-          </p>
-        }
-        <div className={cn(
-          "ml-[calc(1.25rem_+_0.625rem_+_0.25rem)] mt-2 p-2 bg-muted/30 border border-strong-border-color/30 rounded-[4px] inline-block",
-          {'line-through text-muted-foreground opacity-70': eventStatus === 'complete' || isEventOverdue}
-        )}>
-          <span className="text-body-sm text-muted-foreground font-space-mono">
-            Due: {isValid(eventDueDate) ? format(eventDueDate, 'MMM d, yyyy, h:mm a') : "Invalid Date"}
-          </span>
-        </div>
-      </CardContent>
+        <CardContent className={cn("pt-1 pb-3 px-4")}>
+          {event.description && 
+            <p className={descriptionClasses}>
+              {event.description}
+            </p>
+          }
+          <div className={cn(
+            "mt-2 p-2 bg-muted/30 border border-strong-border-color/30 rounded-[4px] inline-block",
+            {'line-through text-muted-foreground': eventStatus === 'complete' || isEventOverdue }
+          )}>
+            <span className="text-body-sm text-muted-foreground font-space-mono">
+              Due: {isValid(eventDueDate) ? format(eventDueDate, 'MMM d, yyyy, h:mm a') : "Invalid Date"}
+            </span>
+          </div>
+        </CardContent>
+      </div>
 
       {isOwner && (onEdit || onDelete) && (
         <CardFooter className="flex justify-end gap-2 pt-2 pb-3 px-4 border-t border-strong-border-color/20 mt-2">
@@ -134,5 +141,4 @@ export default function EventCard({ event, isNextUpcoming, onEdit, onDelete, isO
     </Card>
   );
 }
-
     

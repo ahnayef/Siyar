@@ -8,6 +8,7 @@ import { Button } from '../ui/button';
 import { PlusCircle, Lock, Unlock, Users, Share2 } from 'lucide-react';
 import ShareTimelineModal from '../dashboard/ShareTimelineModal'; 
 import { useState } from 'react';
+import { cn } from '@/lib/utils';
 
 interface HeaderBarProps {
   timeline: Timeline;
@@ -24,11 +25,11 @@ export default function HeaderBar({ timeline, onAddEventClick }: HeaderBarProps)
 
   return (
     <>
-      <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-md shadow-sm border-b-2 border-strong-border-color py-3">
-        <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-3">
+      <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-md shadow-sm border-b-2 border-strong-border-color py-2 sm:py-3">
+        <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-3">
           {/* Title and Username on the left */}
-          <div className="flex flex-col items-center sm:items-start text-center sm:text-left w-full sm:w-auto">
-            <h1 className="text-2xl sm:text-3xl font-archivo font-extrabold text-foreground truncate" title={timeline.title}>
+          <div className="flex flex-col items-center sm:items-start text-center sm:text-left w-full sm:w-auto min-w-0">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-archivo font-extrabold text-foreground truncate" title={timeline.title}>
             {timeline.title}
             </h1>
             <p className="text-xs text-muted-foreground flex items-center font-inter">
@@ -37,25 +38,25 @@ export default function HeaderBar({ timeline, onAddEventClick }: HeaderBarProps)
           </div>
 
           {/* Buttons on the right */}
-          <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-end w-full sm:w-auto">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center sm:justify-end w-full sm:w-auto">
             {isOwner && (
               <>
-                <Button onClick={() => setIsShareModalOpen(true)} variant="outline" className="neo-button-outline">
-                  <Share2 className="h-4 w-4 mr-2"/> Share
+                <Button onClick={() => setIsShareModalOpen(true)} variant="outline" className="neo-button-outline px-2 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm">
+                  <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2"/> Share
                 </Button>
-                <VisibilityToggle timelineId={timeline.id} initialIsPublic={timeline.isPublic} />
-                <Button onClick={onAddEventClick} className="neo-button">
-                  <PlusCircle className="h-5 w-5 mr-2" /> Add Event
+                <VisibilityToggle timelineId={timeline.id} initialIsPublic={timeline.isPublic} className="px-2 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm"/>
+                <Button onClick={onAddEventClick} className="neo-button px-2 py-1 text-xs sm:px-4 sm:py-1.5 sm:text-sm">
+                  <PlusCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" /> Add Event
                 </Button>
               </>
             )}
             {!isOwner && (
               <>
-                <Button onClick={() => setIsShareModalOpen(true)} variant="outline" className="neo-button-outline">
-                  <Share2 className="h-4 w-4 mr-2"/> Share
+                <Button onClick={() => setIsShareModalOpen(true)} variant="outline" className="neo-button-outline px-2 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm">
+                  <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2"/> Share
                 </Button>
-                <span className="text-sm font-semibold neo-button-outline px-3 py-1.5 flex items-center gap-1.5">
-                  {timeline.isPublic ? <Unlock className="inline h-4 w-4 text-accent" /> : <Lock className="inline h-4 w-4 text-muted-foreground" />}
+                <span className={cn("neo-button-outline px-2 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm flex items-center gap-1.5")}>
+                  {timeline.isPublic ? <Unlock className="inline h-3.5 w-3.5 sm:h-4 sm:w-4 text-accent" /> : <Lock className="inline h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />}
                   {timeline.isPublic ? 'Public' : 'Private'}
                 </span>
               </>
