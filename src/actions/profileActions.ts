@@ -48,13 +48,13 @@ export async function updateUserUsernameAction(userId: string, newUsername: stri
      batch.set(usernameDocRef, { userId: userId });
   }
 
-  // Update username and updatedAt in timelines
+  // Update username in timelines
   const timelinesQuery = query(collection(db, "timelines"), where("userId", "==", userId));
   const timelinesSnapshot = await getDocs(timelinesQuery);
   timelinesSnapshot.forEach(timelineDoc => {
     batch.update(timelineDoc.ref, { 
-      username: newUsername,
-      updatedAt: serverTimestamp() // Add serverTimestamp for updatedAt
+      username: newUsername
+      // Removed updatedAt: serverTimestamp() from here as per request to undo security rule related changes
     });
   });
 

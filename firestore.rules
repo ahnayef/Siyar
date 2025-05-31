@@ -1,87 +1,15 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper function to check if a user exists and their username matches
-    function userExistsAndUsernameMatches(userId, username) {
-      return exists(/databases/$(database)/documents/users/$(userId)) &&
-             get(/databases/$(database)/documents/users/$(userId)).data.username == username;
-    }
-
-    // Usernames: Ensure usernames are unique and linked to a user
-    match /usernames/{username_lower} {
-      allow read: if true; // Publicly readable to check for existence
-      allow create: if request.auth != null
-                      && request.resource.data.userId == request.auth.uid
-                      // Ensure this username is not already taken by another user
-                      && !existsAfter(/databases/$(database)/documents/usernames/$(username_lower));
-      allow delete: if request.auth != null
-                      && resource.data.userId == request.auth.uid;
-      // No updates allowed directly, managed via user profile updates
-    }
-
-    // Users: User profile data
-    match /users/{userId} {
-      allow read, update: if request.auth != null && request.auth.uid == userId
-                          // On update, only username can be changed by user. Email/uid/createdAt are protected.
-                          && (request.method == 'read' || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['username'])))
-                          && (request.method == 'read' || (request.resource.data.username is string && request.resource.data.username.size() >= 3 && request.resource.data.username.size() <= 20 && request.resource.data.username.matches("^[a-zA-Z0-9_]+$")));
-      allow create: if request.auth != null && request.auth.uid == userId
-                      && request.resource.data.uid == request.auth.uid
-                      && request.resource.data.email == request.auth.token.email
-                      && request.resource.data.username is string && request.resource.data.username.size() >= 3 && request.resource.data.username.size() <= 20 && request.resource.data.username.matches("^[a-zA-Z0-9_]+$")
-                      && request.resource.data.createdAt == request.time;
-      // No delete rule, assuming users aren't deleted this way.
-    }
-
-    // Timelines: Main timeline documents
-    match /timelines/{timelineId} {
-      allow read: if resource.data.isPublic == true || (request.auth != null && resource.data.userId == request.auth.uid);
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid
-                      && userExistsAndUsernameMatches(request.auth.uid, request.resource.data.username)
-                      && request.resource.data.title is string && request.resource.data.title.size() >= 1 && request.resource.data.title.size() <= 100
-                      && request.resource.data.isPublic == false // Default to private
-                      && request.resource.data.createdAt == request.time
-                      && request.resource.data.updatedAt == request.time
-                      && request.resource.data.keys().hasOnly(['userId', 'username', 'title', 'isPublic', 'createdAt', 'updatedAt']);
-
-      allow update: if request.auth != null && resource.data.userId == request.auth.uid
-                      // Ensure only allowed fields are part of the request payload for owner updates
-                      && request.resource.data.keys().hasOnly(['title', 'isPublic', 'username', 'updatedAt'])
-                      // Validate title if present in the update
-                      && (request.resource.data.title == null || (request.resource.data.title is string && request.resource.data.title.size() >= 1 && request.resource.data.title.size() <= 100))
-                      // Validate isPublic if present in the update
-                      && (request.resource.data.isPublic == null || request.resource.data.isPublic is bool)
-                      // Validate username if present (for profile updates that cascade to timelines)
-                      && (request.resource.data.username == null || (request.resource.data.username is string && request.resource.data.username.size() >= 3 && request.resource.data.username.size() <= 20 && request.resource.data.username.matches("^[a-zA-Z0-9_]+$")))
-                      // Always require updatedAt to be server timestamp for any valid update
-                      && request.resource.data.updatedAt == request.time;
-
-      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
-
-      // Events: Subcollection under timelines
-      match /events/{eventId} {
-        allow read: if get(/databases/$(database)/documents/timelines/$(timelineId)).data.isPublic == true ||
-                       (request.auth != null && get(/databases/$(database)/documents/timelines/$(timelineId)).data.userId == request.auth.uid);
-        allow create: if request.auth != null && get(/databases/$(database)/documents/timelines/$(timelineId)).data.userId == request.auth.uid
-                        && request.resource.data.title is string && request.resource.data.title.size() >= 1 && request.resource.data.title.size() <= 100
-                        && (request.resource.data.description == null || (request.resource.data.description is string && request.resource.data.description.size() <= 500))
-                        && request.resource.data.dueDate is timestamp
-                        && request.resource.data.createdAt == request.time
-                        && request.resource.data.updatedAt == request.time
-                        && request.resource.data.keys().hasOnly(['title', 'description', 'dueDate', 'createdAt', 'updatedAt']);
-
-        allow update: if request.auth != null && get(/databases/$(database)/documents/timelines/$(timelineId)).data.userId == request.auth.uid
-                        && request.resource.data.keys().hasOnly(['title', 'description', 'dueDate', 'updatedAt'])
-                        && (request.resource.data.title == null || (request.resource.data.title is string && request.resource.data.title.size() >= 1 && request.resource.data.title.size() <= 100))
-                        && (request.resource.data.description == null || (request.resource.data.description is string && request.resource.data.description.size() <= 500))
-                        && (request.resource.data.dueDate == null || request.resource.data.dueDate is timestamp)
-                        && request.resource.data.updatedAt == request.time;
-
-        allow delete: if request.auth != null && get(/databases/$(database)/documents/timelines/$(timelineId)).data.userId == request.auth.uid;
-      }
+    // WARNING: The following rule is very permissive and allows all authenticated users
+    // to read and write all data. This is generally not recommended for production
+    // environments. You mentioned you are disabling/managing rules elsewhere.
+    // Replace this with appropriate security rules for your application.
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+      // For completely open access (e.g., initial development, if you are truly disabling all checks):
+      // allow read, write: if true;
     }
   }
 }
