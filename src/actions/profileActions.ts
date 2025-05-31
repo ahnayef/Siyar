@@ -2,20 +2,23 @@
 "use server";
 
 import { db } from "@/lib/firebase";
-import { doc, updateDoc, getDoc, collection, query, where, writeBatch } from "firebase/firestore";
+import { doc, updateDoc, getDoc, collection, query, where, writeBatch, getDocs } from "firebase/firestore"; // Added getDocs
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
+
+const UpdateUsernameSchema = z.object({
+  userId: z.string().min(1, "User ID is required."),
+  newUsername: z.string().min(3, "New username must be at least 3 characters long.").max(20, "Username cannot exceed 20 characters.").regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores."),
+});
 
 export async function updateUserUsernameAction(userId: string, newUsername: string): Promise<void> {
-  if (!userId) {
-    throw new Error("User ID is required.");
-  }
-  if (!newUsername || newUsername.length < 3) {
-    throw new Error("New username must be at least 3 characters long.");
+  const validationResult = UpdateUsernameSchema.safeParse({ userId, newUsername });
+  if (!validationResult.success) {
+    throw new Error(validationResult.error.errors.map(e => e.message).join(", "));
   }
 
   const newUsernameLower = newUsername.toLowerCase();
 
-  // Check if the new username is already taken by someone else
   const usernameDocRef = doc(db, "usernames", newUsernameLower);
   const usernameDocSnap = await getDoc(usernameDocRef);
   if (usernameDocSnap.exists() && usernameDocSnap.data()?.userId !== userId) {
@@ -34,27 +37,19 @@ export async function updateUserUsernameAction(userId: string, newUsername: stri
 
   const batch = writeBatch(db);
 
-  // Update the username in the user's document
   batch.update(userDocRef, { username: newUsername });
 
-  // If the new username is different and not already taken by this user (case change)
-  // or if it's a completely new username:
-  // 1. Delete the old username document (if it exists and is different)
-  // 2. Create the new username document
   if (oldUsernameLower && oldUsernameLower !== newUsernameLower) {
     const oldUsernameDocRef = doc(db, "usernames", oldUsernameLower);
     batch.delete(oldUsernameDocRef);
   }
   
-  // Create/update the new username entry if it's new or if it wasn't pointing to this user
   if (!usernameDocSnap.exists() || usernameDocSnap.data()?.userId !== userId) {
      batch.set(usernameDocRef, { userId: userId });
   }
 
-
-  // Update username in all timelines created by this user
   const timelinesQuery = query(collection(db, "timelines"), where("userId", "==", userId));
-  const timelinesSnapshot = await getDocs(timelinesQuery);
+  const timelinesSnapshot = await getDocs(timelinesQuery); // Correctly uses imported getDocs
   timelinesSnapshot.forEach(timelineDoc => {
     batch.update(timelineDoc.ref, { username: newUsername });
   });
@@ -62,11 +57,10 @@ export async function updateUserUsernameAction(userId: string, newUsername: stri
   await batch.commit();
 
   revalidatePath("/profile");
-  revalidatePath("/dashboard"); // Revalidate dashboard in case timeline cards show username
-  // Revalidate individual timeline pages if username is part of the URL or displayed content
+  revalidatePath("/dashboard");
   timelinesSnapshot.forEach(timelineDoc => {
     revalidatePath(`/${newUsername}/${timelineDoc.id}`);
-    if (oldUsername) { // Also revalidate old paths if username changed
+    if (oldUsername) {
       revalidatePath(`/${oldUsername}/${timelineDoc.id}`);
     }
   });
