@@ -11,7 +11,7 @@ import EventCard from '@/components/timeline/EventCard';
 import AddEventModal from '@/components/timeline/AddEventModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Lock, AlertTriangle, Unlock } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { deleteTimelineEventAction } from '@/actions/timelineActions';
 
@@ -32,8 +32,8 @@ export default function TimelineViewPage() {
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
   const [eventToEdit, setEventToEdit] = useState<TimelineEvent | null>(null);
   
+  // ownerProfile state can be kept if there are future plans for it, otherwise it can be removed if not used.
   const [ownerProfile, setOwnerProfile] = useState<UserProfile | null>(null);
-
 
   useEffect(() => {
     if (!username || !timelineId) {
@@ -69,7 +69,9 @@ export default function TimelineViewPage() {
       } catch (err: any) {
         console.error("Error fetching timeline data:", err);
         setError(err.message || "Failed to load timeline.");
-        toast({ title: "Error", description: err.message || "Failed to load timeline.", variant: "destructive" });
+        if (toast) { // Ensure toast is available
+          toast({ title: "Error", description: err.message || "Failed to load timeline.", variant: "destructive" });
+        }
       } finally {
         setIsLoading(false);
       }
@@ -79,6 +81,9 @@ export default function TimelineViewPage() {
         fetchData();
     }
   }, [username, timelineId, authUser, authLoading, toast]);
+
+  // Define isOwner here, after authUser and timeline state are potentially set
+  const isOwner = authUser?.uid === timeline?.userId;
 
   const handleAddEventClick = () => {
     if (!isOwner) return;
@@ -136,16 +141,14 @@ export default function TimelineViewPage() {
   const getNextUpcomingEventId = (currentEvents: TimelineEvent[]) => {
     const now = new Date();
     const upcoming = currentEvents
-      .filter(event => event.dueDate > now)
+      .filter(event => event.dueDate.getTime() > now.getTime())
       .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
     return upcoming.length > 0 ? upcoming[0].id : null;
   };
 
   const nextUpcomingEventId = useMemo(() => getNextUpcomingEventId(events), [events]);
 
-  const isOwner = authUser?.uid === timeline?.userId;
-
-  if (authLoading || (isLoading && !error && !timeline)) {
+  if (authLoading || (isLoading && !error && !timeline && !params.username && !params.timelineId)) {
     return (
       <div className="container mx-auto px-4 py-8">
         <Skeleton className="h-12 w-3/4 mb-4" />
@@ -179,7 +182,7 @@ export default function TimelineViewPage() {
   }
 
   if (!timeline) {
-    return <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">Timeline data not available.</div>;
+    return <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">Timeline data not available or still loading.</div>;
   }
   
   return (
@@ -194,21 +197,19 @@ export default function TimelineViewPage() {
             {isOwner && <Button onClick={handleAddEventClick} className="neo-button">Add First Event</Button>}
           </div>
         ) : (
-          <div className="space-y-10"> {/* Vertical stack of events */}
+          <div className="space-y-10">
             {events.map((event, index) => (
               <div key={event.id} className="flex items-start">
-                {/* Timeline stem and dot */}
-                <div className="flex flex-col items-center mr-6 shrink-0"> {/* Increased margin, shrink-0 */}
+                <div className="flex flex-col items-center mr-6 shrink-0">
                   <div className={`
                     w-5 h-5 rounded-full border-2 bg-card flex-shrink-0 mt-1
                     ${event.id === nextUpcomingEventId ? 'border-accent ring-2 ring-accent shadow-neo-lg' : 'border-foreground shadow-md'}
                   `}></div>
                   {index < events.length - 1 && (
-                    <div className="w-1 flex-grow bg-foreground mt-1 min-h-[4rem]"></div> {/* Ensure line has some height */}
+                    <div className="w-1 flex-grow bg-foreground mt-1 min-h-[4rem]"></div>
                   )}
                 </div>
-                {/* Event Card */}
-                <div className="flex-1 min-w-0"> {/* min-w-0 for flex child */}
+                <div className="flex-1 min-w-0">
                   <EventCard
                     event={event}
                     previousEventDueDate={index > 0 ? events[index - 1].dueDate : null}
@@ -235,3 +236,4 @@ export default function TimelineViewPage() {
     </div>
   );
 }
+
