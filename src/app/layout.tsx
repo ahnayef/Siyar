@@ -1,20 +1,32 @@
 
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Archivo_Black, Inter, Space_Mono } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Providers from './providers';
 import Navbar from '@/components/layout/Navbar';
 
+const archivo = Archivo_Black({ 
+  subsets: ['latin'], 
+  variable: '--font-archivo',
+  weight: ['400'] 
+});
+
 const inter = Inter({ 
   subsets: ['latin'], 
   variable: '--font-inter',
-  weight: ['400', '500', '600', '700', '800'] 
+  weight: ['400', '500', '600', '700'] 
+});
+
+const spaceMono = Space_Mono({
+  subsets: ['latin'],
+  variable: '--font-space-mono',
+  weight: ['400', '700']
 });
 
 export const metadata: Metadata = {
-  title: 'ChronoFlow',
-  description: 'Timeline Management with Neo-Brutalist Clarity.',
+  title: 'ChronoFlow - Timeline Manager',
+  description: 'Visualize and manage your academic commitments with neo-brutalist clarity.',
 };
 
 export default function RootLayout({
@@ -23,13 +35,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`${archivo.variable} ${inter.variable} ${spaceMono.variable}`}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        {/* Removed direct Google Fonts links as next/font handles it */}
       </head>
-      <body className="font-body antialiased bg-background text-foreground">
+      <body className="font-inter text-body-md bg-background text-foreground antialiased">
         <Providers>
           <Navbar />
           <main className="pt-16"> {/* Adjust padding top based on Navbar height */}
@@ -41,3 +51,4 @@ export default function RootLayout({
     </html>
   );
 }
+    

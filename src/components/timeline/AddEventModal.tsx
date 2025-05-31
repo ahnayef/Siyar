@@ -130,21 +130,21 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
     <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) setAISuggestion(null); }}>
       <DialogContent className="neo-card sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-primary">{eventToEdit ? 'Edit Event' : 'Add New Event'}</DialogTitle>
+          <DialogTitle className="text-2xl font-archivo text-primary">{eventToEdit ? 'Edit Event' : 'Add New Event'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 py-4">
           <div>
-            <Label htmlFor="title" className="text-card-foreground font-semibold">Title</Label>
+            <Label htmlFor="title" className="text-card-foreground font-semibold font-inter">Title</Label>
             <Input id="title" {...register('title')} className="neo-input" />
             {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
           </div>
           <div>
-            <Label htmlFor="description" className="text-card-foreground font-semibold">Description</Label>
+            <Label htmlFor="description" className="text-card-foreground font-semibold font-inter">Description</Label>
             <Textarea id="description" {...register('description')} className="neo-input" rows={3} />
             {errors.description && <p className="text-sm text-destructive">{errors.description.message}</p>}
           </div>
           <div>
-            <Label htmlFor="dueDate" className="text-card-foreground font-semibold">Due Date</Label>
+            <Label htmlFor="dueDate" className="text-card-foreground font-semibold font-inter">Due Date</Label>
             <Controller
               name="dueDate"
               control={control}
@@ -153,7 +153,7 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full justify-start text-left font-normal neo-input"
+                      className="w-full justify-start text-left font-normal neo-input text-body-md"
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
@@ -175,9 +175,9 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
           </div>
 
           {aiSuggestion && (
-            <div className="p-3 bg-secondary/10 border-l-4 border-secondary rounded text-sm text-foreground">
-                <p className="font-semibold text-secondary">AI Suggestion: <span className="font-normal">{format(parseISO(aiSuggestion.date), 'PPP')}</span></p>
-                <p className="text-xs text-muted-foreground mt-1">{aiSuggestion.reasoning}</p>
+            <div className="p-3 bg-secondary/10 border-l-4 border-secondary rounded-[4px] text-sm text-foreground">
+                <p className="font-semibold text-secondary font-inter">AI Suggestion: <span className="font-normal font-space-mono">{format(parseISO(aiSuggestion.date), 'PPP')}</span></p>
+                <p className="text-xs text-muted-foreground mt-1 font-inter">{aiSuggestion.reasoning}</p>
             </div>
           )}
 
@@ -200,3 +200,4 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
     </Dialog>
   );
 }
+    

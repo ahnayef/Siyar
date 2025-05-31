@@ -1,61 +1,63 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Figma-Inspired Neo-Brutalist Light Theme */
-    --background: 220 20% 97%; /* Very Light Grey */
-    --foreground: 220 15% 20%; /* Dark Grey/Near Black */
-
-    --card: 0 0% 100%; /* White */
-    --card-foreground: 220 15% 20%; /* Dark Grey/Near Black */
-
-    --popover: 0 0% 100%; /* White */
-    --popover-foreground: 220 15% 20%; /* Dark Grey/Near Black */
-
-    --primary: 217 91% 60%; /* Vibrant Blue */
-    --primary-foreground: 0 0% 100%; /* White */
-
-    --secondary: 25 95% 53%; /* Bright Orange */
-    --secondary-foreground: 220 15% 15%; /* Dark for text on orange */
-
-    --muted: 220 15% 90%; /* Lighter Grey for muted elements */
-    --muted-foreground: 220 10% 45%; /* Medium Grey for muted text */
-
-    --accent: 25 95% 53%; /* Bright Orange (can be same as secondary or different) */
-    --accent-foreground: 0 0% 100%; /* White for text on orange */
+    /* Primary Palette from Guide */
+    --background: 30 43% 96%; /* #F7F3F0 Warm off-white */
+    --foreground: 0 0% 10%; /* #1A1A1A Near-black for text */
     
-    --destructive: 0 84.2% 60.2%; /* Standard Red */
-    --destructive-foreground: 0 0% 98%; /* Off-White/White */
+    --primary: 13 100% 67%; /* #FF7A59 Vibrant coral-orange */
+    --primary-foreground: 0 0% 10%; /* #1A1A1A Dark text for on-primary */
 
-    --border: 220 10% 85%; /* Light Grey border for inputs, subtle lines */
-    --strong-border: 220 15% 20%; /* Dark Grey/Black for neo-brutalist borders */
+    --secondary: 232 69% 51%; /* #2B3FD9 Bold blue */
+    --secondary-foreground: 30 43% 96%; /* #F7F3F0 Light text for on-secondary */
+
+    --accent: 155 58% 51%; /* #35CE8D Mint green */
+    --accent-foreground: 0 0% 10%; /* #1A1A1A Dark text for on-accent */
+
+    --card: 0 0% 100%; /* White for cards, allows background to be off-white */
+    --card-foreground: 0 0% 10%; /* #1A1A1A */
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    --muted: 220 15% 90%; /* Lighter Grey for muted elements - review if needed */
+    --muted-foreground: 220 10% 45%; /* Medium Grey for muted text - review if needed */
+    
+    /* Semantic Colors from Guide */
+    --destructive: 350 100% 61%; /* #FF3A5D Bright red (Urgent) */
+    --destructive-foreground: 30 43% 98%; /* Lighter text for on-destructive */
+    
+    --warning: 47 100% 61%; /* #FFCE3A Bold yellow */
+    --warning-foreground: 0 0% 10%; /* Dark text for on-warning */
+
+    --neutral-status: 220 14% 59%; /* #8491A7 Slate gray */
+    --neutral-status-foreground: 0 0% 100%; /* White text for on-neutral */
+    
+    --complete-status: 155 58% 51%; /* #35CE8D Mint green (same as accent) */
+    --complete-status-foreground: 0 0% 10%; /* Dark text for on-complete */
+
+    --overdue-status: 349 100% 21%; /* #6D0016 Deep red */
+    --overdue-status-foreground: 30 43% 96%; /* Light text for on-overdue */
+
+    --border: 220 10% 85%; /* Default subtle border */
+    --strong-border-color: 0 0% 10%; /* #1A1A1A Near-black for neo-brutalist borders */
     
     --input: 0 0% 100%; /* White for input background */
-    --input-border: 220 10% 75%; /* Slightly darker grey for input borders */
-    --ring: 217 91% 60%; /* Vibrant Blue for focus rings */
+    --input-border: 220 10% 75%; /* Slightly darker grey for input borders, will be overridden by neo-input */
+    --ring: 13 100% 67%; /* Primary color for focus rings */
 
-    --radius: 0.3rem; /* Slightly sharper corners still, but not 0 */
-
-    --chart-1: 217 91% 60%; /* Blue */
-    --chart-2: 25 95% 53%; /* Orange */
-    --chart-3: 150 70% 45%; /* A Green */
-    --chart-4: 280 65% 60%; /* Purple */
-    --chart-5: 340 75% 55%; /* Red/Pink */
-
-    /* Sidebar colors adapted to the new light theme */
-    --sidebar-background: 220 20% 95%; 
-    --sidebar-foreground: 220 15% 20%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 25 95% 53%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 220 10% 85%;
-    --sidebar-ring: 217 91% 60%;
+    --radius: 0.25rem; /* 4px for cards */
+    
+    --chart-1: 13 100% 67%; /* Primary */
+    --chart-2: 232 69% 51%; /* Secondary */
+    --chart-3: 155 58% 51%; /* Accent */
+    --chart-4: 47 100% 61%; /* Warning */
+    --chart-5: 350 100% 61%; /* Destructive */
   }
-
-  /* No separate .dark class needed if default is light and it's the only theme */
 }
 
 @layer base {
@@ -66,45 +68,61 @@
     @apply bg-background text-foreground;
     font-family: var(--font-inter), sans-serif;
   }
-  h1,h2,h3,h4,h5,h6 {
-    @apply font-headline;
+  h1,h2,h3,h4 { /* Adjusted to H4 as per guide */
+    @apply font-archivo;
+    letter-spacing: -0.02em; /* Tighter letter-spacing for headings */
   }
+  h1 { @apply text-[48px] leading-[52px]; }
+  h2 { @apply text-[36px] leading-[40px]; }
+  h3 { @apply text-[24px] leading-[28px]; }
+  h4 { @apply text-[20px] leading-[24px]; }
+
+  /* Body text sizes */
+  .text-body-lg { @apply text-[18px] leading-[24px] font-inter; }
+  .text-body-md { @apply text-[16px] leading-[22px] font-inter; } /* Default body */
+  .text-body-sm { @apply text-[14px] leading-[20px] font-inter; }
+
+  /* Monospace text sizes */
+  .text-mono-lg { @apply font-space-mono text-[18px] leading-[22px]; }
+  .text-mono-md { @apply font-space-mono text-[14px] leading-[18px]; } /* Default mono */
 }
 
-/* Neo-brutalism base styles updated for light theme */
+/* Neo-brutalist component styles */
 .neo-card {
-  @apply bg-card border-2 border-strong-border shadow-neo-light rounded-md;
+  @apply bg-card border-[3px] border-strong-border-color shadow-neo rounded-[4px];
+  /* --strong-border-color is hsl(var(--foreground)) or specific #1A1A1A */
 }
 
 .neo-button {
-  @apply border-2 border-strong-border bg-primary text-primary-foreground 
+  @apply border-[3px] border-strong-border-color bg-primary text-primary-foreground 
          font-semibold 
-         shadow-neo-button-light
-         hover:bg-primary/90 
-         active:translate-x-[2px] active:translate-y-[2px] active:shadow-neo-button-active-light
-         transition-all duration-100 rounded-md;
+         shadow-neo
+         hover:shadow-neo-hover 
+         active:translate-x-[2px] active:translate-y-[2px] active:shadow-neo-active
+         transition-all duration-100 rounded-[4px] px-6 py-2.5 text-body-md;
 }
 
 .neo-button-secondary {
-   @apply border-2 border-strong-border bg-secondary text-secondary-foreground
+   @apply border-[3px] border-strong-border-color bg-secondary text-secondary-foreground
          font-semibold
-         shadow-neo-button-light
-         hover:bg-secondary/90
-         active:translate-x-[2px] active:translate-y-[2px] active:shadow-neo-button-active-light
-         transition-all duration-100 rounded-md;
+         shadow-neo
+         hover:shadow-neo-hover
+         active:translate-x-[2px] active:translate-y-[2px] active:shadow-neo-active
+         transition-all duration-100 rounded-[4px] px-6 py-2.5 text-body-md;
 }
 
 .neo-button-outline {
-  @apply border-2 border-strong-border bg-card text-foreground
+  @apply border-[3px] border-strong-border-color bg-card text-foreground
          font-semibold 
-         shadow-neo-button-light
-         hover:bg-muted 
-         active:translate-x-[2px] active:translate-y-[2px] active:shadow-neo-button-active-light
-         transition-all duration-100 rounded-md;
+         shadow-neo
+         hover:bg-muted hover:shadow-neo-hover
+         active:translate-x-[2px] active:translate-y-[2px] active:shadow-neo-active
+         transition-all duration-100 rounded-[4px] px-5 py-2 text-body-md;
 }
-
 
 .neo-input {
-  @apply border-2 border-input-border bg-input rounded-md
+  @apply border-[2px] border-strong-border-color bg-input rounded-[4px] 
+         p-3 text-body-md placeholder:text-muted-foreground
          focus:ring-2 focus:ring-ring focus:border-primary;
 }
+    

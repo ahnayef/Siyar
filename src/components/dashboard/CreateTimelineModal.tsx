@@ -73,11 +73,11 @@ export default function CreateTimelineModal({ onTimelineCreated }: CreateTimelin
       </DialogTrigger>
       <DialogContent className="neo-card sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-primary">New Timeline</DialogTitle>
+          <DialogTitle className="text-2xl font-archivo text-primary">New Timeline</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 py-4">
           <div className="space-y-1">
-            <Label htmlFor="title" className="text-card-foreground font-semibold">Timeline Title</Label>
+            <Label htmlFor="title" className="text-card-foreground font-semibold font-inter">Timeline Title</Label>
             <Input id="title" {...register('title')} className="neo-input" placeholder="e.g., My Next Big Project" />
             {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
           </div>
@@ -95,3 +95,4 @@ export default function CreateTimelineModal({ onTimelineCreated }: CreateTimelin
     </Dialog>
   );
 }
+    

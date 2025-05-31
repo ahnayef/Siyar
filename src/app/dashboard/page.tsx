@@ -40,7 +40,7 @@ function DashboardContent() {
           <Skeleton className="h-10 w-40 bg-muted/30" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map(i => <Skeleton key={i} className="h-48 w-full rounded-lg bg-muted/20" />)}
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-48 w-full rounded-[4px] bg-muted/20" />)}
         </div>
       </div>
     );
@@ -57,7 +57,7 @@ function DashboardContent() {
         <div className="text-center py-12 neo-card">
           <PlusCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <h2 className="text-2xl font-semibold mb-2 text-foreground">No Timelines Yet!</h2>
-          <p className="text-muted-foreground mb-4">Get started by creating your first timeline.</p>
+          <p className="text-muted-foreground mb-4 text-body-md">Get started by creating your first timeline.</p>
           {userProfile && <CreateTimelineModal onTimelineCreated={handleTimelineCreated} />}
         </div>
       ) : (
@@ -78,3 +78,4 @@ export default function DashboardPage() {
     </AuthGuard>
   );
 }
+    

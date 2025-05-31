@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { LogOut, LogIn, UserPlus, LayoutDashboard, HomeIcon } from 'lucide-react'; // Changed Home to HomeIcon
+import { LogOut, LogIn, UserPlus, LayoutDashboard, Workflow } from 'lucide-react'; 
 
 export default function Navbar() {
   const { user, userProfile, loading } = useAuth();
@@ -23,10 +23,10 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md shadow-sm border-b-2 border-strong-border">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md shadow-sm border-b-2 border-strong-border-color">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="text-2xl font-extrabold text-primary hover:opacity-80 transition-opacity flex items-center gap-2">
-          <HomeIcon className="h-6 w-6 text-primary"/>
+        <Link href="/" className="text-2xl font-archivo text-primary hover:opacity-80 transition-opacity flex items-center gap-2">
+          <Workflow className="h-7 w-7 text-primary"/>
           ChronoFlow
         </Link>
         <div className="flex items-center gap-3">
@@ -34,7 +34,7 @@ export default function Navbar() {
             <div className="w-24 h-9 bg-muted rounded animate-pulse"></div>
           ) : user ? (
             <>
-              <span className="text-sm hidden md:inline text-muted-foreground">
+              <span className="text-sm hidden md:inline text-muted-foreground font-inter">
                 Hi, {userProfile?.username || user.email?.split('@')[0]}
               </span>
               <Button variant="ghost" size="sm" asChild className="neo-button-outline px-3 py-1.5 text-sm">
@@ -65,3 +65,4 @@ export default function Navbar() {
     </nav>
   );
 }
+    

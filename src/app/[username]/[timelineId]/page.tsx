@@ -149,16 +149,16 @@ export default function TimelineViewPage() {
   if (authLoading || (isLoading && !error && !timeline && !params.username && !params.timelineId)) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <Skeleton className="h-12 w-3/4 mb-4 bg-muted/50" />
-        <Skeleton className="h-8 w-1/4 mb-8 bg-muted/50" /> 
+        <Skeleton className="h-12 w-3/4 mb-4 bg-muted/50 rounded-[4px]" />
+        <Skeleton className="h-8 w-1/4 mb-8 bg-muted/50 rounded-[4px]" /> 
         <div className="space-y-10">
           {[1, 2, 3].map(i => (
             <div key={i} className="flex items-start">
               <div className="flex flex-col items-center mr-6 mt-1">
                 <Skeleton className="w-8 h-8 bg-muted/50 rounded-sm" /> {/* Square dot */}
-                <Skeleton className="w-1.5 h-24 mt-2 bg-muted/50" /> {/* Stem */}
+                <Skeleton className="w-1.5 h-24 mt-2 bg-muted/50 rounded-sm" /> {/* Stem */}
               </div>
-              <Skeleton className="h-40 w-full rounded-lg flex-1 bg-muted/30" />
+              <Skeleton className="h-40 w-full rounded-[4px] flex-1 bg-muted/30" />
             </div>
           ))}
         </div>
@@ -172,7 +172,7 @@ export default function TimelineViewPage() {
         <div className="neo-card p-8">
           <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-4" />
           <h2 className="text-3xl font-bold mb-2 text-destructive">Access Denied or Not Found</h2>
-          <p className="text-muted-foreground mb-6">{error}</p>
+          <p className="text-muted-foreground mb-6 text-body-md">{error}</p>
           <Button onClick={() => router.push('/dashboard')} className="neo-button">Go to Dashboard</Button>
         </div>
       </div>
@@ -185,7 +185,7 @@ export default function TimelineViewPage() {
         <div className="neo-card p-8">
           <AlertTriangle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <h2 className="text-3xl font-bold mb-2 text-muted-foreground">Timeline Not Found</h2>
-          <p className="text-muted-foreground mb-6">The requested timeline could not be loaded.</p>
+          <p className="text-muted-foreground mb-6 text-body-md">The requested timeline could not be loaded.</p>
           <Button onClick={() => router.push('/dashboard')} className="neo-button">Go to Dashboard</Button>
         </div>
       </div>
@@ -200,31 +200,32 @@ export default function TimelineViewPage() {
           <div className="text-center py-12 neo-card">
             <CalendarPlus className="h-20 w-20 text-muted-foreground mx-auto mb-6" />
             <h2 className="text-3xl font-bold text-primary mb-3">Timeline Is Empty!</h2>
-            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto text-body-md">
               This timeline is awaiting its first event. {isOwner ? "Add an event to get started." : "The creator hasn't added any events yet."}
             </p>
             {isOwner && <Button size="lg" onClick={handleAddEventClick} className="neo-button">Add First Event</Button>}
           </div>
         ) : (
-          <div className="relative pl-5"> {/* Padding for the stem and markers */}
+          <div className="relative pl-5"> 
             {events.map((event, index) => (
               <div key={event.id} className="flex items-start mb-12 relative">
                 {/* Event Marker (Square) & Stem */}
                 <div className="absolute left-[-20px] top-1 flex flex-col items-center h-full">
                   <div className={`
                     w-6 h-6 border-2 bg-card flex-shrink-0 z-10 rounded-sm
+                    border-strong-border-color
                     ${event.id === nextUpcomingEventId 
-                      ? 'border-primary bg-primary shadow-neo-button-light' 
-                      : 'border-strong-border bg-muted shadow-neo-button-light'}
+                      ? 'bg-primary shadow-neo' 
+                      : 'bg-muted shadow-neo'}
                   `}></div>
                   {/* Vertical Line connecting to next event */}
                   {index < events.length - 1 && (
-                    <div className="w-1 flex-grow bg-strong-border mt-1 min-h-[calc(100%_-_1.5rem)]"></div>
+                    <div className="w-1 flex-grow bg-strong-border-color mt-1 min-h-[calc(100%_-_1.5rem)]"></div>
                   )}
                 </div>
 
                 {/* Event Card (takes remaining space) */}
-                <div className="flex-1 min-w-0 ml-8"> {/* Margin to accommodate marker and stem */}
+                <div className="flex-1 min-w-0 ml-8"> 
                   <EventCard
                     event={event}
                     previousEventDueDate={index > 0 ? events[index - 1].dueDate : null}
@@ -251,3 +252,4 @@ export default function TimelineViewPage() {
     </div>
   );
 }
+    

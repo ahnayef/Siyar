@@ -57,8 +57,8 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
       <div className="mb-8 text-center">
-        <h1 className="text-4xl font-extrabold text-foreground">Create Your ChronoFlow Account</h1>
-        <p className="text-muted-foreground mt-2">Start managing your timelines like a pro.</p>
+        <h1 className="text-4xl font-archivo text-foreground">Create Your ChronoFlow Account</h1>
+        <p className="text-muted-foreground mt-2 text-body-md">Start managing your timelines like a pro.</p>
       </div>
       <AuthForm mode="signup" onSubmit={handleSignup} />
       <p className="mt-6 text-center text-sm text-muted-foreground">
@@ -70,3 +70,4 @@ export default function SignupPage() {
     </div>
   );
 }
+    

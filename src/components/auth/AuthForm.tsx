@@ -57,18 +57,18 @@ export default function AuthForm({ mode, onSubmit, socialLogins }: AuthFormProps
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 p-8 neo-card w-full max-w-md">
       {mode === 'signup' && (
         <div className="space-y-1">
-          <Label htmlFor="username" className="text-card-foreground font-semibold">Username</Label>
+          <Label htmlFor="username" className="text-card-foreground font-semibold font-inter">Username</Label>
           <Input id="username" type="text" {...register('username')} className="neo-input" placeholder="your_username" />
           {errors.username && <p className="text-sm text-destructive">{errors.username.message}</p>}
         </div>
       )}
       <div className="space-y-1">
-        <Label htmlFor="email" className="text-card-foreground font-semibold">Email</Label>
+        <Label htmlFor="email" className="text-card-foreground font-semibold font-inter">Email</Label>
         <Input id="email" type="email" {...register('email')} className="neo-input" placeholder="you@example.com" />
         {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
       </div>
       <div className="space-y-1 relative">
-        <Label htmlFor="password" className="text-card-foreground font-semibold">Password</Label>
+        <Label htmlFor="password" className="text-card-foreground font-semibold font-inter">Password</Label>
         <Input id="password" type={showPassword ? "text" : "password"} {...register('password')} className="neo-input pr-10" placeholder="••••••••" />
         <Button
             type="button"
@@ -102,3 +102,4 @@ export default function AuthForm({ mode, onSubmit, socialLogins }: AuthFormProps
     </form>
   );
 }
+    

@@ -2,7 +2,7 @@
 import type {Config} from 'tailwindcss';
 
 export default {
-  darkMode: ['class'], // Keeping this in case a dark theme toggle is re-added later
+  darkMode: ['class'], 
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -11,9 +11,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'], 
-        code: ['monospace'],
+        'archivo': ['"Archivo Black"', 'sans-serif'],
+        'inter': ['Inter', 'sans-serif'],
+        'space-mono': ['"Space Mono"', 'monospace'],
       },
       colors: {
         background: 'hsl(var(--background))',
@@ -46,11 +46,27 @@ export default {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
+        warning: {
+          DEFAULT: 'hsl(var(--warning))',
+          foreground: 'hsl(var(--warning-foreground))',
+        },
+        'neutral-status': {
+          DEFAULT: 'hsl(var(--neutral-status))',
+          foreground: 'hsl(var(--neutral-status-foreground))',
+        },
+        'complete-status': {
+          DEFAULT: 'hsl(var(--complete-status))',
+          foreground: 'hsl(var(--complete-status-foreground))',
+        },
+        'overdue-status': {
+          DEFAULT: 'hsl(var(--overdue-status))',
+          foreground: 'hsl(var(--overdue-status-foreground))',
+        },
         border: 'hsl(var(--border))',
-        'strong-border': 'hsl(var(--strong-border))',
+        'strong-border-color': 'hsl(var(--strong-border-color))',
         input: {
           DEFAULT: 'hsl(var(--input))',
-          border: 'hsl(var(--input-border))',
+          border: 'hsl(var(--input-border))', 
         },
         ring: 'hsl(var(--ring))',
         chart: {
@@ -60,21 +76,12 @@ export default {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
         },
-        sidebar: {
-          DEFAULT: 'hsl(var(--sidebar-background))',
-          foreground: 'hsl(var(--sidebar-foreground))',
-          primary: 'hsl(var(--sidebar-primary))',
-          'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-          accent: 'hsl(var(--sidebar-accent))',
-          'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-          border: 'hsl(var(--sidebar-border))',
-          ring: 'hsl(var(--sidebar-ring))',
-        },
       },
       borderRadius: {
         lg: 'var(--radius)', 
         md: 'calc(var(--radius) - 0.1rem)', 
         sm: 'calc(var(--radius) - 0.15rem)',
+        '4px': '4px', // specific radius from guide
         none: '0px',
       },
       keyframes: {
@@ -105,11 +112,14 @@ export default {
         'event-entry': 'event-entry 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
       },
       boxShadow: {
-        'neo-light': '4px 4px 0px 0px hsl(var(--strong-border))',
-        'neo-button-light': '3px 3px 0px 0px hsl(var(--strong-border))',
-        'neo-button-active-light': '1px 1px 0px 0px hsl(var(--strong-border))',
+        // As per guide: Drop shadow offset (5px, 5px) for Timeline Card
+        // Using --strong-border-color for the shadow color
+        'neo': '5px 5px 0px 0px hsl(var(--strong-border-color))',
+        'neo-hover': '3px 3px 0px 0px hsl(var(--strong-border-color))', // Example hover
+        'neo-active': '1px 1px 0px 0px hsl(var(--strong-border-color))', // Example active
       }
     },
   },
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;
+    
