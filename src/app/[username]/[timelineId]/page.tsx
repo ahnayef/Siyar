@@ -48,8 +48,8 @@ export default function TimelineViewPage() {
     const fetchData = async () => {
       setIsLoading(true);
       setError(null);
-      setTimeline(null); // Reset timeline state on new fetch
-      setEvents([]); // Reset events state
+      setTimeline(null); 
+      setEvents([]); 
 
       try {
         console.log(`Fetching data for user: ${username}, timeline: ${timelineId}`);
@@ -58,7 +58,6 @@ export default function TimelineViewPage() {
 
         const fetchedOwnerProfile = await getUserByUsername(username);
         if (!fetchedOwnerProfile) {
-            // This error is if the username in the URL doesn't match any user
             setError(`Timeline owner profile ('${username}') not found.`);
             setIsLoading(false);
             return;
@@ -68,7 +67,6 @@ export default function TimelineViewPage() {
         const timelineData = await getTimelineByUsernameAndId(username, timelineId);
 
         if (!timelineData) {
-          // This error means the timeline ID is wrong, or timeline.username doesn't match URL username
           setError(`Timeline not found with ID '${timelineId}' for user '${username}', or URL is incorrect. Please check the link.`);
           setIsLoading(false);
           return;
@@ -92,18 +90,14 @@ export default function TimelineViewPage() {
           }
         }
         
-        // If all checks pass, set timeline
         setTimeline(timelineData);
         logAnalyticsEvent('view_timeline', { timeline_id: timelineId, user_id: authUser?.uid, owner_username: username });
 
-        // Fetch events only after confirming timeline access
         const eventData = await getTimelineEvents(timelineId);
         setEvents(eventData.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime()));
 
       } catch (err: any) {
         console.error("Error fetching timeline data in TimelineViewPage:", err);
-        // Default error message if specific checks above didn't catch it
-        // This could be a direct Firestore rule denial not caught by client logic.
         setError(err.message || "Failed to load timeline. This could be due to network issues or access restrictions.");
         if (toast && (err.message.includes("Access denied") || err.message.includes("permission"))) { 
           toast({ title: "Access Error", description: "You might not have permission to view this timeline or its events.", variant: "destructive" });
@@ -115,13 +109,13 @@ export default function TimelineViewPage() {
       }
     };
 
-    if (!authLoading) { // Ensure auth state is resolved before fetching
+    if (!authLoading) { 
         fetchData();
     } else {
       console.log("Auth is still loading, delaying fetchData...");
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [username, timelineId, authUser, authLoading]); // authUser and authLoading are critical dependencies
+  }, [username, timelineId, authUser, authLoading]); 
 
   const isOwner = useMemo(() => authUser?.uid === timeline?.userId, [authUser, timeline]);
 
@@ -187,6 +181,18 @@ export default function TimelineViewPage() {
     return upcoming.length > 0 ? upcoming[0].id : null;
   }, [events]);
 
+  useEffect(() => {
+    if (nextUpcomingEventId && events.length > 0) {
+      const element = document.getElementById(`event-${nextUpcomingEventId}`);
+      if (element) {
+        const timer = setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100); 
+        return () => clearTimeout(timer); 
+      }
+    }
+  }, [nextUpcomingEventId, events]);
+
 
   if (authLoading || (isLoading && !error && !timeline && !params.username && !params.timelineId)) {
     return (
@@ -221,7 +227,7 @@ export default function TimelineViewPage() {
     );
   }
 
-  if (!timeline) { // This case should ideally be covered by isLoading or error states.
+  if (!timeline) { 
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <div className="neo-card p-8">
@@ -238,7 +244,7 @@ export default function TimelineViewPage() {
     <div className="bg-background min-h-screen">
       <HeaderBar timeline={timeline} onAddEventClick={handleAddEventClick} />
       <div className="container mx-auto px-4 py-8">
-        {events.length === 0 && timeline ? ( // Ensure timeline exists before showing empty state
+        {events.length === 0 && timeline ? ( 
           <div className="text-center py-12 neo-card">
             <CalendarPlus className="h-20 w-20 text-muted-foreground mx-auto mb-6" />
             <h2 className="text-3xl font-bold text-primary mb-3">Timeline Is Empty!</h2>
@@ -254,7 +260,7 @@ export default function TimelineViewPage() {
               if (index > 0) {
                 const prevEventDueDate = events[index-1].dueDate;
                 const currentEventDueDate = event.dueDate;
-                if (isValid(currentEventDueDate) && isValid(prevEventDueDate) && currentEventDueDate.getTime() > prevEventDueDate.getTime()) { // Added .getTime() for robust comparison
+                if (isValid(currentEventDueDate) && isValid(prevEventDueDate) && currentEventDueDate.getTime() > prevEventDueDate.getTime()) { 
                    gapIndicatorText = formatDistanceStrict(currentEventDueDate, prevEventDueDate, { roundingMethod: 'ceil' });
                 }
               }
@@ -269,7 +275,7 @@ export default function TimelineViewPage() {
                       </div>
                     </div>
                   )}
-                  <div className="flex items-start mb-12 relative">
+                  <div className="flex items-start mb-12 relative" id={`event-${event.id}`}>
                     <div className="absolute left-[-20px] top-1 flex flex-col items-center"> 
                        <div className={cn(`
                         w-6 h-6 border-2 flex-shrink-0 z-10 rounded-sm
@@ -280,7 +286,7 @@ export default function TimelineViewPage() {
                       )}></div>
                       {index < events.length - 1 && ( 
                         <div className={cn(
-                            "w-1 flex-grow bg-strong-border-color mt-1 min-h-[calc(100%_-_1.5rem_+_3rem)]",
+                            "w-1 flex-grow bg-strong-border-color mt-1 min-h-[12rem]", // Increased min-height
                         )}></div>
                       )}
                     </div>
