@@ -2,6 +2,7 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
+import { getAnalytics, type Analytics, isSupported as isAnalyticsSupported } from 'firebase/analytics';
 
 const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 const authDomain = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN;
@@ -35,6 +36,7 @@ const firebaseConfig = {
 let app: FirebaseApp;
 let auth: Auth;
 let db: Firestore;
+let analytics: Analytics | null = null;
 
 try {
   if (!getApps().length) {
@@ -42,6 +44,20 @@ try {
   } else {
     app = getApp();
   }
+
+  if (typeof window !== 'undefined') {
+    isAnalyticsSupported().then((supported) => {
+      if (supported) {
+        analytics = getAnalytics(app);
+        // console.log("Firebase Analytics initialized.");
+      } else {
+        // console.log("Firebase Analytics is not supported in this environment.");
+      }
+    }).catch(err => {
+        console.error("Error checking Firebase Analytics support:", err);
+    });
+  }
+
 } catch (e: any) {
   console.error("Firebase initialization error:", e.message);
   let detailedMessage = `Failed to initialize Firebase: ${e.message}. `;
@@ -62,4 +78,4 @@ try {
 
 db = getFirestore(app);
 
-export { app, auth, db };
+export { app, auth, db, analytics };

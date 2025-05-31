@@ -14,6 +14,7 @@ import { Loader2, PlusCircle } from 'lucide-react';
 import { createTimelineAction } from '@/actions/timelineActions';
 import { useAuth } from '@/hooks/useAuth';
 import type { Timeline } from '@/types';
+import { logAnalyticsEvent } from '@/lib/analytics';
 
 const timelineSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters").max(100, "Title too long"),
@@ -50,6 +51,7 @@ export default function CreateTimelineModal({ onTimelineCreated }: CreateTimelin
       if (!newTimeline) throw new Error("Failed to create timeline");
 
       toast({ title: "Timeline Created!", description: `"${newTimeline.title}" is ready for action.` });
+      logAnalyticsEvent('create_timeline', { timeline_id: newTimeline.id, user_id: user.uid });
       onTimelineCreated(newTimeline);
       reset();
       setIsOpen(false);
@@ -95,4 +97,3 @@ export default function CreateTimelineModal({ onTimelineCreated }: CreateTimelin
     </Dialog>
   );
 }
-    

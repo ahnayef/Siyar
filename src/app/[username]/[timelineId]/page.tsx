@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { deleteTimelineEventAction } from '@/actions/timelineActions';
 import { cn } from '@/lib/utils';
 import { formatDistanceStrict, isValid } from 'date-fns';
+import { logAnalyticsEvent } from '@/lib/analytics';
 
 
 export default function TimelineViewPage() {
@@ -67,6 +68,7 @@ export default function TimelineViewPage() {
         setTimeline(timelineData);
         const eventData = await getTimelineEvents(timelineId);
         setEvents(eventData.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime()));
+        logAnalyticsEvent('view_timeline', { timeline_id: timelineId, user_id: authUser?.uid, owner_username: username });
 
       } catch (err: any) {
         console.error("Error fetching timeline data:", err);
@@ -113,6 +115,7 @@ export default function TimelineViewPage() {
         await deleteTimelineEventAction(authUser.uid, timeline.id, eventId);
         setEvents(prevEvents => prevEvents.filter(e => e.id !== eventId));
         toast({ title: "Event Deleted", description: "The event has been removed." });
+        logAnalyticsEvent('delete_event', { timeline_id: timeline.id, event_id: eventId, user_id: authUser.uid });
       } catch (err: any) {
         toast({ title: "Error Deleting Event", description: err.message, variant: "destructive" });
       }
@@ -223,7 +226,7 @@ export default function TimelineViewPage() {
               return (
                 <React.Fragment key={event.id}>
                   {gapIndicatorText && (
-                    <div className="relative h-16 flex items-center justify-center my-2">
+                     <div className="relative h-16 flex items-center justify-center my-2">
                        <div className="bg-card border-2 border-strong-border-color shadow-neo-active p-2 rounded-[4px] text-xs font-space-mono text-muted-foreground flex items-center gap-1.5 z-10">
                         <CalendarClock className="h-3.5 w-3.5" />
                         {gapIndicatorText} later
@@ -232,7 +235,7 @@ export default function TimelineViewPage() {
                   )}
                   <div className="flex items-start mb-12 relative">
                     <div className="absolute left-[-20px] top-1 flex flex-col items-center"> 
-                      <div className={cn(`
+                       <div className={cn(`
                         w-6 h-6 border-2 flex-shrink-0 z-10 rounded-sm
                         shadow-neo-active`,
                         event.id === nextUpcomingEventId 
@@ -241,7 +244,7 @@ export default function TimelineViewPage() {
                       )}></div>
                       {index < events.length - 1 && ( 
                         <div className={cn(
-                            "w-1 flex-grow bg-strong-border-color mt-1 min-h-[10rem]", 
+                            "w-1 flex-grow bg-strong-border-color mt-1 min-h-[calc(100%_-_1.5rem_+_3rem)]", // 100% - marker height + bottom margin of EventCard
                         )}></div>
                       )}
                     </div>
@@ -274,4 +277,3 @@ export default function TimelineViewPage() {
     </div>
   );
 }
-    

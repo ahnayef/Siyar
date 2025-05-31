@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { logAnalyticsEvent } from '@/lib/analytics';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,6 +27,7 @@ export default function LoginPage() {
     try {
       await signInWithEmailAndPassword(auth, data.email, data.password);
       toast({ title: "Login Successful", description: "Welcome back!" });
+      logAnalyticsEvent('login', { method: 'email_password', user_id: auth.currentUser?.uid });
       router.push('/dashboard');
     } catch (error: any) {
       let errorMessage = "Failed to login. Please check your credentials.";
@@ -38,6 +40,7 @@ export default function LoginPage() {
         description: errorMessage,
         variant: "destructive",
       });
+      logAnalyticsEvent('login_failed', { method: 'email_password', error_code: error.code });
       throw new Error(errorMessage); 
     }
   };
@@ -67,4 +70,3 @@ export default function LoginPage() {
     </div>
   );
 }
-    

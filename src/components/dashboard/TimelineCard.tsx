@@ -16,10 +16,11 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Lock, Unlock, CalendarDays, ArrowRight, MoreVertical, Trash2, Share2, Copy } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuth } from '@/hooks/useAuth';
-import { deleteTimelineAction } from '@/actions/timelineActions'; // Assuming this will be created
+import { deleteTimelineAction } from '@/actions/timelineActions'; 
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
-import ShareTimelineModal from './ShareTimelineModal'; // Assuming this will be created
+import ShareTimelineModal from './ShareTimelineModal'; 
+import { logAnalyticsEvent } from '@/lib/analytics';
 
 interface TimelineCardProps {
   timeline: Timeline;
@@ -40,6 +41,7 @@ export default function TimelineCard({ timeline, onTimelineDeleted }: TimelineCa
     try {
       await deleteTimelineAction(user.uid, timeline.id);
       toast({ title: "Timeline Deleted", description: `"${timeline.title}" has been removed.` });
+      logAnalyticsEvent('delete_timeline', { timeline_id: timeline.id, user_id: user.uid });
       if (onTimelineDeleted) {
         onTimelineDeleted(timeline.id);
       }
@@ -48,7 +50,13 @@ export default function TimelineCard({ timeline, onTimelineDeleted }: TimelineCa
     }
   };
 
-  const shareLink = `${window.location.origin}/${timeline.username}/${timeline.id}`;
+  const handleOpenShareModal = () => {
+    setIsShareModalOpen(true);
+    logAnalyticsEvent('open_share_timeline_modal', { timeline_id: timeline.id, user_id: user?.uid });
+  }
+
+  const shareLink = typeof window !== 'undefined' ? `${window.location.origin}/${timeline.username}/${timeline.id}` : '';
+
 
   return (
     <>
@@ -73,7 +81,7 @@ export default function TimelineCard({ timeline, onTimelineDeleted }: TimelineCa
                         </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="neo-card w-48">
-                            <DropdownMenuItem onClick={() => setIsShareModalOpen(true)} className="cursor-pointer">
+                            <DropdownMenuItem onClick={handleOpenShareModal} className="cursor-pointer">
                                 <Share2 className="mr-2 h-4 w-4" /> Share
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
@@ -129,4 +137,3 @@ export default function TimelineCard({ timeline, onTimelineDeleted }: TimelineCa
     </>
   );
 }
-    

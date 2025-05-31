@@ -18,7 +18,9 @@ import type { TimelineEvent } from '@/types';
 import { format } from 'date-fns';
 import { addEventToTimelineAction, updateTimelineEventAction } from '@/actions/timelineActions';
 import { useAuth } from '@/hooks/useAuth';
-import { enhanceEventDetails, type EnhanceEventDetailsInput } from '@/ai/flows/enhance-event-details-flow';
+import { enhanceEventDetails } from '@/ai/flows/enhance-event-details-flow';
+import type { EnhanceEventDetailsInput } from '@/ai/flows/enhance-event-details-flow';
+import { logAnalyticsEvent } from '@/lib/analytics';
 
 const eventSchema = z.object({
   title: z.string().min(1, "Title is required").max(100),
@@ -82,8 +84,14 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
     const currentText = getValues(type);
     const contextText = type === 'title' ? getValues('description') : getValues('title');
 
-    if (type === 'title') setIsSuggestingTitle(true);
-    if (type === 'description') setIsSuggestingDescription(true);
+    if (type === 'title') {
+        setIsSuggestingTitle(true);
+        logAnalyticsEvent('ai_suggest_title', { timeline_id: timelineId, user_id: user?.uid });
+    }
+    if (type === 'description') {
+        setIsSuggestingDescription(true);
+        logAnalyticsEvent('ai_suggest_description', { timeline_id: timelineId, user_id: user?.uid });
+    }
 
     try {
       const result = await enhanceEventDetails({
@@ -117,9 +125,11 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
     if (type === 'title') {
       setTitleSuggestionsOpen(false);
       setTitleSuggestions([]);
+      logAnalyticsEvent('ai_apply_title_suggestion', { timeline_id: timelineId, user_id: user?.uid });
     } else {
       setDescriptionSuggestionsOpen(false);
       setDescriptionSuggestions([]);
+      logAnalyticsEvent('ai_apply_description_suggestion', { timeline_id: timelineId, user_id: user?.uid });
     }
   };
 
@@ -139,8 +149,10 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
 
       if (eventToEdit) {
         savedEvent = await updateTimelineEventAction(user.uid, timelineId, eventToEdit.id, eventPayload);
+        logAnalyticsEvent('edit_event', { timeline_id: timelineId, event_id: savedEvent.id, user_id: user.uid });
       } else {
         savedEvent = await addEventToTimelineAction(user.uid, timelineId, eventPayload);
+        logAnalyticsEvent('create_event', { timeline_id: timelineId, event_id: savedEvent.id, user_id: user.uid });
       }
       
       toast({ title: eventToEdit ? "Event Updated" : "Event Added", description: `"${data.title}" has been committed.` });
@@ -267,4 +279,3 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
     </Dialog>
   );
 }
-

@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import React, { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { updateUserUsernameAction } from "@/actions/profileActions"; 
+import { logAnalyticsEvent } from "@/lib/analytics";
 
 function ProfilePageContent() {
   const { user, userProfile, loading: authLoading, refreshUserProfile } = useAuth(); 
@@ -45,9 +46,11 @@ function ProfilePageContent() {
     try {
       await updateUserUsernameAction(user.uid, username);
       toast({ title: "Username Updated!", description: `Your username is now ${username}.` });
+      logAnalyticsEvent('update_username', { user_id: user.uid });
       if(refreshUserProfile) await refreshUserProfile(); 
     } catch (error: any) {
       toast({ title: "Error Updating Username", description: error.message, variant: "destructive" });
+      logAnalyticsEvent('update_username_failed', { user_id: user.uid, error_message: error.message });
     } finally {
       setIsSavingUsername(false);
     }
@@ -72,6 +75,7 @@ function ProfilePageContent() {
     setIsSavingPassword(true);
     toast({ title: "Password Change", description: "Password change functionality is not fully implemented yet." });
     // Example: await updatePassword(auth.currentUser, newPassword);
+    // logAnalyticsEvent('update_password_attempt', { user_id: user?.uid }); // Example, actual event on success
     setIsSavingPassword(false);
     setNewPassword("");
     setConfirmPassword("");

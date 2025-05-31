@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { logAnalyticsEvent } from '@/lib/analytics';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -46,6 +47,7 @@ export default function SignupPage() {
       }
       
       toast({ title: "Signup Successful", description: "Welcome to ChronoFlow!" });
+      logAnalyticsEvent('sign_up', { method: 'email_password', user_id: userFB?.uid });
       router.push('/dashboard');
     } catch (error: any) {
       let errorMessage = "Failed to sign up. Please try again.";
@@ -60,6 +62,7 @@ export default function SignupPage() {
         description: errorMessage,
         variant: "destructive",
       });
+      logAnalyticsEvent('signup_failed', { method: 'email_password', error_message: error.message, error_code: error.code });
       throw new Error(errorMessage);
     }
   };
@@ -89,4 +92,3 @@ export default function SignupPage() {
     </div>
   );
 }
-    
