@@ -29,6 +29,12 @@ const eventSchema = z.object({
 });
 type EventFormData = z.infer<typeof eventSchema>;
 
+// Define the type for the form's internal state, allowing dueDate to be undefined initially
+type EventFormState = Omit<EventFormData, 'dueDate'> & {
+  dueDate?: Date;
+};
+
+
 interface AddEventModalProps {
   timelineId: string;
   isOpen: boolean;
@@ -63,12 +69,30 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
   });
 
   useEffect(() => {
-    if (isOpen) { 
+    if (isOpen) {
       if (eventToEdit) {
         setValue('title', eventToEdit.title);
         setValue('description', eventToEdit.description || '');
-        if (eventToEdit.dueDate) {
-          setValue('dueDate', new Date(eventToEdit.dueDate));
+        const rawDueDate = eventToEdit.dueDate;
+        let dateToSet: Date | undefined = undefined;
+
+        if (rawDueDate) {
+          // Check if it's a Firebase Timestamp or similar object with a toDate() method
+          if (typeof (rawDueDate as any).toDate === 'function') {
+            dateToSet = (rawDueDate as any).toDate();
+          } else {
+            // Try to parse if it's a string, number, or already a Date object
+            const parsedDate = new Date(rawDueDate as string | number | Date);
+            if (!isNaN(parsedDate.getTime())) { // Check if the parsed date is valid
+              dateToSet = parsedDate;
+            } else {
+              console.warn("AddEventModal: Could not parse invalid date value for eventToEdit.dueDate:", rawDueDate);
+              // dateToSet remains undefined
+            }
+          }
+        }
+        if (dateToSet) {
+          setValue('dueDate', dateToSet);
         }
       } else {
         reset({ title: '', description: '', dueDate: undefined });
@@ -77,7 +101,7 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
       setDescriptionSuggestions([]);
       setTitleSuggestionsOpen(false);
       setDescriptionSuggestionsOpen(false);
-      setHasUsedAITitle(false); 
+      setHasUsedAITitle(false);
       setHasUsedAIDescription(false);
     }
   }, [eventToEdit, isOpen, reset, setValue]);
@@ -87,12 +111,12 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
     const contextText = type === 'title' ? getValues('description') : getValues('title');
 
     if (type === 'title') {
-        setIsSuggestingTitle(true);
-        logAnalyticsEvent('ai_suggest_title', { timeline_id: timelineId, user_id: user?.uid });
+      setIsSuggestingTitle(true);
+      logAnalyticsEvent('ai_suggest_title', { timeline_id: timelineId, user_id: user?.uid });
     }
     if (type === 'description') {
-        setIsSuggestingDescription(true);
-        logAnalyticsEvent('ai_suggest_description', { timeline_id: timelineId, user_id: user?.uid });
+      setIsSuggestingDescription(true);
+      logAnalyticsEvent('ai_suggest_description', { timeline_id: timelineId, user_id: user?.uid });
     }
 
     try {
@@ -146,7 +170,7 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
       let savedEvent: TimelineEvent;
       const eventPayload = {
         ...data,
-        description: data.description || "", 
+        description: data.description || "",
       };
 
       if (eventToEdit) {
@@ -156,11 +180,11 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
         savedEvent = await addEventToTimelineAction(user.uid, timelineId, eventPayload);
         logAnalyticsEvent('create_event', { timeline_id: timelineId, event_id: savedEvent.id, user_id: user.uid });
       }
-      
+
       toast({ title: eventToEdit ? "Event Updated" : "Event Added", description: `"${data.title}" has been committed.` });
       onEventAddedOrUpdated(savedEvent);
-      reset(); 
-      setIsOpen(false); 
+      reset();
+      setIsOpen(false);
     } catch (error: any) {
       toast({
         title: "Error Saving Event",
@@ -171,16 +195,16 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
       setIsLoading(false);
     }
   };
-  
+
   const onModalOpenChange = (open: boolean) => {
     setIsOpen(open);
-    if (!open) { 
-        setTitleSuggestions([]);
-        setDescriptionSuggestions([]);
-        setTitleSuggestionsOpen(false);
-        setDescriptionSuggestionsOpen(false);
-        setHasUsedAITitle(false);
-        setHasUsedAIDescription(false);
+    if (!open) {
+      setTitleSuggestions([]);
+      setDescriptionSuggestions([]);
+      setTitleSuggestionsOpen(false);
+      setDescriptionSuggestionsOpen(false);
+      setHasUsedAITitle(false);
+      setHasUsedAIDescription(false);
     }
   };
 
@@ -203,21 +227,21 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-2 space-y-1 neo-card" align="end">
-                  {isSuggestingTitle ? <p className="text-sm text-muted-foreground p-2">Generating...</p> : 
+                  {isSuggestingTitle ? <p className="text-sm text-muted-foreground p-2">Generating...</p> :
                     titleSuggestions.length > 0 ? titleSuggestions.map((s, i) => (
-                    <Button key={i} variant="ghost" size="sm" className="w-full justify-start text-left h-auto py-1.5 px-2 neo-button-outline border-muted hover:border-primary" onClick={() => applySuggestion('title', s)}>{s}</Button>
-                  )) : <p className="text-sm text-muted-foreground p-2">No suggestions yet or failed to load.</p>}
+                      <Button key={i} variant="ghost" size="sm" className="w-full justify-start text-left h-auto py-1.5 px-2 neo-button-outline border-muted hover:border-primary" onClick={() => applySuggestion('title', s)}>{s}</Button>
+                    )) : <p className="text-sm text-muted-foreground p-2">No suggestions yet or failed to load.</p>}
                 </PopoverContent>
               </Popover>
             </div>
             <Input id="title" {...register('title')} className="neo-input" />
             {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
           </div>
-          
+
           <div className="space-y-1">
             <div className="flex justify-between items-center">
               <Label htmlFor="description" className="text-card-foreground font-semibold font-inter">Description</Label>
-               <Popover open={descriptionSuggestionsOpen} onOpenChange={setDescriptionSuggestionsOpen}>
+              <Popover open={descriptionSuggestionsOpen} onOpenChange={setDescriptionSuggestionsOpen}>
                 <PopoverTrigger asChild>
                   <Button type="button" variant="ghost" size="sm" onClick={() => handleSuggest('description')} disabled={isSuggestingDescription || hasUsedAIDescription} className="px-2 py-1 text-xs text-primary hover:bg-primary/10">
                     {isSuggestingDescription ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 mr-1" />}
@@ -226,9 +250,9 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
                 </PopoverTrigger>
                 <PopoverContent className="w-auto max-w-sm p-2 space-y-1 neo-card" align="end">
                   {isSuggestingDescription ? <p className="text-sm text-muted-foreground p-2">Generating...</p> :
-                  descriptionSuggestions.length > 0 ? descriptionSuggestions.map((s, i) => (
-                    <Button key={i} variant="ghost" size="sm" className="w-full justify-start text-left h-auto whitespace-pre-wrap py-1.5 px-2 neo-button-outline border-muted hover:border-primary" onClick={() => applySuggestion('description', s)}>{s}</Button>
-                  )) : <p className="text-sm text-muted-foreground p-2">No suggestions yet or failed to load.</p>}
+                    descriptionSuggestions.length > 0 ? descriptionSuggestions.map((s, i) => (
+                      <Button key={i} variant="ghost" size="sm" className="w-full justify-start text-left h-auto whitespace-pre-wrap py-1.5 px-2 neo-button-outline border-muted hover:border-primary" onClick={() => applySuggestion('description', s)}>{s}</Button>
+                    )) : <p className="text-sm text-muted-foreground p-2">No suggestions yet or failed to load.</p>}
                 </PopoverContent>
               </Popover>
             </div>
@@ -254,9 +278,8 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0 neo-card border-border" align="start">
                     <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={(date) => field.onChange(date)}
+                      value={field.value}
+                      onChange={(date) => field.onChange(date)}
                       initialFocus
                       className="bg-popover text-popover-foreground"
                     />
@@ -269,7 +292,7 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
 
           <DialogFooter>
             <DialogClose asChild>
-                <Button type="button" variant="outline" className="neo-button-outline my-5 md:my-0">Cancel</Button>
+              <Button type="button" variant="outline" className="neo-button-outline my-5 md:my-0">Cancel</Button>
             </DialogClose>
             <Button type="submit" disabled={isLoading || !user} className="neo-button">
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

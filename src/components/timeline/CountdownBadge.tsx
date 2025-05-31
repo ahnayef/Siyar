@@ -51,7 +51,7 @@ const getBadgeStyle = (dueDate: Date): BadgeStyle => {
     variant: 'neutral-status' as const, 
     icon: <Clock className="h-3.5 w-3.5 mr-1" />, // Using Clock for neutral
     textPrefix: "",
-    textColorClass: "text-neutral-status-foreground"
+    textColorClass: "text-black"
   }; 
 };
 
@@ -126,6 +126,9 @@ export default function CountdownBadge({ dueDate }: CountdownBadgeProps) {
 }
 
 // Ensure BadgeProps allows for the new semantic variants
+import type { VariantProps } from "class-variance-authority";
+import { badgeVariants } from "@/components/ui/badge";
+
 declare module "@/components/ui/badge" {
   interface BadgeProps {
     // Make sure this includes all variants defined in badgeVariants + custom ones
