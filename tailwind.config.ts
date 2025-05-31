@@ -88,11 +88,21 @@ export default {
             height: '0',
           },
         },
+        'event-entry': {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'event-entry': 'event-entry 0.5s ease-out forwards',
       },
+      boxShadow: {
+        'neo-sm': '2px 2px 0px 0px hsl(var(--foreground))',
+        'neo': '4px 4px 0px 0px hsl(var(--foreground))',
+        'neo-lg': '6px 6px 0px 0px hsl(var(--foreground))',
+      }
     },
   },
   plugins: [require('tailwindcss-animate')],
