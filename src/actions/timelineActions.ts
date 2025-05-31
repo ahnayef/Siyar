@@ -1,47 +1,33 @@
+
 "use server";
 
 import { auth, db } from "@/lib/firebase";
 import { getUserTimelines, createTimeline, updateTimelineVisibility, addEventToTimeline, getTimelineEvents, updateTimelineEvent, deleteTimelineEvent, getAllUserEventsForAI as getAllUserEventsForAIDbOp } from "@/lib/firestoreOps";
 import type { Timeline, TimelineEvent } from "@/types";
-import { Timestamp, collection, doc, serverTimestamp, writeBatch, getDocs, query, where } from "firebase/firestore";
+import { Timestamp, collection, doc, serverTimestamp, getDocs, query, where, updateDoc, getDoc } from "firebase/firestore";
 import { revalidatePath } from "next/cache";
 
-// Helper to get current authenticated user's ID and username
-async function getAuthenticatedUser() {
-  const firebaseUser = auth.currentUser; // This works for client-side calls proxied via server actions if auth state is maintained.
-                                          // For true server-side auth, you'd need to handle session/token verification.
-                                          // Assuming this action is called from client where auth state is available via useAuth.
-                                          // For robust server actions, pass userId/username explicitly after server-side verification.
-  if (!firebaseUser || !firebaseUser.uid) {
-    throw new Error("User not authenticated.");
+export async function createTimelineAction(userId: string, username: string, title: string): Promise<string> {
+  if (!userId || !username) {
+    throw new Error("User ID and username are required.");
   }
-  // This is a simplified way to get username. In a real app, you might have it from a session or re-fetch.
-  // For this example, we assume client passes enough info or we fetch it based on UID.
-  const userDoc = await doc(db, "users", firebaseUser.uid).get();
-  if (!userDoc.exists()) throw new Error("User profile not found.");
-  const username = userDoc.data()?.username;
-  if (!username) throw new Error("Username not found for user.");
-  
-  return { userId: firebaseUser.uid, username };
-}
-
-
-export async function createTimelineAction(title: string): Promise<string> {
-  const { userId, username } = await getAuthenticatedUser();
   const timelineId = await createTimeline(userId, username, title);
   revalidatePath("/dashboard");
   return timelineId;
 }
 
-export async function updateTimelineVisibilityAction(timelineId: string, isPublic: boolean): Promise<void> {
-  const { userId } = await getAuthenticatedUser();
-  // Add a check to ensure the user owns the timeline before updating
-  const timelineDoc = await doc(db, "timelines", timelineId).get();
-  if (!timelineDoc.exists() || timelineDoc.data()?.userId !== userId) {
+export async function updateTimelineVisibilityAction(userId: string, timelineId: string, isPublic: boolean): Promise<void> {
+  if (!userId) {
+    throw new Error("User ID is required.");
+  }
+  const timelineDocRef = doc(db, "timelines", timelineId);
+  const timelineDocSnap = await getDoc(timelineDocRef);
+
+  if (!timelineDocSnap.exists() || timelineDocSnap.data()?.userId !== userId) {
     throw new Error("Unauthorized or timeline not found.");
   }
   await updateTimelineVisibility(timelineId, isPublic);
-  const username = timelineDoc.data()?.username;
+  const username = timelineDocSnap.data()?.username;
   if (username) {
     revalidatePath(`/${username}/${timelineId}`);
   }
@@ -50,51 +36,59 @@ export async function updateTimelineVisibilityAction(timelineId: string, isPubli
 
 
 export async function addEventToTimelineAction(
+  userId: string,
   timelineId: string, 
   eventData: { title: string; description?: string; dueDate: Date }
 ): Promise<TimelineEvent> {
-  const { userId } = await getAuthenticatedUser();
-  const timelineDoc = await doc(db, "timelines", timelineId).get();
-  if (!timelineDoc.exists() || timelineDoc.data()?.userId !== userId) {
+  if (!userId) {
+    throw new Error("User ID is required.");
+  }
+  const timelineDocRef = doc(db, "timelines", timelineId);
+  const timelineDocSnap = await getDoc(timelineDocRef);
+
+  if (!timelineDocSnap.exists() || timelineDocSnap.data()?.userId !== userId) {
     throw new Error("Unauthorized or timeline not found.");
   }
 
-  const eventsColRef = collection(db, 'timelines', timelineId, 'events');
   const newEventData = {
     title: eventData.title,
     description: eventData.description || "",
     dueDate: Timestamp.fromDate(new Date(eventData.dueDate)),
-    createdAt: serverTimestamp() as Timestamp, // Cast for type consistency
-    updatedAt: serverTimestamp() as Timestamp, // Cast for type consistency
+    createdAt: serverTimestamp() as Timestamp,
+    updatedAt: serverTimestamp() as Timestamp,
   };
   
-  const newEventRef = await doc(collection(db, 'timelines', timelineId, 'events')); // Generate ID client-side like
+  const newEventRef = doc(collection(db, 'timelines', timelineId, 'events'));
   await newEventRef.set(newEventData);
 
-  const username = timelineDoc.data()?.username;
+  const username = timelineDocSnap.data()?.username;
   if (username) {
     revalidatePath(`/${username}/${timelineId}`);
   }
   
-  // Return the full event object as expected by client
   return { 
     id: newEventRef.id, 
     timelineId, 
     ...eventData, 
     dueDate: newEventData.dueDate, 
-    createdAt: Timestamp.now(), // Approximate, serverTimestamp is better
+    createdAt: Timestamp.now(), 
     updatedAt: Timestamp.now() 
   } as TimelineEvent;
 }
 
 export async function updateTimelineEventAction(
+  userId: string,
   timelineId: string, 
   eventId: string, 
   eventData: { title: string; description?: string; dueDate: Date }
 ): Promise<TimelineEvent> {
-  const { userId } = await getAuthenticatedUser();
-  const timelineDoc = await doc(db, "timelines", timelineId).get();
-  if (!timelineDoc.exists() || timelineDoc.data()?.userId !== userId) {
+  if (!userId) {
+    throw new Error("User ID is required.");
+  }
+  const timelineDocRef = doc(db, "timelines", timelineId);
+  const timelineDocSnap = await getDoc(timelineDocRef);
+
+  if (!timelineDocSnap.exists() || timelineDocSnap.data()?.userId !== userId) {
     throw new Error("Unauthorized or timeline not found.");
   }
 
@@ -108,7 +102,7 @@ export async function updateTimelineEventAction(
   
   await updateDoc(eventDocRef, updatePayload);
 
-  const username = timelineDoc.data()?.username;
+  const username = timelineDocSnap.data()?.username;
   if (username) {
     revalidatePath(`/${username}/${timelineId}`);
   }
@@ -116,34 +110,41 @@ export async function updateTimelineEventAction(
   const updatedEventSnap = await getDoc(eventDocRef);
   const updatedEventData = updatedEventSnap.data();
 
+  if (!updatedEventData) {
+    throw new Error("Failed to retrieve updated event data.");
+  }
+
   return { 
     id: eventId, 
     timelineId, 
-    ...updatedEventData,
-    dueDate: (updatedEventData?.dueDate as Timestamp).toDate(),
-    createdAt: (updatedEventData?.createdAt as Timestamp).toDate(),
-    updatedAt: (updatedEventData?.updatedAt as Timestamp).toDate(),
+    title: updatedEventData.title,
+    description: updatedEventData.description,
+    dueDate: (updatedEventData.dueDate as Timestamp).toDate(),
+    createdAt: (updatedEventData.createdAt as Timestamp).toDate(),
+    updatedAt: (updatedEventData.updatedAt as Timestamp).toDate(),
   } as TimelineEvent;
 }
 
-export async function deleteTimelineEventAction(timelineId: string, eventId: string): Promise<void> {
-  const { userId } = await getAuthenticatedUser();
-  const timelineDoc = await doc(db, "timelines", timelineId).get();
-  if (!timelineDoc.exists() || timelineDoc.data()?.userId !== userId) {
+export async function deleteTimelineEventAction(userId: string, timelineId: string, eventId: string): Promise<void> {
+  if (!userId) {
+    throw new Error("User ID is required.");
+  }
+  const timelineDocRef = doc(db, "timelines", timelineId);
+  const timelineDocSnap = await getDoc(timelineDocRef);
+
+  if (!timelineDocSnap.exists() || timelineDocSnap.data()?.userId !== userId) {
     throw new Error("Unauthorized or timeline not found.");
   }
   await deleteTimelineEvent(timelineId, eventId);
-  const username = timelineDoc.data()?.username;
+  const username = timelineDocSnap.data()?.username;
   if (username) {
     revalidatePath(`/${username}/${timelineId}`);
   }
 }
 
-export async function getAllUserEventsForAIAction(): Promise<string> {
-  const { userId } = await getAuthenticatedUser();
+export async function getAllUserEventsForAIAction(userId: string): Promise<string> {
+  if (!userId) {
+    throw new Error("User ID is required.");
+  }
   return getAllUserEventsForAIDbOp(userId);
 }
-
-// This is a server action. In a real app, ensure auth is handled correctly.
-// For now, assuming client provides necessary IDs after its own auth checks.
-// Actual production server actions would need more robust auth.

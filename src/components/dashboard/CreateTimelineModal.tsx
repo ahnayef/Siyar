@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -10,7 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, PlusCircle } from 'lucide-react';
-import { createTimelineAction } from '@/actions/timelineActions'; // We'll create this action
+import { createTimelineAction } from '@/actions/timelineActions';
+import { useAuth } from '@/hooks/useAuth';
 
 const timelineSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters").max(100, "Title too long"),
@@ -25,14 +27,25 @@ export default function CreateTimelineModal({ onTimelineCreated }: CreateTimelin
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { user, userProfile } = useAuth(); // Get user and profile
   const { register, handleSubmit, reset, formState: { errors } } = useForm<TimelineFormData>({
     resolver: zodResolver(timelineSchema),
   });
 
   const handleFormSubmit: SubmitHandler<TimelineFormData> = async (data) => {
     setIsLoading(true);
+    if (!user || !userProfile?.username) {
+      toast({
+        title: "Authentication Error",
+        description: "User not logged in or profile incomplete. Please log in again.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const newTimelineId = await createTimelineAction(data.title);
+      const newTimelineId = await createTimelineAction(user.uid, userProfile.username, data.title);
       if (!newTimelineId) throw new Error("Failed to create timeline");
 
       toast({ title: "Timeline Created", description: `"${data.title}" has been successfully created.` });
@@ -71,7 +84,7 @@ export default function CreateTimelineModal({ onTimelineCreated }: CreateTimelin
             <DialogClose asChild>
                 <Button type="button" variant="outline" className="neo-button bg-muted text-muted-foreground hover:bg-muted/90">Cancel</Button>
             </DialogClose>
-            <Button type="submit" disabled={isLoading} className="neo-button">
+            <Button type="submit" disabled={isLoading || !user} className="neo-button"> {/* Disable if user not loaded */}
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create Timeline
             </Button>

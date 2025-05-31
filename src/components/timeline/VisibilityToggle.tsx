@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -5,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Lock, Unlock, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { updateTimelineVisibilityAction } from '@/actions/timelineActions';
+import { useAuth } from '@/hooks/useAuth';
 
 interface VisibilityToggleProps {
   timelineId: string;
@@ -15,11 +17,20 @@ export default function VisibilityToggle({ timelineId, initialIsPublic }: Visibi
   const [isPublic, setIsPublic] = useState(initialIsPublic);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleToggle = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Error",
+        description: "You must be logged in to change timeline visibility.",
+        variant: "destructive",
+      });
+      return;
+    }
     setIsLoading(true);
     try {
-      await updateTimelineVisibilityAction(timelineId, !isPublic);
+      await updateTimelineVisibilityAction(user.uid, timelineId, !isPublic);
       setIsPublic(!isPublic);
       toast({
         title: "Visibility Updated",
@@ -37,7 +48,7 @@ export default function VisibilityToggle({ timelineId, initialIsPublic }: Visibi
   };
 
   return (
-    <Button onClick={handleToggle} disabled={isLoading} variant="outline" size="sm" className="neo-button bg-card text-card-foreground hover:bg-accent hover:text-accent-foreground">
+    <Button onClick={handleToggle} disabled={isLoading || !user} variant="outline" size="sm" className="neo-button bg-card text-card-foreground hover:bg-accent hover:text-accent-foreground">
       {isLoading ? (
         <Loader2 className="h-4 w-4 animate-spin mr-2" />
       ) : isPublic ? (

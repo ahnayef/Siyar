@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -17,6 +18,7 @@ import type { TimelineEvent } from '@/types';
 import { format, parseISO } from 'date-fns';
 import { suggestEventTimes } from '@/ai/flows/suggest-event-times';
 import { addEventToTimelineAction, updateTimelineEventAction, getAllUserEventsForAIAction } from '@/actions/timelineActions';
+import { useAuth } from '@/hooks/useAuth';
 
 const eventSchema = z.object({
   title: z.string().min(1, "Title is required").max(100),
@@ -38,6 +40,7 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
   const [isAISuggesting, setIsAISuggesting] = useState(false);
   const [aiSuggestion, setAISuggestion] = useState<{ date: string; reasoning: string} | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const { control, register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
@@ -62,13 +65,17 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
   }, [eventToEdit, isOpen, reset, setValue]);
 
   const handleFormSubmit: SubmitHandler<EventFormData> = async (data) => {
+    if (!user) {
+      toast({ title: "Authentication Error", description: "You must be logged in.", variant: "destructive" });
+      return;
+    }
     setIsLoading(true);
     try {
       let savedEvent: TimelineEvent | null = null;
       if (eventToEdit) {
-        savedEvent = await updateTimelineEventAction(timelineId, eventToEdit.id, data);
+        savedEvent = await updateTimelineEventAction(user.uid, timelineId, eventToEdit.id, data);
       } else {
-        savedEvent = await addEventToTimelineAction(timelineId, data);
+        savedEvent = await addEventToTimelineAction(user.uid, timelineId, data);
       }
 
       if (!savedEvent) throw new Error("Failed to save event.");
@@ -89,6 +96,10 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
   };
 
   const handleAISuggest = async () => {
+    if (!user) {
+        toast({ title: "Authentication Error", description: "You must be logged in for AI suggestions.", variant: "destructive"});
+        return;
+    }
     if (!eventDescriptionForAI) {
         toast({ title: "AI Suggestion", description: "Please provide an event description first.", variant: "default"});
         return;
@@ -96,14 +107,14 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
     setIsAISuggesting(true);
     setAISuggestion(null);
     try {
-        const pastTimelineData = await getAllUserEventsForAIAction();
+        const pastTimelineData = await getAllUserEventsForAIAction(user.uid);
         const suggestion = await suggestEventTimes({
             timelineData: pastTimelineData,
             newEventDescription: eventDescriptionForAI
         });
         if (suggestion && suggestion.suggestedDate) {
             setAISuggestion({ date: suggestion.suggestedDate, reasoning: suggestion.reasoning});
-            setValue('dueDate', parseISO(suggestion.suggestedDate)); // Assuming YYYY-MM-DD
+            setValue('dueDate', parseISO(suggestion.suggestedDate)); 
             toast({ title: "AI Suggestion Ready!", description: suggestion.reasoning });
         } else {
             toast({ title: "AI Suggestion", description: "Could not generate a suggestion at this time.", variant: "default"});
@@ -170,7 +181,7 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
             </div>
           )}
 
-          <Button type="button" onClick={handleAISuggest} disabled={isAISuggesting || !eventDescriptionForAI} variant="outline" className="w-full neo-button bg-secondary text-secondary-foreground hover:bg-secondary/80">
+          <Button type="button" onClick={handleAISuggest} disabled={isAISuggesting || !eventDescriptionForAI || !user} variant="outline" className="w-full neo-button bg-secondary text-secondary-foreground hover:bg-secondary/80">
             {isAISuggesting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
             Suggest Date with AI
           </Button>
@@ -179,7 +190,7 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
             <DialogClose asChild>
                 <Button type="button" variant="outline" className="neo-button bg-muted text-muted-foreground hover:bg-muted/90">Cancel</Button>
             </DialogClose>
-            <Button type="submit" disabled={isLoading} className="neo-button">
+            <Button type="submit" disabled={isLoading || !user} className="neo-button">
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {eventToEdit ? 'Save Changes' : 'Add Event'}
             </Button>

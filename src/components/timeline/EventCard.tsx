@@ -1,18 +1,20 @@
+
 "use client";
 
 import type { TimelineEvent } from '@/types';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import CountdownBadge from './CountdownBadge';
 import { format, formatDistanceStrict } from 'date-fns';
-import { BookOpen, CalendarDays, Edit3, Trash2, Flame, Hourglass, CheckCircle2 } from 'lucide-react'; // Example icons
+import { BookOpen, CalendarDays, Edit3, Trash2, Flame, Hourglass, CheckCircle2 } from 'lucide-react';
 import { Button } from '../ui/button';
 
 interface EventCardProps {
   event: TimelineEvent;
   previousEventDueDate?: Date | string | null;
   isNextUpcoming?: boolean;
-  onEdit: (event: TimelineEvent) => void;
-  onDelete: (eventId: string) => void;
+  onEdit?: (event: TimelineEvent) => void;
+  onDelete?: (eventId: string) => void;
+  isOwner: boolean;
   className?: string;
 }
 
@@ -20,10 +22,10 @@ const getIconForEvent = (title: string) => {
   if (title.toLowerCase().includes('exam') || title.toLowerCase().includes('test')) return <Flame className="h-5 w-5 text-destructive" />;
   if (title.toLowerCase().includes('assignment') || title.toLowerCase().includes('lab')) return <BookOpen className="h-5 w-5 text-blue-500" />;
   if (title.toLowerCase().includes('meeting') || title.toLowerCase().includes('appointment')) return <CalendarDays className="h-5 w-5 text-green-500" />;
-  return <CheckCircle2 className="h-5 w-5 text-primary" />; // Default
+  return <CheckCircle2 className="h-5 w-5 text-primary" />;
 };
 
-export default function EventCard({ event, previousEventDueDate, isNextUpcoming, onEdit, onDelete, className }: EventCardProps) {
+export default function EventCard({ event, previousEventDueDate, isNextUpcoming, onEdit, onDelete, isOwner, className }: EventCardProps) {
   const eventDueDate = typeof event.dueDate === 'string' ? new Date(event.dueDate) : event.dueDate;
 
   let gapIndicator = null;
@@ -59,14 +61,21 @@ export default function EventCard({ event, previousEventDueDate, isNextUpcoming,
           </p>
         )}
       </CardContent>
-      <CardFooter className="flex justify-end gap-2">
-        <Button variant="outline" size="sm" onClick={() => onEdit(event)} className="neo-button bg-secondary text-secondary-foreground hover:bg-secondary/80">
-          <Edit3 className="h-4 w-4 mr-1" /> Edit
-        </Button>
-        <Button variant="destructive" size="sm" onClick={() => onDelete(event.id)} className="neo-button">
-          <Trash2 className="h-4 w-4 mr-1" /> Delete
-        </Button>
-      </CardFooter>
+      {isOwner && (onEdit || onDelete) && (
+        <CardFooter className="flex justify-end gap-2">
+          {onEdit && (
+            <Button variant="outline" size="sm" onClick={() => onEdit(event)} className="neo-button bg-secondary text-secondary-foreground hover:bg-secondary/80">
+              <Edit3 className="h-4 w-4 mr-1" /> Edit
+            </Button>
+          )}
+          {onDelete && (
+            <Button variant="destructive" size="sm" onClick={() => onDelete(event.id)} className="neo-button">
+              <Trash2 className="h-4 w-4 mr-1" /> Delete
+            </Button>
+          )}
+        </CardFooter>
+      )}
     </Card>
   );
 }
+      

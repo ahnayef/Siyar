@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState, useMemo } from 'react';
@@ -10,7 +11,7 @@ import EventCard from '@/components/timeline/EventCard';
 import AddEventModal from '@/components/timeline/AddEventModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Lock, AlertTriangle } from 'lucide-react';
+import { Lock, AlertTriangle, Unlock } from 'lucide-react'; // Added Unlock
 import { useToast } from '@/hooks/use-toast';
 import { deleteTimelineEventAction } from '@/actions/timelineActions';
 import { Timestamp } from 'firebase/firestore';
@@ -52,14 +53,12 @@ export default function TimelineViewPage() {
         }
         setOwnerProfile(fetchedOwnerProfile);
 
-        // Use fetchedOwnerProfile.id to query timeline
         const timelineData = await getTimelineByUsernameAndId(username, timelineId);
 
         if (!timelineData) {
           throw new Error("Timeline not found.");
         }
         
-        // Check public/private access
         if (!timelineData.isPublic && (!authUser || authUser.uid !== timelineData.userId)) {
           throw new Error("This timeline is private.");
         }
@@ -77,24 +76,36 @@ export default function TimelineViewPage() {
       }
     };
 
-    fetchData();
-  }, [username, timelineId, authUser, toast]); // Add authUser to re-check access if auth state changes
+    // Delay fetch if auth is still loading to ensure authUser is available for private checks
+    if (!authLoading) {
+        fetchData();
+    }
+  }, [username, timelineId, authUser, authLoading, toast]);
 
   const handleAddEventClick = () => {
+    if (!isOwner) return;
     setEventToEdit(null);
     setIsAddEventModalOpen(true);
   };
 
   const handleEditEvent = (event: TimelineEvent) => {
+    if (!isOwner) return;
     setEventToEdit(event);
     setIsAddEventModalOpen(true);
   };
 
   const handleDeleteEvent = async (eventId: string) => {
-    if (!timeline) return;
+    if (!timeline || !authUser) {
+        toast({ title: "Error", description: "Timeline or user data not available.", variant: "destructive"});
+        return;
+    }
+    if (!isOwner) {
+        toast({ title: "Unauthorized", description: "You cannot delete events from this timeline.", variant: "destructive"});
+        return;
+    }
     if (window.confirm("Are you sure you want to delete this event?")) {
       try {
-        await deleteTimelineEventAction(timeline.id, eventId);
+        await deleteTimelineEventAction(authUser.uid, timeline.id, eventId);
         setEvents(prevEvents => prevEvents.filter(e => e.id !== eventId));
         toast({ title: "Event Deleted", description: "The event has been removed." });
       } catch (err: any) {
@@ -103,11 +114,19 @@ export default function TimelineViewPage() {
     }
   };
 
-  const handleEventAddedOrUpdated = (newEvent: TimelineEvent) => {
-     // Re-fetch events for simplicity or optimistically update
+  const handleEventAddedOrUpdated = (newEventOrUpdatedEvent: TimelineEvent) => {
     if (timeline) {
-      getTimelineEvents(timeline.id).then(eventData => {
-         setEvents(eventData.sort((a, b) => (a.dueDate as unknown as Timestamp).toMillis() - (b.dueDate as unknown as Timestamp).toMillis()));
+      // Optimistic update or re-fetch
+      setEvents(prevEvents => {
+        const existingEventIndex = prevEvents.findIndex(e => e.id === newEventOrUpdatedEvent.id);
+        let newEventsList;
+        if (existingEventIndex > -1) {
+          newEventsList = [...prevEvents];
+          newEventsList[existingEventIndex] = newEventOrUpdatedEvent;
+        } else {
+          newEventsList = [...prevEvents, newEventOrUpdatedEvent];
+        }
+        return newEventsList.sort((a, b) => (a.dueDate as unknown as Timestamp).toMillis() - (b.dueDate as unknown as Timestamp).toMillis());
       });
     }
   };
@@ -120,15 +139,16 @@ export default function TimelineViewPage() {
     return upcomingEvents.length > 0 ? upcomingEvents[0].id : null;
   }, [events]);
 
+  const isOwner = authUser?.uid === timeline?.userId;
 
   if (authLoading || isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <Skeleton className="h-12 w-3/4 mb-4" /> {/* HeaderBar Skel */}
+        <Skeleton className="h-12 w-3/4 mb-4" />
         <Skeleton className="h-8 w-1/4 mb-8" /> 
         <div className="space-y-6 md:space-y-0 md:grid md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 md:gap-6 timeline-container-vertical md:timeline-container-horizontal">
           {[1, 2, 3].map(i => (
-            <div key={i} className="relative p-2"> {/* For timeline connector positioning */}
+            <div key={i} className="relative p-2">
               <Skeleton className="h-40 w-full rounded-lg" />
             </div>
           ))}
@@ -149,14 +169,9 @@ export default function TimelineViewPage() {
   }
 
   if (!timeline) {
-    // Should be caught by error state, but as a fallback
     return <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">Timeline data not available.</div>;
   }
   
-  const isOwner = authUser?.uid === timeline.userId;
-
-  // The parent div for events will have the timeline line pseudo-element
-  // On mobile (sm breakpoint), it's vertical. On md and up, it's horizontal.
   const eventListContainerClasses = `
     relative 
     py-8 
@@ -170,7 +185,7 @@ export default function TimelineViewPage() {
       <div className="container mx-auto px-2 sm:px-4 py-8">
         {events.length === 0 ? (
           <div className="text-center py-12 neo-card rounded-lg">
-            <Lock className="h-16 w-16 text-muted-foreground mx-auto mb-4" /> {/* Or some other icon */}
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground mx-auto mb-4"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M16 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path><path d="M16 18h.01"></path></svg>
             <h2 className="text-2xl font-semibold mb-2">No Events Yet!</h2>
             <p className="text-muted-foreground mb-4">This timeline is empty. {isOwner ? "Add some events to get started." : ""}</p>
             {isOwner && <Button onClick={handleAddEventClick} className="neo-button">Add First Event</Button>}
@@ -180,15 +195,13 @@ export default function TimelineViewPage() {
             <div className="flex flex-col gap-8 sm:gap-12 md:flex-row md:overflow-x-auto md:pb-8">
               {events.map((event, index) => (
                 <div key={event.id} className="relative md:min-w-[350px] lg:min-w-[400px] flex-shrink-0">
-                  {/* Dot on timeline (optional, if line is central) */}
-                  {/* <div className="hidden md:block absolute top-1/2 left-[-6px] -translate-y-1/2 w-3 h-3 bg-primary rounded-full border-2 border-background"></div> */}
-                  {/* <div className="block md:hidden absolute left-[-22px] top-4 w-3 h-3 bg-primary rounded-full border-2 border-background"></div> */}
                   <EventCard
                     event={event}
                     previousEventDueDate={index > 0 ? events[index - 1].dueDate : null}
                     isNextUpcoming={event.id === nextUpcomingEventId}
-                    onEdit={isOwner ? handleEditEvent : ()=>{}}
-                    onDelete={isOwner ? handleDeleteEvent : ()=>{}}
+                    onEdit={isOwner ? handleEditEvent : undefined}
+                    onDelete={isOwner ? handleDeleteEvent : undefined}
+                    isOwner={isOwner}
                     className="w-full"
                   />
                 </div>
