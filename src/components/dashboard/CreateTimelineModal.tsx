@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, PlusCircle } from 'lucide-react';
 import { createTimelineAction } from '@/actions/timelineActions';
 import { useAuth } from '@/hooks/useAuth';
+import type { Timeline } from '@/types'; // Import Timeline type
 
 const timelineSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters").max(100, "Title too long"),
@@ -20,7 +21,7 @@ const timelineSchema = z.object({
 type TimelineFormData = z.infer<typeof timelineSchema>;
 
 interface CreateTimelineModalProps {
-  onTimelineCreated: (newTimelineId: string) => void;
+  onTimelineCreated: (newTimeline: Timeline) => void; // Expect full Timeline object
 }
 
 export default function CreateTimelineModal({ onTimelineCreated }: CreateTimelineModalProps) {
@@ -45,11 +46,11 @@ export default function CreateTimelineModal({ onTimelineCreated }: CreateTimelin
     }
 
     try {
-      const newTimelineId = await createTimelineAction(user.uid, userProfile.username, data.title);
-      if (!newTimelineId) throw new Error("Failed to create timeline");
+      const newTimeline = await createTimelineAction(user.uid, userProfile.username, data.title); // Returns full Timeline
+      if (!newTimeline) throw new Error("Failed to create timeline");
 
-      toast({ title: "Timeline Created", description: `"${data.title}" has been successfully created.` });
-      onTimelineCreated(newTimelineId);
+      toast({ title: "Timeline Created", description: `"${newTimeline.title}" has been successfully created.` });
+      onTimelineCreated(newTimeline); // Pass the full newTimeline object
       reset();
       setIsOpen(false);
     } catch (error: any) {

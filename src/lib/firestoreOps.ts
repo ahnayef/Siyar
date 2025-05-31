@@ -53,17 +53,24 @@ const processTimeline = (docSnap: any): Timeline => {
 
 
 // Timelines
-export const createTimeline = async (userId: string, username: string, title: string): Promise<string> => {
+export const createTimeline = async (userId: string, username: string, title: string): Promise<Timeline> => {
   const timelinesColRef = collection(db, 'timelines');
-  const newTimelineRef = await addDoc(timelinesColRef, {
+  const newTimelineData = {
     userId,
     username,
     title,
     isPublic: false,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
-  });
-  return newTimelineRef.id;
+  };
+  const newTimelineRef = await addDoc(timelinesColRef, newTimelineData);
+  
+  // Fetch the newly created document to get server-resolved timestamps
+  const newTimelineSnap = await getDoc(newTimelineRef);
+  if (!newTimelineSnap.exists()) {
+    throw new Error("Failed to create timeline: document not found after creation.");
+  }
+  return processTimeline(newTimelineSnap);
 };
 
 export const getUserTimelines = async (userId: string): Promise<Timeline[]> => {

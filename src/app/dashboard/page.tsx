@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -19,20 +20,19 @@ function DashboardContent() {
     if (user) {
       setIsLoading(true);
       getUserTimelines(user.uid)
-        .then(setTimelines)
+        .then(fetchedTimelines => {
+          // Firestore query already sorts by createdAt desc
+          setTimelines(fetchedTimelines);
+        })
         .catch(console.error)
         .finally(() => setIsLoading(false));
     }
   }, [user]);
 
-  const handleTimelineCreated = (newTimelineId: string) => {
-    // Re-fetch timelines or optimistically update
-    if (user) {
-      setIsLoading(true);
-      getUserTimelines(user.uid)
-        .then(setTimelines)
-        .finally(() => setIsLoading(false));
-    }
+  const handleTimelineCreated = (newTimeline: Timeline) => {
+    // Optimistically add the new timeline to the beginning of the list
+    // Assumes the initial list is sorted by createdAt desc, and new items are most recent
+    setTimelines(prevTimelines => [newTimeline, ...prevTimelines]);
   };
 
   if (isLoading) {
