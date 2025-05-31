@@ -11,10 +11,12 @@ import EventCard from '@/components/timeline/EventCard';
 import AddEventModal from '@/components/timeline/AddEventModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, CalendarPlus, Smile } from 'lucide-react';
+import { AlertTriangle, CalendarPlus, Smile, CalendarClock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { deleteTimelineEventAction } from '@/actions/timelineActions';
-import { cn } from '@/lib/utils'; // Added import
+import { cn } from '@/lib/utils';
+import { formatDistanceStrict, isValid } from 'date-fns';
+
 
 export default function TimelineViewPage() {
   const params = useParams();
@@ -64,7 +66,6 @@ export default function TimelineViewPage() {
         
         setTimeline(timelineData);
         const eventData = await getTimelineEvents(timelineId);
-        // Ensure events are sorted by due date after fetching
         setEvents(eventData.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime()));
 
       } catch (err: any) {
@@ -78,11 +79,11 @@ export default function TimelineViewPage() {
       }
     };
 
-    if (!authLoading) { // Only fetch data once auth state is resolved
+    if (!authLoading) { 
         fetchData();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [username, timelineId, authUser, authLoading]); // toast removed to prevent excessive calls on toast obj change
+  }, [username, timelineId, authUser, authLoading]); 
 
   const isOwner = useMemo(() => authUser?.uid === timeline?.userId, [authUser, timeline]);
 
@@ -121,11 +122,10 @@ export default function TimelineViewPage() {
   const handleEventAddedOrUpdated = (newEventOrUpdatedEvent: TimelineEvent) => {
     const processedEvent = {
       ...newEventOrUpdatedEvent,
-      // Ensure dueDate is a Date object, might already be if types are consistent
       dueDate: new Date(newEventOrUpdatedEvent.dueDate) 
     };
 
-    if (timeline) { // Check if timeline is loaded
+    if (timeline) { 
       setEvents(prevEvents => {
         const existingEventIndex = prevEvents.findIndex(e => e.id === processedEvent.id);
         let newEventsList;
@@ -135,18 +135,16 @@ export default function TimelineViewPage() {
         } else {
           newEventsList = [...prevEvents, processedEvent];
         }
-        // Sort events by due date after adding/updating
         return newEventsList.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
       });
     }
   };
   
-  // Memoize the calculation of the next upcoming event ID
   const nextUpcomingEventId = useMemo(() => {
     const now = new Date();
     const upcoming = events
       .filter(event => event.dueDate.getTime() > now.getTime())
-      .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime()); // Already sorted, but good to be sure
+      .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime()); 
     return upcoming.length > 0 ? upcoming[0].id : null;
   }, [events]);
 
@@ -160,8 +158,8 @@ export default function TimelineViewPage() {
           {[1, 2, 3].map(i => (
             <div key={i} className="flex items-start">
               <div className="flex flex-col items-center mr-6 mt-1">
-                <Skeleton className="w-8 h-8 bg-primary/30 rounded-sm" /> {/* Square dot */}
-                <Skeleton className="w-1.5 h-24 mt-2 bg-strong-border-color/30 rounded-sm" /> {/* Stem */}
+                <Skeleton className="w-8 h-8 bg-primary/30 rounded-[4px]" /> 
+                <Skeleton className="w-1.5 h-24 mt-2 bg-strong-border-color/30 rounded-[4px]" /> 
               </div>
               <Skeleton className="h-40 w-full rounded-[4px] flex-1 bg-card/80 border-2 border-strong-border-color/20" />
             </div>
@@ -184,7 +182,7 @@ export default function TimelineViewPage() {
     );
   }
 
-  if (!timeline) { // Should be caught by error state if timelineData is null due to access
+  if (!timeline) { 
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <div className="neo-card p-8">
@@ -212,36 +210,61 @@ export default function TimelineViewPage() {
           </div>
         ) : (
           <div className="relative pl-5"> 
-            {events.map((event, index) => (
-              <div key={event.id} className="flex items-start mb-12 relative">
-                {/* Event Marker (Square) & Stem */}
-                <div className="absolute left-[-20px] top-1 flex flex-col items-center h-full">
-                  <div className={cn(`
-                    w-6 h-6 border-2 bg-card flex-shrink-0 z-10 rounded-sm
-                    shadow-neo-active`,
-                    event.id === nextUpcomingEventId 
-                      ? 'border-primary bg-primary/20 animate-pulse-strong-border' 
-                      : 'border-strong-border-color bg-muted'
-                  )}></div>
-                  {/* Vertical Line connecting to next event */}
-                  {index < events.length - 1 && (
-                    <div className="w-1 flex-grow bg-strong-border-color mt-1 min-h-[calc(100%_-_1.5rem)]"></div>
-                  )}
-                </div>
+            {events.map((event, index) => {
+              let gapIndicatorText = null;
+              if (index > 0) {
+                const prevEventDueDate = events[index-1].dueDate;
+                const currentEventDueDate = event.dueDate;
+                if (isValid(currentEventDueDate) && isValid(prevEventDueDate) && currentEventDueDate > prevEventDueDate) {
+                   gapIndicatorText = formatDistanceStrict(currentEventDueDate, prevEventDueDate, { roundingMethod: 'ceil' });
+                }
+              }
 
-                {/* Event Card (takes remaining space) */}
-                <div className="flex-1 min-w-0 ml-8"> 
-                  <EventCard
-                    event={event}
-                    previousEventDueDate={index > 0 ? events[index - 1].dueDate : null}
-                    isNextUpcoming={event.id === nextUpcomingEventId}
-                    onEdit={isOwner ? handleEditEvent : undefined}
-                    onDelete={isOwner ? handleDeleteEvent : undefined}
-                    isOwner={isOwner}
-                  />
-                </div>
-              </div>
-            ))}
+              return (
+                <React.Fragment key={event.id}>
+                  {gapIndicatorText && (
+                    <div className="relative h-16 flex items-center justify-start ml-[-20px] my-2">
+                       {/* Optional: Line connecting to gap text, adjust styling as needed */}
+                      <div className="w-1 h-full bg-strong-border-color/50 absolute left-[11.5px] top-0"></div>
+                      <div className="ml-10 p-2 neo-card bg-muted/50 border-strong-border-color/30 shadow-neo-active text-xs font-space-mono text-muted-foreground flex items-center gap-1.5 rounded-[4px]">
+                        <CalendarClock className="h-3.5 w-3.5" />
+                        {gapIndicatorText} later
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex items-start mb-12 relative">
+                    {/* Event Marker (Square) & Stem */}
+                    <div className="absolute left-[-20px] top-1 flex flex-col items-center h-full">
+                      <div className={cn(`
+                        w-6 h-6 border-2 flex-shrink-0 z-10 rounded-sm
+                        shadow-neo-active`,
+                        event.id === nextUpcomingEventId 
+                          ? 'border-primary bg-accent animate-pulse' 
+                          : 'border-strong-border-color bg-card' 
+                      )}></div>
+                      {/* Vertical Line connecting to next event or gap */}
+                      {index < events.length - 1 && (
+                        <div className={cn(
+                            "w-1 flex-grow bg-strong-border-color mt-1",
+                            gapIndicatorText ? "min-h-[3rem]" : "min-h-[calc(100%_-_1.5rem)]" // Shorter if gap text follows
+                        )}></div>
+                      )}
+                    </div>
+
+                    {/* Event Card (takes remaining space) */}
+                    <div className="flex-1 min-w-0 ml-8"> 
+                      <EventCard
+                        event={event}
+                        isNextUpcoming={event.id === nextUpcomingEventId}
+                        onEdit={isOwner ? handleEditEvent : undefined}
+                        onDelete={isOwner ? handleDeleteEvent : undefined}
+                        isOwner={isOwner}
+                      />
+                    </div>
+                  </div>
+                </React.Fragment>
+              );
+            })}
           </div>
         )}
       </div>
@@ -257,4 +280,4 @@ export default function TimelineViewPage() {
     </div>
   );
 }
-    
+
