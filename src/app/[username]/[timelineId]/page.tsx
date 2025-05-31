@@ -11,10 +11,10 @@ import EventCard from '@/components/timeline/EventCard';
 import AddEventModal from '@/components/timeline/AddEventModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Lock, AlertTriangle, Unlock } from 'lucide-react'; // Added Unlock
+import { Lock, AlertTriangle, Unlock } from 'lucide-react'; 
 import { useToast } from '@/hooks/use-toast';
 import { deleteTimelineEventAction } from '@/actions/timelineActions';
-import { Timestamp } from 'firebase/firestore';
+// Removed Timestamp import as dates are now JS Date objects after processing
 
 export default function TimelineViewPage() {
   const params = useParams();
@@ -65,7 +65,8 @@ export default function TimelineViewPage() {
         
         setTimeline(timelineData);
         const eventData = await getTimelineEvents(timelineId);
-        setEvents(eventData.sort((a, b) => (a.dueDate as unknown as Timestamp).toMillis() - (b.dueDate as unknown as Timestamp).toMillis()));
+        // Sort by JS Date's getTime() method
+        setEvents(eventData.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime()));
 
       } catch (err: any) {
         console.error("Error fetching timeline data:", err);
@@ -76,7 +77,6 @@ export default function TimelineViewPage() {
       }
     };
 
-    // Delay fetch if auth is still loading to ensure authUser is available for private checks
     if (!authLoading) {
         fetchData();
     }
@@ -115,18 +115,23 @@ export default function TimelineViewPage() {
   };
 
   const handleEventAddedOrUpdated = (newEventOrUpdatedEvent: TimelineEvent) => {
+    // Ensure newEventOrUpdatedEvent.dueDate is a Date object
+    const processedEvent = {
+      ...newEventOrUpdatedEvent,
+      dueDate: new Date(newEventOrUpdatedEvent.dueDate) 
+    };
+
     if (timeline) {
-      // Optimistic update or re-fetch
       setEvents(prevEvents => {
-        const existingEventIndex = prevEvents.findIndex(e => e.id === newEventOrUpdatedEvent.id);
+        const existingEventIndex = prevEvents.findIndex(e => e.id === processedEvent.id);
         let newEventsList;
         if (existingEventIndex > -1) {
           newEventsList = [...prevEvents];
-          newEventsList[existingEventIndex] = newEventOrUpdatedEvent;
+          newEventsList[existingEventIndex] = processedEvent;
         } else {
-          newEventsList = [...prevEvents, newEventOrUpdatedEvent];
+          newEventsList = [...prevEvents, processedEvent];
         }
-        return newEventsList.sort((a, b) => (a.dueDate as unknown as Timestamp).toMillis() - (b.dueDate as unknown as Timestamp).toMillis());
+        return newEventsList.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
       });
     }
   };
@@ -134,8 +139,8 @@ export default function TimelineViewPage() {
   const nextUpcomingEventId = useMemo(() => {
     const now = new Date();
     const upcomingEvents = events
-      .filter(event => (event.dueDate as unknown as Timestamp).toDate() > now)
-      .sort((a, b) => (a.dueDate as unknown as Timestamp).toMillis() - (b.dueDate as unknown as Timestamp).toMillis());
+      .filter(event => event.dueDate > now) // Direct comparison with Date objects
+      .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
     return upcomingEvents.length > 0 ? upcomingEvents[0].id : null;
   }, [events]);
 
@@ -222,4 +227,3 @@ export default function TimelineViewPage() {
     </div>
   );
 }
-

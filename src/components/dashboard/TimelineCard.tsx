@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Timeline } from '@/types';
@@ -25,7 +26,7 @@ export default function TimelineCard({ timeline }: TimelineCardProps) {
           {timeline.isPublic ? 'Public' : 'Private'}
           <span className="mx-2">·</span>
           <CalendarDays className="h-4 w-4 mr-1" />
-          Created {format(new Date(timeline.createdAt as unknown as string), 'MMM d, yyyy')}
+          Created {timeline.createdAt ? format(timeline.createdAt, 'MMM d, yyyy') : 'N/A'}
         </CardDescription>
       </CardHeader>
       <CardFooter>

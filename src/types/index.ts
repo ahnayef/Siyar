@@ -1,10 +1,11 @@
-import type { Timestamp } from 'firebase/firestore';
+
+import type { Timestamp as FirebaseTimestamp } from 'firebase/firestore'; // Keep for server-side if needed, but client types use Date
 
 export interface UserProfile {
   uid: string;
   email: string | null;
   username: string;
-  createdAt: Timestamp;
+  createdAt: Date; // Was FirebaseTimestamp, now JS Date after processing
 }
 
 export interface Timeline {
@@ -13,9 +14,9 @@ export interface Timeline {
   username: string;
   title: string;
   isPublic: boolean;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-  events?: TimelineEvent[]; // Optional: sometimes fetched together
+  createdAt: Date; // Was FirebaseTimestamp
+  updatedAt: Date; // Was FirebaseTimestamp
+  events?: TimelineEvent[]; 
 }
 
 export interface TimelineEvent {
@@ -23,7 +24,7 @@ export interface TimelineEvent {
   timelineId: string;
   title: string;
   description: string;
-  dueDate: Timestamp;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
+  dueDate: Date; // Was FirebaseTimestamp
+  createdAt: Date; // Was FirebaseTimestamp
+  updatedAt: Date; // Was FirebaseTimestamp
 }

@@ -4,13 +4,13 @@
 import type { TimelineEvent } from '@/types';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import CountdownBadge from './CountdownBadge';
-import { format, formatDistanceStrict } from 'date-fns';
+import { format, formatDistanceStrict, isValid } from 'date-fns';
 import { BookOpen, CalendarDays, Edit3, Trash2, Flame, Hourglass, CheckCircle2 } from 'lucide-react';
 import { Button } from '../ui/button';
 
 interface EventCardProps {
   event: TimelineEvent;
-  previousEventDueDate?: Date | string | null;
+  previousEventDueDate?: Date | string | null; // Can be Date or string representation
   isNextUpcoming?: boolean;
   onEdit?: (event: TimelineEvent) => void;
   onDelete?: (eventId: string) => void;
@@ -26,12 +26,14 @@ const getIconForEvent = (title: string) => {
 };
 
 export default function EventCard({ event, previousEventDueDate, isNextUpcoming, onEdit, onDelete, isOwner, className }: EventCardProps) {
-  const eventDueDate = typeof event.dueDate === 'string' ? new Date(event.dueDate) : event.dueDate;
+  // event.dueDate is now a JS Date object from types/firestoreOps
+  const eventDueDate = event.dueDate;
 
   let gapIndicator = null;
   if (previousEventDueDate) {
-    const prevDueDate = typeof previousEventDueDate === 'string' ? new Date(previousEventDueDate) : previousEventDueDate;
-    if (prevDueDate.toString() !== "Invalid Date" && eventDueDate.toString() !== "Invalid Date") {
+    // Ensure previousEventDueDate is a Date object if it's a string
+    const prevDueDate = previousEventDueDate instanceof Date ? previousEventDueDate : new Date(previousEventDueDate);
+    if (isValid(eventDueDate) && isValid(prevDueDate)) {
        gapIndicator = formatDistanceStrict(eventDueDate, prevDueDate);
     }
   }
@@ -47,10 +49,10 @@ export default function EventCard({ event, previousEventDueDate, isNextUpcoming,
             {event.title}
           </CardTitle>
           <CardDescription className="text-sm text-muted-foreground">
-            Due: {eventDueDate.toString() !== "Invalid Date" ? format(eventDueDate, 'MMM d, yyyy, h:mm a') : "Invalid Date"}
+            Due: {isValid(eventDueDate) ? format(eventDueDate, 'MMM d, yyyy, h:mm a') : "Invalid Date"}
           </CardDescription>
         </div>
-        {eventDueDate.toString() !== "Invalid Date" && <CountdownBadge dueDate={eventDueDate} />}
+        {isValid(eventDueDate) && <CountdownBadge dueDate={eventDueDate} />}
       </CardHeader>
       <CardContent>
         <p className="text-foreground/90 whitespace-pre-wrap">{event.description}</p>
@@ -78,4 +80,3 @@ export default function EventCard({ event, previousEventDueDate, isNextUpcoming,
     </Card>
   );
 }
-      

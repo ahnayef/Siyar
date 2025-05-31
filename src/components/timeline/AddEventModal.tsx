@@ -57,7 +57,8 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
     if (eventToEdit) {
       setValue('title', eventToEdit.title);
       setValue('description', eventToEdit.description);
-      setValue('dueDate', new Date(eventToEdit.dueDate as unknown as string));
+      // eventToEdit.dueDate is now a JS Date from types/firestoreOps
+      setValue('dueDate', eventToEdit.dueDate); 
     } else {
       reset({ title: '', description: '', dueDate: undefined });
     }
@@ -71,14 +72,14 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
     }
     setIsLoading(true);
     try {
-      let savedEvent: TimelineEvent | null = null;
+      let savedEvent: TimelineEvent; // Type is now consistent
       if (eventToEdit) {
+        // eventData for updateTimelineEventAction expects dueDate as Date, which `data` provides
         savedEvent = await updateTimelineEventAction(user.uid, timelineId, eventToEdit.id, data);
       } else {
+        // eventData for addEventToTimelineAction expects dueDate as Date, which `data` provides
         savedEvent = await addEventToTimelineAction(user.uid, timelineId, data);
       }
-
-      if (!savedEvent) throw new Error("Failed to save event.");
       
       toast({ title: eventToEdit ? "Event Updated" : "Event Added", description: `"${data.title}" has been saved.` });
       onEventAddedOrUpdated(savedEvent);
@@ -113,8 +114,9 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
             newEventDescription: eventDescriptionForAI
         });
         if (suggestion && suggestion.suggestedDate) {
+            const suggestedDateObj = parseISO(suggestion.suggestedDate);
             setAISuggestion({ date: suggestion.suggestedDate, reasoning: suggestion.reasoning});
-            setValue('dueDate', parseISO(suggestion.suggestedDate)); 
+            setValue('dueDate', suggestedDateObj); 
             toast({ title: "AI Suggestion Ready!", description: suggestion.reasoning });
         } else {
             toast({ title: "AI Suggestion", description: "Could not generate a suggestion at this time.", variant: "default"});
