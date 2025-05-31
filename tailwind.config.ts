@@ -121,7 +121,8 @@ export default {
       boxShadow: {
         'neo': '5px 5px 0px 0px hsl(var(--strong-border-color))',
         'neo-hover': '3px 3px 0px 0px hsl(var(--strong-border-color))',
-        'neo-active': '1px 1px 0px 0px hsl(var(--strong-border-color))', 
+        'neo-active': '1px 1px 0px 0px hsl(var(--strong-border-color))',
+        'neo-primary': '5px 5px 0px 0px hsl(var(--primary))',
       }
     },
   },

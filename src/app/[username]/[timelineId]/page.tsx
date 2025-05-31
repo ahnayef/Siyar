@@ -223,35 +223,32 @@ export default function TimelineViewPage() {
               return (
                 <React.Fragment key={event.id}>
                   {gapIndicatorText && (
-                    <div className="relative h-16 flex items-center justify-start ml-[-20px] my-2">
-                       {/* Optional: Line connecting to gap text, adjust styling as needed */}
-                      <div className="w-1 h-full bg-strong-border-color/50 absolute left-[11.5px] top-0"></div>
-                      <div className="ml-10 p-2 neo-card bg-muted/50 border-strong-border-color/30 shadow-neo-active text-xs font-space-mono text-muted-foreground flex items-center gap-1.5 rounded-[4px]">
+                    <div className="relative h-16 flex items-center justify-center my-2">
+                      <div className="absolute left-[11.5px] top-0 w-1 h-full bg-strong-border-color/50"></div>
+                       <div className="bg-card border-2 border-strong-border-color shadow-neo-active p-2 rounded-[4px] text-xs font-space-mono text-muted-foreground flex items-center gap-1.5 z-10">
                         <CalendarClock className="h-3.5 w-3.5" />
                         {gapIndicatorText} later
                       </div>
                     </div>
                   )}
                   <div className="flex items-start mb-12 relative">
-                    {/* Event Marker (Square) & Stem */}
                     <div className="absolute left-[-20px] top-1 flex flex-col items-center h-full">
                       <div className={cn(`
                         w-6 h-6 border-2 flex-shrink-0 z-10 rounded-sm
                         shadow-neo-active`,
                         event.id === nextUpcomingEventId 
-                          ? 'border-primary bg-accent animate-pulse' 
+                          ? 'border-primary bg-primary animate-pulse' 
                           : 'border-strong-border-color bg-card' 
                       )}></div>
-                      {/* Vertical Line connecting to next event or gap */}
                       {index < events.length - 1 && (
                         <div className={cn(
                             "w-1 flex-grow bg-strong-border-color mt-1",
-                            gapIndicatorText ? "min-h-[3rem]" : "min-h-[calc(100%_-_1.5rem)]" // Shorter if gap text follows
+                             // Adjust height if there's a gap indicator text vs direct event connection
+                            gapIndicatorText ? "min-h-[calc(4rem_-_1.5rem_-_0.5rem)]" : "min-h-[calc(100%_-_1.5rem)]" 
                         )}></div>
                       )}
                     </div>
 
-                    {/* Event Card (takes remaining space) */}
                     <div className="flex-1 min-w-0 ml-8"> 
                       <EventCard
                         event={event}
@@ -281,3 +278,4 @@ export default function TimelineViewPage() {
   );
 }
 
+    
