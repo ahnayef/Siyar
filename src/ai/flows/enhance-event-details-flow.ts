@@ -11,14 +11,14 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const EnhanceEventDetailsInputSchema = z.object({
+const EnhanceEventDetailsInputSchema = z.object({
   currentText: z.string().describe("The current text of the event title or description provided by the user."),
   enhancementType: z.enum(['title', 'description']).describe("Specifies whether to enhance a 'title' or a 'description'."),
   contextText: z.string().optional().describe("Optional context, e.g., the event title if enhancing the description, or vice-versa."),
 });
 export type EnhanceEventDetailsInput = z.infer<typeof EnhanceEventDetailsInputSchema>;
 
-export const EnhanceEventDetailsOutputSchema = z.object({
+const EnhanceEventDetailsOutputSchema = z.object({
   suggestions: z.array(z.string()).describe("An array of 2 to 3 suggested text improvements. Each suggestion should be distinct."),
 });
 export type EnhanceEventDetailsOutput = z.infer<typeof EnhanceEventDetailsOutputSchema>;
