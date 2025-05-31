@@ -225,7 +225,7 @@ export default function TimelineViewPage() {
                   {gapIndicatorText && (
                     <div className="relative h-16 flex items-center justify-center my-2">
                       <div className="absolute left-[11.5px] top-0 w-1 h-full bg-strong-border-color/50"></div>
-                       <div className="bg-card border-2 border-strong-border-color shadow-neo-active p-2 rounded-[4px] text-xs font-space-mono text-muted-foreground flex items-center gap-1.5 z-10">
+                       <div className="bg-card border-t-2 border-r-2 border-b-2 border-strong-border-color shadow-neo-active p-2 rounded-tr-[4px] rounded-br-[4px] text-xs font-space-mono text-muted-foreground flex items-center gap-1.5 z-10">
                         <CalendarClock className="h-3.5 w-3.5" />
                         {gapIndicatorText} later
                       </div>

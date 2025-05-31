@@ -6,7 +6,7 @@ import VisibilityToggle from './VisibilityToggle';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '../ui/button';
 import { PlusCircle, Lock, Unlock, Users, Share2 } from 'lucide-react';
-import ShareTimelineModal from '../dashboard/ShareTimelineModal'; // Adjust path if needed
+import ShareTimelineModal from '../dashboard/ShareTimelineModal'; 
 import { useState } from 'react';
 
 interface HeaderBarProps {
@@ -26,15 +26,15 @@ export default function HeaderBar({ timeline, onAddEventClick }: HeaderBarProps)
     <>
       <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-md shadow-sm border-b-2 border-strong-border-color py-3">
         <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
-          <div className="flex flex-col items-start">
-              <h1 className="text-2xl sm:text-3xl font-archivo text-foreground truncate" title={timeline.title}>
+          <div className="flex flex-col items-start flex-grow min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-archivo font-extrabold text-foreground truncate" title={timeline.title}>
               {timeline.title}
               </h1>
               <p className="text-xs text-muted-foreground flex items-center font-inter">
                   <Users className="h-3 w-3 mr-1" /> By {timeline.username}
               </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap justify-end">
             {isOwner && (
               <>
                 <Button onClick={() => setIsShareModalOpen(true)} variant="outline" className="neo-button-outline">
