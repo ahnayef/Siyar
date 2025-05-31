@@ -40,7 +40,7 @@ export default function TimelineViewPage() {
 
   useEffect(() => {
     if (!username || !timelineId) {
-      setError("Invalid URL parameters.");
+      setError("Invalid URL parameters: username or timelineId is missing.");
       setIsLoading(false);
       return;
     }
@@ -48,32 +48,66 @@ export default function TimelineViewPage() {
     const fetchData = async () => {
       setIsLoading(true);
       setError(null);
+      setTimeline(null); // Reset timeline state on new fetch
+      setEvents([]); // Reset events state
+
       try {
+        console.log(`Fetching data for user: ${username}, timeline: ${timelineId}`);
+        console.log("Current authUser state:", authUser);
+        console.log("Auth loading state:", authLoading);
+
         const fetchedOwnerProfile = await getUserByUsername(username);
         if (!fetchedOwnerProfile) {
-            throw new Error("Timeline owner not found.");
+            // This error is if the username in the URL doesn't match any user
+            setError(`Timeline owner profile ('${username}') not found.`);
+            setIsLoading(false);
+            return;
         }
         setOwnerProfile(fetchedOwnerProfile);
 
         const timelineData = await getTimelineByUsernameAndId(username, timelineId);
 
         if (!timelineData) {
-          throw new Error("Timeline not found or you may not have access.");
+          // This error means the timeline ID is wrong, or timeline.username doesn't match URL username
+          setError(`Timeline not found with ID '${timelineId}' for user '${username}', or URL is incorrect. Please check the link.`);
+          setIsLoading(false);
+          return;
         }
         
-        if (!timelineData.isPublic && (!authUser || authUser.uid !== timelineData.userId)) {
-          throw new Error("This timeline is private. Access denied.");
+        console.log("Fetched timelineData:", timelineData);
+        console.log("Auth User UID for check:", authUser?.uid);
+        console.log("Timeline User ID for check:", timelineData?.userId);
+        console.log("Is timeline public:", timelineData?.isPublic);
+
+        if (!timelineData.isPublic) {
+          if (!authUser) {
+            setError("This timeline is private. Please log in to view if you are the owner.");
+            setIsLoading(false);
+            return;
+          }
+          if (authUser.uid !== timelineData.userId) {
+            setError("This timeline is private and you are not authorized to view it. Access denied.");
+            setIsLoading(false);
+            return;
+          }
         }
         
+        // If all checks pass, set timeline
         setTimeline(timelineData);
-        const eventData = await getTimelineEvents(timelineId);
-        setEvents(eventData.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime()));
         logAnalyticsEvent('view_timeline', { timeline_id: timelineId, user_id: authUser?.uid, owner_username: username });
 
+        // Fetch events only after confirming timeline access
+        const eventData = await getTimelineEvents(timelineId);
+        setEvents(eventData.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime()));
+
       } catch (err: any) {
-        console.error("Error fetching timeline data:", err);
-        setError(err.message || "Failed to load timeline.");
-        if (toast) { 
+        console.error("Error fetching timeline data in TimelineViewPage:", err);
+        // Default error message if specific checks above didn't catch it
+        // This could be a direct Firestore rule denial not caught by client logic.
+        setError(err.message || "Failed to load timeline. This could be due to network issues or access restrictions.");
+        if (toast && (err.message.includes("Access denied") || err.message.includes("permission"))) { 
+          toast({ title: "Access Error", description: "You might not have permission to view this timeline or its events.", variant: "destructive" });
+        } else if (toast) {
           toast({ title: "Error", description: err.message || "Failed to load timeline.", variant: "destructive" });
         }
       } finally {
@@ -81,11 +115,13 @@ export default function TimelineViewPage() {
       }
     };
 
-    if (!authLoading) { 
+    if (!authLoading) { // Ensure auth state is resolved before fetching
         fetchData();
+    } else {
+      console.log("Auth is still loading, delaying fetchData...");
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [username, timelineId, authUser, authLoading]); 
+  }, [username, timelineId, authUser, authLoading]); // authUser and authLoading are critical dependencies
 
   const isOwner = useMemo(() => authUser?.uid === timeline?.userId, [authUser, timeline]);
 
@@ -177,7 +213,7 @@ export default function TimelineViewPage() {
       <div className="container mx-auto px-4 py-16 text-center">
         <div className="neo-card p-8">
           <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-4" />
-          <h2 className="text-3xl font-bold mb-2 text-destructive">Access Denied or Not Found</h2>
+          <h2 className="text-3xl font-bold mb-2 text-destructive">Access Issue</h2>
           <p className="text-muted-foreground mb-6 text-body-md">{error}</p>
           <Button onClick={() => router.push('/dashboard')} className="neo-button">Go to Dashboard</Button>
         </div>
@@ -185,13 +221,13 @@ export default function TimelineViewPage() {
     );
   }
 
-  if (!timeline) { 
+  if (!timeline) { // This case should ideally be covered by isLoading or error states.
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <div className="neo-card p-8">
           <Smile className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <h2 className="text-3xl font-bold mb-2 text-muted-foreground">Timeline Loading...</h2>
-          <p className="text-muted-foreground mb-6 text-body-md">Just a moment, fetching the details.</p>
+          <p className="text-muted-foreground mb-6 text-body-md">Just a moment, fetching the details. If this persists, the timeline might not exist or there could be an issue.</p>
            <Button onClick={() => router.push('/dashboard')} className="neo-button">Go to Dashboard</Button>
         </div>
       </div>
@@ -202,7 +238,7 @@ export default function TimelineViewPage() {
     <div className="bg-background min-h-screen">
       <HeaderBar timeline={timeline} onAddEventClick={handleAddEventClick} />
       <div className="container mx-auto px-4 py-8">
-        {events.length === 0 ? (
+        {events.length === 0 && timeline ? ( // Ensure timeline exists before showing empty state
           <div className="text-center py-12 neo-card">
             <CalendarPlus className="h-20 w-20 text-muted-foreground mx-auto mb-6" />
             <h2 className="text-3xl font-bold text-primary mb-3">Timeline Is Empty!</h2>
@@ -218,7 +254,7 @@ export default function TimelineViewPage() {
               if (index > 0) {
                 const prevEventDueDate = events[index-1].dueDate;
                 const currentEventDueDate = event.dueDate;
-                if (isValid(currentEventDueDate) && isValid(prevEventDueDate) && currentEventDueDate > prevEventDueDate) {
+                if (isValid(currentEventDueDate) && isValid(prevEventDueDate) && currentEventDueDate.getTime() > prevEventDueDate.getTime()) { // Added .getTime() for robust comparison
                    gapIndicatorText = formatDistanceStrict(currentEventDueDate, prevEventDueDate, { roundingMethod: 'ceil' });
                 }
               }
@@ -244,7 +280,7 @@ export default function TimelineViewPage() {
                       )}></div>
                       {index < events.length - 1 && ( 
                         <div className={cn(
-                            "w-1 flex-grow bg-strong-border-color mt-1 min-h-[calc(100%_-_1.5rem_+_3rem)]", // 100% - marker height + bottom margin of EventCard
+                            "w-1 flex-grow bg-strong-border-color mt-1 min-h-[calc(100%_-_1.5rem_+_3rem)]",
                         )}></div>
                       )}
                     </div>
@@ -277,3 +313,4 @@ export default function TimelineViewPage() {
     </div>
   );
 }
+
