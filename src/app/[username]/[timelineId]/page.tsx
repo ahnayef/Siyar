@@ -11,7 +11,7 @@ import EventCard from '@/components/timeline/EventCard';
 import AddEventModal from '@/components/timeline/AddEventModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, CalendarPlus, Smile, CalendarClock } from 'lucide-react';
+import { AlertTriangle, CalendarPlus, Smile, CalendarClock, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { deleteTimelineEventAction } from '@/actions/timelineActions';
 import { cn } from '@/lib/utils';
@@ -224,7 +224,7 @@ export default function TimelineViewPage() {
                 <React.Fragment key={event.id}>
                   {gapIndicatorText && (
                     <div className="relative h-16 flex items-center justify-center my-2">
-                      <div className="absolute left-[11.5px] top-0 w-1 h-full bg-strong-border-color/50"></div>
+                      {/* The main timeline stem will be handled by the event markers' connectors */}
                        <div className="bg-card border-t-2 border-r-2 border-b-2 border-strong-border-color shadow-neo-active p-2 rounded-tr-[4px] rounded-br-[4px] text-xs font-space-mono text-muted-foreground flex items-center gap-1.5 z-10">
                         <CalendarClock className="h-3.5 w-3.5" />
                         {gapIndicatorText} later
@@ -232,7 +232,7 @@ export default function TimelineViewPage() {
                     </div>
                   )}
                   <div className="flex items-start mb-12 relative">
-                    <div className="absolute left-[-20px] top-1 flex flex-col items-center h-full">
+                    <div className="absolute left-[-20px] top-1 flex flex-col items-center"> {/* Removed h-full here to let content dictate height */}
                       <div className={cn(`
                         w-6 h-6 border-2 flex-shrink-0 z-10 rounded-sm
                         shadow-neo-active`,
@@ -240,11 +240,14 @@ export default function TimelineViewPage() {
                           ? 'border-primary bg-primary animate-pulse' 
                           : 'border-strong-border-color bg-card' 
                       )}></div>
-                      {index < events.length - 1 && (
+                      {index < events.length - 1 && ( // Only draw stem if NOT the last event
                         <div className={cn(
-                            "w-1 flex-grow bg-strong-border-color mt-1",
-                             // Adjust height if there's a gap indicator text vs direct event connection
-                            gapIndicatorText ? "min-h-[calc(4rem_-_1.5rem_-_0.5rem)]" : "min-h-[calc(100%_-_1.5rem)]" 
+                            "w-1 flex-grow bg-strong-border-color mt-1 min-h-[calc(4rem_-_1.5rem_-_0.25rem)]", // Basic height for short gaps
+                             // Adjust height dynamically or ensure parent container of this item + gap/next item dictates overall height
+                             // This min-h is a fallback, real height comes from content below.
+                             // If the next element is a gap indicator, this stem connects TO the top of the gap area.
+                             // If the next element is another event, this stem connects TOWARDS it.
+                             // The mb-12 on the parent "flex items-start" primarily dictates spacing between items.
                         )}></div>
                       )}
                     </div>
@@ -277,5 +280,4 @@ export default function TimelineViewPage() {
     </div>
   );
 }
-
     
