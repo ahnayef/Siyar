@@ -13,11 +13,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogC
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, CalendarIcon, Wand2 } from 'lucide-react';
+import { Loader2, CalendarIcon } from 'lucide-react';
 import type { TimelineEvent } from '@/types';
-import { format, parseISO } from 'date-fns';
-import { suggestEventTimes } from '@/ai/flows/suggest-event-times';
-import { addEventToTimelineAction, updateTimelineEventAction, getAllUserEventsForAIAction } from '@/actions/timelineActions';
+import { format } from 'date-fns';
+import { addEventToTimelineAction, updateTimelineEventAction } from '@/actions/timelineActions';
 import { useAuth } from '@/hooks/useAuth';
 
 const eventSchema = z.object({
@@ -37,12 +36,10 @@ interface AddEventModalProps {
 
 export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEdit, onEventAddedOrUpdated }: AddEventModalProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [isAISuggesting, setIsAISuggesting] = useState(false);
-  const [aiSuggestion, setAISuggestion] = useState<{ date: string; reasoning: string} | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const { control, register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<EventFormData>({
+  const { control, register, handleSubmit, reset, setValue, formState: { errors } } = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
       title: '',
@@ -51,17 +48,14 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
     }
   });
 
-  const eventDescriptionForAI = watch('description');
-
   useEffect(() => {
     if (eventToEdit) {
       setValue('title', eventToEdit.title);
       setValue('description', eventToEdit.description);
-      setValue('dueDate', eventToEdit.dueDate); 
+      setValue('dueDate', eventToEdit.dueDate);
     } else {
       reset({ title: '', description: '', dueDate: undefined });
     }
-    setAISuggestion(null);
   }, [eventToEdit, isOpen, reset, setValue]);
 
   const handleFormSubmit: SubmitHandler<EventFormData> = async (data) => {
@@ -93,41 +87,8 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
     }
   };
 
-  const handleAISuggest = async () => {
-    if (!user) {
-        toast({ title: "Authentication Error", description: "You must be logged in for AI suggestions.", variant: "destructive"});
-        return;
-    }
-    if (!eventDescriptionForAI) {
-        toast({ title: "AI Suggestion", description: "Provide an event description for AI to analyze.", variant: "default"});
-        return;
-    }
-    setIsAISuggesting(true);
-    setAISuggestion(null);
-    try {
-        const pastTimelineData = await getAllUserEventsForAIAction(user.uid);
-        const suggestion = await suggestEventTimes({
-            timelineData: pastTimelineData,
-            newEventDescription: eventDescriptionForAI
-        });
-        if (suggestion && suggestion.suggestedDate) {
-            const suggestedDateObj = parseISO(suggestion.suggestedDate);
-            setAISuggestion({ date: suggestion.suggestedDate, reasoning: suggestion.reasoning});
-            setValue('dueDate', suggestedDateObj); 
-            toast({ title: "AI Suggestion Ready!", description: suggestion.reasoning });
-        } else {
-            toast({ title: "AI Suggestion", description: "Could not generate a suggestion at this time.", variant: "default"});
-        }
-    } catch (error: any) {
-        console.error("AI Suggestion error:", error);
-        toast({ title: "AI Suggestion Error", description: error.message || "Failed to get AI suggestion.", variant: "destructive"});
-    } finally {
-        setIsAISuggesting(false);
-    }
-  };
-
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) setAISuggestion(null); }}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="neo-card sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-2xl font-archivo text-primary">{eventToEdit ? 'Edit Event' : 'Add New Event'}</DialogTitle>
@@ -174,18 +135,6 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
             {errors.dueDate && <p className="text-sm text-destructive">{errors.dueDate.message}</p>}
           </div>
 
-          {aiSuggestion && (
-            <div className="p-3 bg-secondary/10 border-l-4 border-secondary rounded-[4px] text-sm text-foreground">
-                <p className="font-semibold text-secondary font-inter">AI Suggestion: <span className="font-normal font-space-mono">{format(parseISO(aiSuggestion.date), 'PPP')}</span></p>
-                <p className="text-xs text-muted-foreground mt-1 font-inter">{aiSuggestion.reasoning}</p>
-            </div>
-          )}
-
-          <Button type="button" onClick={handleAISuggest} disabled={isAISuggesting || !eventDescriptionForAI || !user} variant="outline" className="w-full neo-button-secondary">
-            {isAISuggesting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-            Suggest Date with AI
-          </Button>
-
           <DialogFooter>
             <DialogClose asChild>
                 <Button type="button" variant="outline" className="neo-button-outline">Cancel</Button>
@@ -200,4 +149,3 @@ export default function AddEventModal({ timelineId, isOpen, setIsOpen, eventToEd
     </Dialog>
   );
 }
-    

@@ -161,22 +161,11 @@ export const getUserByUsername = async (username: string): Promise<UserProfile |
   const userDoc = querySnapshot.docs[0];
   const data = userDoc.data();
   return {
-      uid: userDoc.id, // Use userDoc.id for uid as it's the document ID
+      uid: userDoc.id, 
       email: data.email,
       username: data.username,
       createdAt: data.createdAt instanceof FirebaseTimestamp ? data.createdAt.toDate() : new Date(data.createdAt)
   } as UserProfile;
 };
 
-export const getAllUserEventsForAI = async (userId: string): Promise<string> => {
-  const userTimelines = await getUserTimelines(userId);
-  let allEventsString = "";
-
-  for (const timeline of userTimelines) {
-    const events = await getTimelineEvents(timeline.id);
-    events.forEach(event => {
-      allEventsString += `Timeline: ${timeline.title}, Event: ${event.title}, Description: ${event.description}, Due: ${event.dueDate.toISOString().split('T')[0]};\n`;
-    });
-  }
-  return allEventsString.trim() || "No past event data available.";
-};
+// Removed getAllUserEventsForAIDbOp
