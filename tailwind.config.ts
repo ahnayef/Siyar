@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -11,7 +12,7 @@ export default {
     extend: {
       fontFamily: {
         body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'],
+        headline: ['Inter', 'sans-serif'], // Can specify bolder default weight here if needed
         code: ['monospace'],
       },
       colors: {
@@ -45,9 +46,11 @@ export default {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
-        border: 'hsl(var(--border))',
+        border: 'hsl(var(--border))', // Main border color (light for dark theme)
         input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
+        ring: 'hsl(var(--ring))', // Focus ring (primary/yellow)
+        'button-border': '#000000', // Specific black for button borders
+        'button-shadow': '#000000', // Specific black for button shadows
         chart: {
           '1': 'hsl(var(--chart-1))',
           '2': 'hsl(var(--chart-2))',
@@ -67,9 +70,10 @@ export default {
         },
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        lg: 'var(--radius)', // Default 0.3rem
+        md: 'calc(var(--radius) - 0.1rem)', // e.g., 0.2rem
+        sm: 'calc(var(--radius) - 0.15rem)', // e.g., 0.15rem
+        none: '0px', // For explicitly sharp corners
       },
       keyframes: {
         'accordion-down': {
@@ -89,19 +93,23 @@ export default {
           },
         },
         'event-entry': {
-          '0%': { opacity: '0', transform: 'translateY(20px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
+          '0%': { opacity: '0', transform: 'translateY(20px) scale(0.95)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
         }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'event-entry': 'event-entry 0.5s ease-out forwards',
+        'event-entry': 'event-entry 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
       },
       boxShadow: {
+        // For cards, using foreground (light) shadow on dark bg
         'neo-sm': '2px 2px 0px 0px hsl(var(--foreground))',
         'neo': '4px 4px 0px 0px hsl(var(--foreground))',
         'neo-lg': '6px 6px 0px 0px hsl(var(--foreground))',
+        // For buttons, specific black shadow
+        'neo-button': '2px 2px 0px 0px #000000',
+        'neo-button-active': '1px 1px 0px 0px #000000',
       }
     },
   },

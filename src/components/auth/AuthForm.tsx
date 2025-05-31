@@ -1,3 +1,4 @@
+
 "use client";
 
 import type React from 'react';
@@ -46,38 +47,39 @@ export default function AuthForm({ mode, onSubmit, socialLogins }: AuthFormProps
     try {
       await onSubmit(data);
     } catch (error: any) {
-      toast({
-        title: "Authentication Error",
-        description: error.message || "An unknown error occurred.",
-        variant: "destructive",
-      });
+      // Toast is handled by the page calling onSubmit now
+      // toast({
+      //   title: "Authentication Error",
+      //   description: error.message || "An unknown error occurred.",
+      //   variant: "destructive",
+      // });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 p-8 neo-card rounded-lg w-full max-w-md">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 p-8 neo-card rounded-lg w-full max-w-md border-2 border-primary shadow-[6px_6px_0px_0px_hsl(var(--primary))]">
       {mode === 'signup' && (
         <div className="space-y-1">
-          <Label htmlFor="username">Username</Label>
-          <Input id="username" type="text" {...register('username')} className="neo-input" placeholder="your_cool_username" />
+          <Label htmlFor="username" className="text-card-foreground font-semibold">Username</Label>
+          <Input id="username" type="text" {...register('username')} className="neo-input" placeholder="your_epic_username" />
           {errors.username && <p className="text-sm text-destructive">{errors.username.message}</p>}
         </div>
       )}
       <div className="space-y-1">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email" className="text-card-foreground font-semibold">Email</Label>
         <Input id="email" type="email" {...register('email')} className="neo-input" placeholder="you@example.com" />
         {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
       </div>
       <div className="space-y-1 relative">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password" className="text-card-foreground font-semibold">Password</Label>
         <Input id="password" type={showPassword ? "text" : "password"} {...register('password')} className="neo-input pr-10" placeholder="••••••••" />
         <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="absolute right-1 top-7 h-7 w-7"
+            className="absolute right-1 top-7 h-7 w-7 text-muted-foreground hover:text-foreground"
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -87,13 +89,13 @@ export default function AuthForm({ mode, onSubmit, socialLogins }: AuthFormProps
       </div>
       <Button type="submit" disabled={isLoading} className="w-full neo-button text-lg py-3">
         {isLoading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
-        {mode === 'login' ? 'Log In' : 'Sign Up'}
+        {mode === 'login' ? 'Log In & Conquer' : 'Sign Up & Dominate'}
       </Button>
       {socialLogins && (
         <>
           <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-foreground/50" />
+              <span className="w-full border-t border-border/50" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-card px-2 text-muted-foreground">Or continue with</span>

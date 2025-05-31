@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -6,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { LogOut, LogIn, UserPlus, LayoutDashboard } from 'lucide-react';
+import { LogOut, LogIn, UserPlus, LayoutDashboard, Home } from 'lucide-react';
 
 export default function Navbar() {
   const { user, userProfile, loading } = useAuth();
@@ -15,25 +16,26 @@ export default function Navbar() {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      router.push('/'); // Redirect to home or login page after sign out
+      router.push('/'); 
     } catch (error) {
       console.error('Error signing out:', error);
     }
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md shadow-md border-b-2 border-foreground">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md shadow-md border-b-2 border-black">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="text-2xl font-extrabold text-primary hover:opacity-80 transition-opacity">
+        <Link href="/" className="text-2xl font-extrabold text-primary hover:opacity-80 transition-opacity flex items-center gap-2">
+          <Home className="h-6 w-6"/>
           ChronoFlow
         </Link>
         <div className="flex items-center gap-2">
           {loading ? (
-            <div className="w-20 h-8 bg-muted rounded animate-pulse"></div>
+            <div className="w-24 h-9 bg-muted rounded animate-pulse"></div>
           ) : user ? (
             <>
-              <span className="text-sm hidden md:inline">Hi, {userProfile?.username || user.email}</span>
-              <Button variant="ghost" size="sm" asChild className="neo-button bg-secondary text-secondary-foreground hover:bg-secondary/90">
+              <span className="text-sm hidden md:inline text-muted-foreground">Welcome, {userProfile?.username || user.email}</span>
+              <Button variant="ghost" size="sm" asChild className="neo-button bg-card text-card-foreground hover:bg-muted hover:text-muted-foreground border-foreground shadow-[2px_2px_0px_0px_hsl(var(--foreground))]">
                 <Link href="/dashboard">
                   <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
                 </Link>
@@ -49,7 +51,7 @@ export default function Navbar() {
                   <LogIn className="mr-2 h-4 w-4" /> Login
                 </Link>
               </Button>
-              <Button variant="ghost" size="sm" asChild className="neo-button">
+              <Button variant="ghost" size="sm" asChild className="neo-button bg-card text-card-foreground hover:bg-muted hover:text-muted-foreground border-foreground shadow-[2px_2px_0px_0px_hsl(var(--foreground))]">
                 <Link href="/signup">
                   <UserPlus className="mr-2 h-4 w-4" /> Sign Up
                 </Link>

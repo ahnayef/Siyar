@@ -4,95 +4,90 @@
 
 @layer base {
   :root {
-    --background: 210 29% 95%; /* Light gray #F0F4F8 */
-    --foreground: 225 10% 10%; /* Darker text for contrast */
+    /* Supercell Inspired Neo-Brutalist Dark Theme */
+    --background: 220 13% 10%; /* Very Dark Blue/Black */
+    --foreground: 0 0% 98%; /* Off-White (for general text, bright borders on dark cards) */
 
-    --card: 210 29% 98%; /* Slightly lighter than background for cards */
-    --card-foreground: 225 10% 10%;
+    --card: 220 13% 14%; /* Slightly Lighter Dark for card backgrounds */
+    --card-foreground: 0 0% 98%; /* Off-White for text on cards */
 
-    --popover: 210 29% 98%;
-    --popover-foreground: 225 10% 10%;
+    --popover: 220 13% 14%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 225 100% 58%; /* Saturated blue #2962FF */
-    --primary-foreground: 0 0% 100%; /* White text on primary */
+    --primary: 57 98% 51%; /* Vibrant Yellow (e.g., FCEE06) */
+    --primary-foreground: 220 13% 5%; /* Very Dark (for text on yellow buttons) */
 
-    --secondary: 165 100% 80%; /* Lighter variant of accent for secondary actions */
-    --secondary-foreground: 225 10% 10%;
+    --secondary: 325 93% 48%; /* Vibrant Pink (e.g., EE097C) */
+    --secondary-foreground: 0 0% 98%; /* Off-White (for text on pink elements) */
 
-    --muted: 210 20% 85%;
-    --muted-foreground: 210 10% 40%;
+    --muted: 220 13% 25%; /* Darker Grey for muted elements */
+    --muted-foreground: 220 10% 65%; /* Lighter Grey for muted text */
 
-    --accent: 165 100% 70%; /* Light green #64FFDA */
-    --accent-foreground: 225 10% 10%; /* Dark text on accent */
+    --accent: 180 96% 48%; /* Cyan/Teal (e.g., 04F4F3) */
+    --accent-foreground: 220 13% 5%; /* Very Dark (for text on cyan elements) */
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%; /* Standard Red */
+    --destructive-foreground: 0 0% 98%; /* Off-White/White */
 
-    --border: 225 10% 20%; /* Darker border for neo-brutalism */
-    --input: 210 20% 88%;
-    --ring: 225 100% 58%; /* Primary color for focus rings */
+    --border: 0 0% 98%; /* Off-White (used for main element borders like on cards) */
+    --input: 220 13% 20%; /* Darker input background */
+    --ring: 57 98% 51%; /* Vibrant Yellow for focus rings */
 
-    --radius: 0.5rem; /* Default ShadCN radius, adjust if sharper edges are needed */
+    --radius: 0.3rem; /* Sharper corners */
 
-    --chart-1: 225 100% 58%;
-    --chart-2: 165 100% 70%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --chart-1: 57 98% 51%; /* Yellow */
+    --chart-2: 325 93% 48%; /* Pink */
+    --chart-3: 180 96% 48%; /* Cyan */
+    --chart-4: 280 65% 60%; /* Purple (example) */
+    --chart-5: 340 75% 55%; /* Another Red/Orange (example) */
 
-    --sidebar-background: 210 29% 92%;
-    --sidebar-foreground: 225 10% 10%;
-    --sidebar-primary: 225 100% 58%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 165 100% 70%;
-    --sidebar-accent-foreground: 225 10% 10%;
-    --sidebar-border: 225 10% 20%;
-    --sidebar-ring: 225 100% 58%;
+    /* Sidebar colors adapted to the new dark theme */
+    --sidebar-background: 220 13% 12%; /* Slightly different dark for sidebar */
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 57 98% 51%;
+    --sidebar-primary-foreground: 220 13% 5%;
+    --sidebar-accent: 325 93% 48%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 220 13% 20%;
+    --sidebar-ring: 57 98% 51%;
   }
 
   .dark {
-    --background: 225 10% 10%;
-    --foreground: 210 29% 95%;
-
-    --card: 225 10% 15%;
-    --card-foreground: 210 29% 95%;
-
-    --popover: 225 10% 15%;
-    --popover-foreground: 210 29% 95%;
-
-    --primary: 225 100% 58%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 165 100% 60%;
-    --secondary-foreground: 225 10% 10%;
-    
-    --muted: 225 10% 25%;
-    --muted-foreground: 210 20% 70%;
-
-    --accent: 165 100% 70%;
-    --accent-foreground: 225 10% 10%;
-
-    --destructive: 0 70% 50%;
+    /* Making dark theme visually identical to the new base "light" (which is dark) theme */
+    --background: 220 13% 10%;
+    --foreground: 0 0% 98%;
+    --card: 220 13% 14%;
+    --card-foreground: 0 0% 98%;
+    --popover: 220 13% 14%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 57 98% 51%;
+    --primary-foreground: 220 13% 5%;
+    --secondary: 325 93% 48%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 220 13% 25%;
+    --muted-foreground: 220 10% 65%;
+    --accent: 180 96% 48%;
+    --accent-foreground: 220 13% 5%;
+    --destructive: 0 70% 50%; /* Slightly darker red for dark destructive */
     --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 98%;
+    --input: 220 13% 20%;
+    --ring: 57 98% 51%;
 
-    --border: 225 10% 30%;
-    --input: 225 10% 20%;
-    --ring: 225 100% 58%;
-
-    --sidebar-background: 225 10% 12%;
-    --sidebar-foreground: 210 29% 95%;
-    --sidebar-primary: 225 100% 58%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 165 100% 70%;
-    --sidebar-accent-foreground: 225 10% 10%;
-    --sidebar-border: 225 10% 30%;
-    --sidebar-ring: 225 100% 58%;
+    --sidebar-background: 220 13% 12%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 57 98% 51%;
+    --sidebar-primary-foreground: 220 13% 5%;
+    --sidebar-accent: 325 93% 48%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 220 13% 20%;
+    --sidebar-ring: 57 98% 51%;
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border; /* Default border color for elements if not overridden */
   }
   body {
     @apply bg-background text-foreground;
@@ -103,17 +98,23 @@
   }
 }
 
-/* Neo-brutalism base styles */
+/* Neo-brutalism base styles updated */
 .neo-card {
+    /* Uses --card for bg, --foreground for border and shadow color */
     @apply bg-card border-2 border-foreground shadow-[4px_4px_0px_0px_hsl(var(--foreground))];
 }
 
 .neo-button {
-    @apply border-2 border-foreground bg-primary text-primary-foreground hover:bg-primary/90 shadow-[2px_2px_0px_0px_hsl(var(--foreground))] active:shadow-[1px_1px_0px_0px_hsl(var(--foreground))] active:translate-x-[1px] active:translate-y-[1px] transition-all;
+    /* Specific black border and shadow for buttons, primary bg (yellow), primary-foreground text (dark) */
+    @apply border-2 border-black bg-primary text-primary-foreground 
+           font-semibold 
+           shadow-[2px_2px_0px_0px_black] 
+           hover:bg-primary/90 
+           active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0px_0px_black] 
+           transition-transform duration-75;
 }
 
 .neo-input {
-    @apply border-2 border-foreground focus:ring-2 focus:ring-accent focus:border-accent;
+    /* Uses --input for bg, --border for border (light), --ring (yellow) for focus */
+    @apply border-2 border-border bg-input focus:ring-2 focus:ring-ring focus:border-ring;
 }
-
-/* Removed timeline-line-vertical and timeline-line-horizontal as they are no longer used by the new layout */
