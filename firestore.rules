@@ -1,0 +1,137 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isUser(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function incomingData() {
+      return request.resource.data;
+    }
+
+    function existingData() {
+      return resource.data;
+    }
+
+    // Default deny all access to prevent unintended access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Users collection: /users/{userId}
+    match /users/{userId} {
+      allow read: if isUser(userId);
+
+      allow create: if isUser(userId)
+                    && incomingData().uid == userId
+                    && incomingData().username is string
+                    && incomingData().username.size() >= 3 && incomingData().username.size() <= 20
+                    && incomingData().email == request.auth.token.email
+                    && incomingData().createdAt == request.time;
+
+      allow update: if isUser(userId)
+                    // Only username can be updated via this path by the user.
+                    // Other fields (email, createdAt, uid) should remain unchanged.
+                    && incomingData().username is string
+                    && incomingData().username.size() >= 3 && incomingData().username.size() <= 20
+                    && incomingData().uid == existingData().uid
+                    && incomingData().email == existingData().email
+                    && incomingData().createdAt == existingData().createdAt;
+      // Deleting user documents is typically handled by server-side admin processes or Firebase Extensions for user deletion.
+      // allow delete: if false;
+    }
+
+    // Usernames collection: /usernames/{usernameLowercase}
+    // Used to ensure username uniqueness and map usernames to userIds.
+    match /usernames/{usernameLowercase} {
+      // Allow anyone to read to check for username existence during signup.
+      allow read: if true;
+
+      // Allow creation if the user is authenticated and the userId being stored
+      // is their own UID. The actual `usernameLowercase` should correspond to
+      // the username in their /users/{userId} document, enforced by server-side logic (transaction).
+      allow create: if isAuthenticated()
+                    && incomingData().userId == request.auth.uid;
+
+      // Allow deletion if the user is authenticated and the userId stored in the
+      // document is their own. This is used during username changes.
+      allow delete: if isAuthenticated()
+                    && existingData().userId == request.auth.uid;
+
+      // Updates to username documents are typically not direct; old is deleted, new is created.
+      // allow update: if false;
+    }
+
+    // Timelines collection: /timelines/{timelineId}
+    match /timelines/{timelineId} {
+      allow read: if existingData().isPublic == true
+                    || (isAuthenticated() && existingData().userId == request.auth.uid);
+
+      allow create: if isAuthenticated()
+                    && incomingData().userId == request.auth.uid
+                    && incomingData().username is string // Should match the creating user's profile username
+                    && incomingData().title is string
+                    && incomingData().title.size() >= 1 && incomingData().title.size() <= 100
+                    && incomingData().isPublic is bool
+                    && incomingData().createdAt == request.time
+                    && incomingData().updatedAt == request.time;
+
+      allow update: if isAuthenticated() && existingData().userId == request.auth.uid
+                    // Fields allowed to be updated by the owner
+                    && incomingData().title is string
+                    && incomingData().title.size() >= 1 && incomingData().title.size() <= 100
+                    && incomingData().isPublic is bool
+                    && incomingData().updatedAt == request.time
+                    // Ensure immutable fields are not changed
+                    && incomingData().userId == existingData().userId
+                    && incomingData().username == existingData().username // Username shouldn't change on timeline directly
+                    && incomingData().createdAt == existingData().createdAt;
+
+      allow delete: if isAuthenticated() && existingData().userId == request.auth.uid;
+
+      // Events subcollection: /timelines/{timelineId}/events/{eventId}
+      match /events/{eventId} {
+        // Helper function to get parent timeline data
+        function getParentTimeline() {
+          return get(/databases/$(database)/documents/timelines/$(timelineId));
+        }
+        function isTimelineOwner() {
+          return isAuthenticated() && request.auth.uid == getParentTimeline().data.userId;
+        }
+        function isParentTimelinePublic() {
+          return getParentTimeline().data.isPublic == true;
+        }
+
+        allow read: if isParentTimelinePublic() || isTimelineOwner();
+
+        allow create: if isTimelineOwner()
+                      && incomingData().title is string
+                      && incomingData().title.size() >= 1 && incomingData().title.size() <= 100
+                      && (incomingData().description is string && incomingData().description.size() <= 500 || incomingData().description == "")
+                      && incomingData().dueDate is timestamp
+                      && incomingData().createdAt == request.time
+                      && incomingData().updatedAt == request.time;
+
+        allow update: if isTimelineOwner()
+                      && incomingData().title is string
+                      && incomingData().title.size() >= 1 && incomingData().title.size() <= 100
+                      && (incomingData().description is string && incomingData().description.size() <= 500 || incomingData().description == "")
+                      && incomingData().dueDate is timestamp
+                      && incomingData().updatedAt == request.time
+                      // Ensure createdAt is not changed on update
+                      && incomingData().createdAt == existingData().createdAt;
+
+        allow delete: if isTimelineOwner();
+      }
+    }
+  }
+}
+    
