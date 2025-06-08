@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Skeleton } from '@/components/ui/skeleton'; // Ensure Skeleton is imported
+import Logo from '@/Icon/Logo';
 
 export default function Navbar() {
   const { user, userProfile, loading } = useAuth();
@@ -83,7 +84,8 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md shadow-sm border-b-2 border-strong-border-color">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="text-2xl font-archivo text-primary hover:opacity-80 transition-opacity flex items-center gap-2">
-          <Workflow className="h-7 w-7 text-primary"/>
+          {/* <Workflow className="h-7 w-7 text-primary"/> */}
+          <Logo className="h-7 w-7 text-primary" />
           Siyar
         </Link>
         
