@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Zap, BarChart3, Users, Workflow } from 'lucide-react';
 import Image from 'next/image';
+import { Siyar } from '@/constant/images';
 
 export default function HomePage() {
   return (
@@ -63,8 +64,16 @@ export default function HomePage() {
             </Button>
           </div>
           <div className="md:w-1/2 mt-8 md:mt-0">
-            <Image
+            {/* <Image
               src="https://placehold.co/600x400.png" 
+              alt="Abstract timeline or project board"
+              data-ai-hint="geometric abstract"
+              width={600}
+              height={400}
+              className="rounded-[4px] border-2 border-strong-border-color shadow-neo"
+            /> */}
+            <Image
+              src={Siyar}
               alt="Abstract timeline or project board"
               data-ai-hint="geometric abstract"
               width={600}
