@@ -9,16 +9,21 @@ export async function generateMetadata({
      params: { username: string; timelineId: string };
 }): Promise<Metadata> {
      const { username, timelineId } = params;
-     
+
      // Fetch timeline data for dynamic metadata
      let title = 'Siyar Timeline';
      let description = 'A timeline by ' + username;
-     
+
      try {
           const timeline = await getTimelineByUsernameAndId(username, timelineId);
           if (timeline) {
-               title = `${timeline.title} | Siyar`;
-               description = `View ${timeline.title}, a timeline by ${username} on Siyar`;
+               if (timeline.isPublic) {
+                    title = ` ${timeline.title} | Siyar`;
+                    description = `View ${timeline.title}, a timeline by ${username} on Siyar`;
+               } else {
+                    title = `Private Timeline | Siyar`;
+                    description = `This timeline is private. Please log in to view it.`;
+               }
           }
      } catch (error) {
           console.error('Error fetching timeline for metadata:', error);
