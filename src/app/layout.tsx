@@ -37,7 +37,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${archivo.variable} ${inter.variable} ${spaceMono.variable}`}>
       <head>
-        {/* Removed direct Google Fonts links as next/font handles it */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#ffffff" />
+        <link rel="apple-touch-icon" href="/Siyar.png" />
       </head>
       <body className="font-inter text-body-md bg-background text-foreground antialiased">
         <Providers>
