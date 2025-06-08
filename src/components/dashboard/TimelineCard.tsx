@@ -25,12 +25,13 @@ import { logAnalyticsEvent } from '@/lib/analytics';
 interface TimelineCardProps {
   timeline: Timeline;
   onTimelineDeleted?: (timelineId: string) => void;
+  isReadOnly?: boolean;
 }
 
-export default function TimelineCard({ timeline, onTimelineDeleted }: TimelineCardProps) {
+export default function TimelineCard({ timeline, onTimelineDeleted, isReadOnly = false }: TimelineCardProps) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const isOwner = user?.uid === timeline.userId;
+  const isOwner = !isReadOnly && user?.uid === timeline.userId;
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const handleDelete = async () => {
@@ -70,8 +71,8 @@ export default function TimelineCard({ timeline, onTimelineDeleted }: TimelineCa
             </CardTitle>
             <div className="flex items-center gap-2">
                 {timeline.isPublic ? 
-                    <Unlock className="h-4 w-4 text-accent shrink-0" title="Public" /> : 
-                    <Lock className="h-4 w-4 text-muted-foreground shrink-0" title="Private" />}
+                    <Unlock className="h-4 w-4 text-accent shrink-0" /> : 
+                    <Lock className="h-4 w-4 text-muted-foreground shrink-0" />}
                 {isOwner && (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>

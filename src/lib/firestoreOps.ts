@@ -1,4 +1,3 @@
-
 import {
   collection,
   addDoc,
@@ -168,4 +167,36 @@ export const getUserByUsername = async (username: string): Promise<UserProfile |
   } as UserProfile;
 };
 
-// Removed getAllUserEventsForAIDbOp
+// Public timelines
+export const getPublicTimelinesByUsername = async (username: string): Promise<Timeline[]> => {
+  try {
+    const timelinesColRef = collection(db, 'timelines');
+    // This query requires a composite index, which should be created in the Firebase console
+    const q = query(
+      timelinesColRef, 
+      where('username', '==', username), 
+      where('isPublic', '==', true), 
+      orderBy('createdAt', 'desc')
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => processTimeline(doc));
+  } catch (error: any) {
+    // If we get an index error, try a simpler query and filter in memory
+    if (error.message && error.message.includes("requires an index")) {
+      console.warn("Composite index missing, using fallback query method");
+      
+      const timelinesColRef = collection(db, 'timelines');
+      const simpleQ = query(timelinesColRef, where('username', '==', username));
+      const snapshot = await getDocs(simpleQ);
+      
+      // Filter and sort in memory
+      const timelines = snapshot.docs
+        .map(doc => processTimeline(doc))
+        .filter(timeline => timeline.isPublic)
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      
+      return timelines;
+    }
+    throw error; // If it's not an index error, rethrow
+  }
+};
