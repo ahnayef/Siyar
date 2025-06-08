@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useEffect, useState, useMemo } from 'react';
@@ -11,7 +10,7 @@ import EventCard from '@/components/timeline/EventCard';
 import AddEventModal from '@/components/timeline/AddEventModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, CalendarPlus, Smile, CalendarClock, Star } from 'lucide-react';
+import { AlertTriangle, CalendarPlus, Smile, CalendarClock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { deleteTimelineEventAction } from '@/actions/timelineActions';
 import { cn } from '@/lib/utils';
