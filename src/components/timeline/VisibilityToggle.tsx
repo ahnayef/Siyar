@@ -14,9 +14,10 @@ interface VisibilityToggleProps {
   timelineId: string;
   initialIsPublic: boolean;
   className?: string;
+  iconOnly?: boolean;
 }
 
-export default function VisibilityToggle({ timelineId, initialIsPublic, className }: VisibilityToggleProps) {
+export default function VisibilityToggle({ timelineId, initialIsPublic, className, iconOnly = false }: VisibilityToggleProps) {
   const [isPublic, setIsPublic] = useState(initialIsPublic);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -61,16 +62,18 @@ export default function VisibilityToggle({ timelineId, initialIsPublic, classNam
         onClick={handleToggle} 
         disabled={isLoading || !user} 
         variant="outline" 
+        size={iconOnly ? "icon" : undefined}
         className={cn("neo-button-outline", className)}
+        title={isPublic ? 'Make timeline private' : 'Make timeline public'}
     >
       {isLoading ? (
-        <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin mr-1 sm:mr-1.5" />
+        <Loader2 className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", !iconOnly && "mr-1 sm:mr-1.5", "animate-spin")} />
       ) : isPublic ? (
-        <Unlock className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-1.5 text-primary" />
+        <Unlock className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", !iconOnly && "mr-1 sm:mr-1.5", "text-primary")} />
       ) : (
-        <Lock className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-1.5 text-muted-foreground" />
+        <Lock className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", !iconOnly && "mr-1 sm:mr-1.5", "text-muted-foreground")} />
       )}
-      <span className="inline">{isPublic ? 'Public' : 'Private'}</span>
+      {!iconOnly && <span className="inline">{isPublic ? 'Public' : 'Private'}</span>}
     </Button>
   );
 }

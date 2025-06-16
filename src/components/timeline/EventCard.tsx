@@ -85,7 +85,7 @@ export default function EventCard({ event, isNextUpcoming, onEdit, onDelete, isO
       }}
       className={cardClasses}>
       {isEventOverdue && (
-        <div className="absolute top-2 right-2 bg-destructive text-destructive-foreground font-archivo p-1 px-3 text-xs border-2 border-strong-border-color shadow-neo-active rounded-[4px] z-10">
+        <div className=" bg-destructive text-destructive-foreground font-archivo p-1 px-3 text-xs z-10">
           OVERDUE
         </div>
       )}
@@ -109,10 +109,10 @@ export default function EventCard({ event, isNextUpcoming, onEdit, onDelete, isO
             </p>
           }
           <div className={cn(
-            "mt-2 p-2 bg-muted/30 border border-strong-border-color/30 rounded-[4px] inline-block",
+            "mt-2 p-2 bg-muted/50 border border-strong-border-color/30 rounded-[4px] inline-block",
             { 'line-through text-muted-foreground': eventStatus === 'complete' || isEventOverdue }
           )}>
-            <span className="text-body-md text-muted-foreground font-space-mono font-semibold">
+            <span className="text-sm md:text-body-md text-muted-foreground font-space-mono font-semibold">
               Due: {isValid(eventDueDate) ? format(eventDueDate, 'MMM d, yyyy, h:mm a') : "Invalid Date"}
             </span>
           </div>

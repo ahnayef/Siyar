@@ -260,7 +260,7 @@ export default function TimelineViewPage() {
                 const prevEventDueDate = events[index-1].dueDate;
                 const currentEventDueDate = event.dueDate;
                 if (isValid(currentEventDueDate) && isValid(prevEventDueDate) && currentEventDueDate.getTime() > prevEventDueDate.getTime()) { 
-                   gapIndicatorText = formatDistanceStrict(currentEventDueDate, prevEventDueDate, { roundingMethod: 'ceil' });
+                   gapIndicatorText = formatDistanceStrict(currentEventDueDate, prevEventDueDate, { roundingMethod: 'round' });
                 }
               }
 
