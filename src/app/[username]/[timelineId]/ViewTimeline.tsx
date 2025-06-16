@@ -290,7 +290,7 @@ export default function TimelineViewPage() {
                       )}
                     </div>
 
-                    <div className="flex-1 min-w-0 ml-8"> 
+                    <div className="flex-1 min-w-0 ml-4"> 
                       <EventCard
                         event={event}
                         isNextUpcoming={event.id === nextUpcomingEventId}
