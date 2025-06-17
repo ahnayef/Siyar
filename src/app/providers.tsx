@@ -1,18 +1,35 @@
 "use client";
 
 import type React from 'react';
+import { useState, useEffect } from 'react';
+import posthog from 'posthog-js';
+import { PostHogProvider } from 'posthog-js/react';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState } from 'react';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
 
+  useEffect(() => {
+    posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
+      api_host: '/ingest',
+      ui_host: 'https://us.posthog.com',
+      capture_pageview: 'history_change',
+      capture_exceptions: true,
+      loaded: (posthog) => {
+        if (process.env.NODE_ENV === 'development') posthog.debug();
+      },
+      debug: process.env.NODE_ENV === 'development',
+    });
+  }, []);
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        {children}
-      </AuthProvider>
-    </QueryClientProvider>
+    <PostHogProvider client={posthog}>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </QueryClientProvider>
+    </PostHogProvider>
   );
 }
