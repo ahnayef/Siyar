@@ -51,10 +51,6 @@ export default function TimelineViewPage() {
       setEvents([]); 
 
       try {
-        console.log(`Fetching data for user: ${username}, timeline: ${timelineId}`);
-        console.log("Current authUser state:", authUser);
-        console.log("Auth loading state:", authLoading);
-
         const fetchedOwnerProfile = await getUserByUsername(username);
         if (!fetchedOwnerProfile) {
             setError(`Timeline owner profile ('${username}') not found.`);
@@ -70,11 +66,6 @@ export default function TimelineViewPage() {
           setIsLoading(false);
           return;
         }
-        
-        console.log("Fetched timelineData:", timelineData);
-        console.log("Auth User UID for check:", authUser?.uid);
-        console.log("Timeline User ID for check:", timelineData?.userId);
-        console.log("Is timeline public:", timelineData?.isPublic);
 
         if (!timelineData.isPublic) {
           if (!authUser) {
@@ -111,7 +102,7 @@ export default function TimelineViewPage() {
     if (!authLoading) { 
         fetchData();
     } else {
-      console.log("Auth is still loading, delaying fetchData...");
+      // console.log("Waiting for auth to load before fetching timeline data.");
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [username, timelineId, authUser, authLoading]); 
