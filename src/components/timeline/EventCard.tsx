@@ -113,7 +113,7 @@ export default function EventCard({ event, isNextUpcoming, onEdit, onDelete, isO
             { 'line-through text-muted-foreground': eventStatus === 'complete' || isEventOverdue }
           )}>
             <span className="text-sm md:text-body-md text-muted-foreground font-space-mono font-semibold">
-              Due: {isValid(eventDueDate) ? format(eventDueDate, 'MMM d, yyyy, h:mm a') : "Invalid Date"}
+              {isValid(eventDueDate) ? format(eventDueDate, 'EEE, MMM d, yyyy, h:mm a') : "Invalid Date"}
             </span>
           </div>
         </CardContent>
