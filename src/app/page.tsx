@@ -54,12 +54,12 @@ export default function HomePage() {
 
       <section className="container mx-auto py-16 md:py-24">
         <div className="neo-card p-8 md:p-12 flex flex-col md:flex-row items-center gap-8">
-          <div className="md:w-1/2 text-left">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">Visualize. Plan. Achieve.</h2>
-            <p className="text-body-lg text-muted-foreground mb-8">
+          <div className="md:w-1/2 text-center md:text-left">
+            <h2 className="text-2xl text-center md:text-left md:text-4xl font-bold text-foreground mb-6">Visualize. Plan. Achieve.</h2>
+            <p className="text-sm md:text-body-md md:text-body-lg text-muted-foreground mb-8">
               Siyar&apos;s design philosophy is simple: maximum clarity, zero distraction. Stay sharp, stay organized.
             </p>
-            <Button size="lg" asChild className="neo-button px-10 py-3">
+            <Button asChild className="neo-button py-3 h-9 rounded-md px-3 md:h-11 md:px-8" style={{paddingRight: '0.75rem', paddingLeft: '0.75rem'}}>
               <Link href="/signup">Create Your First Timeline</Link>
             </Button>
           </div>
@@ -82,4 +82,3 @@ export default function HomePage() {
     </div>
   );
 }
-    
