@@ -60,6 +60,12 @@ export default function Navbar() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-border" />
+              <DropdownMenuItem asChild className="cursor-pointer hover:bg-muted">
+                <Link href="/about" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Workflow className="mr-2 h-4 w-4" /> About Siyar
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-border" />
               <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive">
                 <LogOut className="mr-2 h-4 w-4" /> Sign Out
               </DropdownMenuItem>
@@ -68,6 +74,9 @@ export default function Navbar() {
         </>
       ) : (
         <>
+          <Button variant="ghost" size="sm" asChild className="neo-button-ghost text-sm">
+            <Link href="/about" onClick={() => setIsMobileMenuOpen(false)}>About</Link>
+          </Button>
           <Button variant="ghost" size="sm" asChild className="neo-button px-4 py-1.5 text-sm">
             <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>Login</Link>
           </Button>
