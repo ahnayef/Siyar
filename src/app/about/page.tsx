@@ -155,10 +155,10 @@ export default function About() {
                {/* Call to Action */}
                <section className="text-center">
                     <div className="bg-muted p-8 sm:p-12 border-4 border-black shadow-brutal">
-                         <h2 className="text-3xl sm:text-4xl font-archivo font-bold mb-4">
+                         <h2 className="text-2xl md:text-3xl font-archivo font-bold mb-4">
                               Ready to <span className="text-primary">Upgrade</span> Your Planning Game?
                          </h2>
-                         <p className="text-lg mb-8 max-w-2xl mx-auto text-muted-foreground">
+                         <p className="text-base md:text-lg mb-8 max-w-2xl mx-auto text-muted-foreground">
                               Join Siyar and transform how you manage your time. It's completely free, today and always. No subscriptions, no hidden costs, just a genuinely useful tool.
                          </p>
                          <Button asChild size="lg" className="neo-button">
@@ -184,7 +184,23 @@ export default function About() {
 
                {/* Footer with updated date */}
                   <footer className="mt-16 text-center text-sm text-muted-foreground">
-                           © {new Date().getFullYear()} Siyar. All rights reserved.
+                                     <div className="text-xs text-muted-foreground flex flex-col items-center gap-2">
+              <div>
+                © {new Date().getFullYear() === 2025 ? '2025' : `2023-${new Date().getFullYear()}`} Siyar. 
+                Free forever.
+              </div>
+              <div className="flex items-center">
+                <span>Designed by</span>
+                <a 
+                  href="https://github.com/ahnayef" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="ml-1 hover:text-primary transition-colors inline-flex items-center"
+                >
+                  @AHNayef
+                </a>
+              </div>
+            </div>
                   </footer>
           </div>
      )

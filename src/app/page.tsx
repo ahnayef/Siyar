@@ -185,7 +185,7 @@ export default function HomePage() {
             {/* Copyright & Credit */}
             <div className="text-xs text-muted-foreground flex flex-col items-center gap-2">
               <div>
-                © {new Date().getFullYear() === 2023 ? '2023' : `2023-${new Date().getFullYear()}`} Siyar. 
+                © {new Date().getFullYear() === 2025 ? '2025' : `2023-${new Date().getFullYear()}`} Siyar. 
                 Free forever.
               </div>
               <div className="flex items-center">
