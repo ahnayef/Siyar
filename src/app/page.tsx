@@ -1,12 +1,17 @@
 
+"use client";
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Zap, BarChart3, Users, Workflow, Calendar, Clock, Share2, CheckCircle, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { Siyar } from '@/constant/images';
 import Logo from '@/Icon/Logo';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function HomePage() {
+  const { user } = useAuth();
+  
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground overflow-hidden">
       {/* Hero Section */}
@@ -22,9 +27,19 @@ export default function HomePage() {
               The timeline manager for today's creative minds. Neo-brutalist clarity for your academic and personal commitments.
             </p>
             <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-              <Button size="lg" asChild className="neo-button text-lg px-8 py-6 font-bold w-full sm:w-auto">
-                <Link href="/signup">Get Started</Link>
-              </Button>
+              {user ? (
+                <Button size="lg" asChild className="neo-button text-lg px-8 py-6 font-bold w-full sm:w-auto">
+                  <Link href="/dashboard">
+                    <span className="flex items-center gap-2">
+                      My Dashboard <ArrowRight className="h-5 w-5" />
+                    </span>
+                  </Link>
+                </Button>
+              ) : (
+                <Button size="lg" asChild className="neo-button text-lg px-8 py-6 font-bold w-full sm:w-auto">
+                  <Link href="/signup">Get Started</Link>
+                </Button>
+              )}
               <Button variant="outline" size="lg" asChild className="neo-button-outline text-lg px-8 py-6 font-bold w-full sm:w-auto">
                 <Link href="/about">Learn More</Link>
               </Button>
