@@ -151,7 +151,7 @@ export default function HomePage() {
             Ready to <span className="text-primary">Upgrade</span> Your Planning Game?
           </h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto text-muted-foreground">
-            Join Siyar today and transform how you manage your time. It's completely free—today and always.
+            Join Siyar today and transform how you manage your time. It's completely free, today and always.
           </p>
           <Button asChild size="lg" className="neo-button text-lg px-8 py-6 font-bold">
             <Link href="/signup">Create Your First Timeline</Link>
