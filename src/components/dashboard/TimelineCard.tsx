@@ -22,6 +22,8 @@ import { useState } from 'react';
 import ShareTimelineModal from './ShareTimelineModal'; 
 import RenameTimelineModal from './RenameTimelineModal';
 import { logAnalyticsEvent } from '@/lib/analytics';
+import posthog from 'posthog-js';
+import { trackTimelineEvent } from '@/lib/analytics-events';
 
 interface TimelineCardProps {
   timeline: Timeline;
@@ -47,7 +49,9 @@ export default function TimelineCard({ timeline, onTimelineDeleted, onTimelineRe
     try {
       await deleteTimelineAction(user.uid, timeline.id);
       toast({ title: "Moved to Trash", description: `"${timeline.title}" has been moved to trash.` });
+      // Track both with Firebase Analytics and PostHog
       logAnalyticsEvent('trash_timeline', { timeline_id: timeline.id, user_id: user.uid });
+      trackTimelineEvent.trashed(timeline.id, timeline.title);
       if (onTimelineDeleted) {
         onTimelineDeleted(timeline.id);
       }
@@ -64,7 +68,9 @@ export default function TimelineCard({ timeline, onTimelineDeleted, onTimelineRe
     try {
       await restoreTimelineAction(user.uid, timeline.id);
       toast({ title: "Restored from Trash", description: `"${timeline.title}" has been restored from trash.` });
+      // Track both with Firebase Analytics and PostHog
       logAnalyticsEvent('restore_timeline', { timeline_id: timeline.id, user_id: user.uid });
+      trackTimelineEvent.restored(timeline.id, timeline.title);
       if (onTimelineRestored) {
         onTimelineRestored(timeline.id);
       }
@@ -75,16 +81,28 @@ export default function TimelineCard({ timeline, onTimelineDeleted, onTimelineRe
 
   const handleOpenShareModal = () => {
     setIsShareModalOpen(true);
+    // Track both with Firebase Analytics and PostHog
     logAnalyticsEvent('open_share_timeline_modal', { timeline_id: timeline.id, user_id: user?.uid });
+    posthog.capture('open_share_modal', { 
+      timeline_id: timeline.id, 
+      timeline_title: timeline.title 
+    });
   }
 
   const handleOpenRenameModal = () => {
     setIsRenameModalOpen(true);
+    // Track both with Firebase Analytics and PostHog
     logAnalyticsEvent('open_rename_timeline_modal', { timeline_id: timeline.id, user_id: user?.uid });
+    posthog.capture('open_rename_modal', { 
+      timeline_id: timeline.id, 
+      timeline_title: timeline.title 
+    });
   }
 
   const handleRenamed = (newTitle: string) => {
     setTimelineTitle(newTitle);
+    // Track rename event with PostHog
+    trackTimelineEvent.renamed(timeline.id, timeline.title, newTitle);
   }
 
   const shareLink = typeof window !== 'undefined' ? `${window.location.origin}/${timeline.username}/${timeline.id}` : '';

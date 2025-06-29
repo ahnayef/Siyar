@@ -16,6 +16,8 @@ import { deleteTimelineEventAction } from '@/actions/timelineActions';
 import { cn } from '@/lib/utils';
 import { formatDistanceStrict, isValid } from 'date-fns';
 import { logAnalyticsEvent } from '@/lib/analytics';
+import { trackTimelineEvent, trackEventItem } from '@/lib/analytics-events';
+import posthog from 'posthog-js';
 
 
 export default function TimelineViewPage() {
@@ -84,7 +86,19 @@ export default function TimelineViewPage() {
         
         setTimeline(timelineData);
         setTimelineTitle(timelineData.title);
+        
+        // Track timeline view with both systems
         logAnalyticsEvent('view_timeline', { timeline_id: timelineId, user_id: authUser?.uid, owner_username: username });
+        trackTimelineEvent.viewed(timelineId, timelineData.title, username);
+        
+        // Capture pageview properties for better analytics
+        posthog.capture('$pageview', {
+          $current_url: window.location.href,
+          timelineId: timelineId,
+          timelineTitle: timelineData.title,
+          isOwner: authUser?.uid === timelineData.userId,
+          isPublic: timelineData.isPublic
+        });
 
         const eventData = await getTimelineEvents(timelineId);
         setEvents(eventData.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime()));
@@ -116,12 +130,25 @@ export default function TimelineViewPage() {
     if (!isOwner) return;
     setEventToEdit(null);
     setIsAddEventModalOpen(true);
+    
+    // Track with PostHog
+    posthog.capture('open_add_event_modal', {
+      timelineId: timeline?.id,
+      isEdit: false
+    });
   };
 
   const handleEditEvent = (event: TimelineEvent) => {
     if (!isOwner) return;
     setEventToEdit(event);
     setIsAddEventModalOpen(true);
+    
+    // Track with PostHog
+    posthog.capture('open_edit_event_modal', {
+      timelineId: timeline?.id,
+      eventId: event.id,
+      eventTitle: event.title
+    });
   };
 
   const handleDeleteEvent = async (eventId: string) => {
@@ -133,12 +160,21 @@ export default function TimelineViewPage() {
         toast({ title: "Unauthorized", description: "You cannot delete events from this timeline.", variant: "destructive"});
         return;
     }
+    
+    const eventToDelete = events.find(e => e.id === eventId);
+    
     if (window.confirm("Are you sure you want to delete this event? This action is irreversible.")) {
       try {
         await deleteTimelineEventAction(authUser.uid, timeline.id, eventId);
         setEvents(prevEvents => prevEvents.filter(e => e.id !== eventId));
         toast({ title: "Event Deleted", description: "The event has been removed." });
+        
+        // Track with both systems
         logAnalyticsEvent('delete_event', { timeline_id: timeline.id, event_id: eventId, user_id: authUser.uid });
+        
+        if (eventToDelete) {
+          trackEventItem.deleted(timeline.id, eventId, eventToDelete.title);
+        }
       } catch (err: any) {
         toast({ title: "Error Deleting Event", description: err.message, variant: "destructive" });
       }
@@ -155,20 +191,52 @@ export default function TimelineViewPage() {
       setEvents(prevEvents => {
         const existingEventIndex = prevEvents.findIndex(e => e.id === processedEvent.id);
         let newEventsList;
+        
         if (existingEventIndex > -1) {
+          // Event is being updated
           newEventsList = [...prevEvents];
           newEventsList[existingEventIndex] = processedEvent;
+          
+          // Track edit event
+          trackEventItem.edited(
+            timeline.id, 
+            processedEvent.id, 
+            processedEvent.title
+          );
         } else {
+          // New event is being added
           newEventsList = [...prevEvents, processedEvent];
+          
+          // Track new event
+          trackEventItem.added(
+            timeline.id, 
+            processedEvent.id, 
+            processedEvent.title
+          );
+          
+          // Track first event added (for funnel analysis)
+          if (prevEvents.length === 0) {
+            posthog.capture('funnel_first_event_added', {
+              timelineId: timeline.id,
+              timelineTitle: timeline.title
+            });
+          }
         }
+        
         return newEventsList.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
       });
     }
   };
   
   const handleTimelineRenamed = (newTitle: string) => {
-    setTimelineTitle(newTitle);
-    document.title = `${newTitle} | Siyar`;
+    if (timeline) {
+      const oldTitle = timelineTitle;
+      setTimelineTitle(newTitle);
+      document.title = `${newTitle} | Siyar`;
+      
+      // Track timeline rename with PostHog
+      trackTimelineEvent.renamed(timeline.id, oldTitle, newTitle);
+    }
   };
   
   const nextUpcomingEventId = useMemo(() => {
