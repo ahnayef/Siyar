@@ -14,6 +14,8 @@ export interface Timeline {
   username: string;
   title: string;
   isPublic: boolean;
+  deleted?: boolean;  // For backward compatibility, will eventually be removed
+  isInTrash?: boolean; // New property name for clarity
   createdAt: Date; // Was FirebaseTimestamp
   updatedAt: Date; // Was FirebaseTimestamp
   events?: TimelineEvent[]; 

@@ -15,9 +15,11 @@ export async function generateMetadata({
      let description = 'A timeline by ' + username;
 
      try {
+          // For metadata generation, we only check public timelines
+          // No user ID is passed as this runs server-side without authentication context
           const timeline = await getTimelineByUsernameAndId(username, timelineId);
           if (timeline) {
-               if (timeline.isPublic) {
+               if (timeline.isPublic && !timeline.deleted && !timeline.isInTrash) {
                     title = ` ${timeline.title} | Siyar`;
                     description = `View ${timeline.title}, a timeline by ${username} on Siyar`;
                } else {

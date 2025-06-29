@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { LogOut, UserCircle, LayoutDashboard, Workflow, Menu, X } from 'lucide-react'; 
+import { LogOut, UserCircle, LayoutDashboard, Workflow, Menu, X, Trash2 } from 'lucide-react'; 
 import { useState } from 'react';
 import {
   DropdownMenu,
@@ -52,6 +52,11 @@ export default function Navbar() {
               <DropdownMenuItem asChild className="cursor-pointer hover:bg-muted">
                 <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
                   <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="cursor-pointer hover:bg-muted">
+                <Link href="/trash" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Trash2 className="mr-2 h-4 w-4" /> Trash Bin
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild className="cursor-pointer hover:bg-muted">

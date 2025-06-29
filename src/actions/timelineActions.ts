@@ -1,8 +1,7 @@
-
 "use server";
 
 import { db } from "@/lib/firebase";
-import { createTimeline as createTimelineDbOp, deleteTimeline as deleteTimelineDbOp, updateTimelineVisibility as updateTimelineVisibilityDbOp, getTimelineEvents, deleteTimelineEvent as deleteTimelineEventDbOp } from "@/lib/firestoreOps";
+import { createTimeline as createTimelineDbOp, deleteTimeline as deleteTimelineDbOp, restoreTimeline as restoreTimelineDbOp, updateTimelineVisibility as updateTimelineVisibilityDbOp, getTimelineEvents, deleteTimelineEvent as deleteTimelineEventDbOp } from "@/lib/firestoreOps";
 import type { Timeline, TimelineEvent } from "@/types"; 
 import { Timestamp, collection, doc, serverTimestamp, getDocs, query, where, updateDoc, getDoc, setDoc } from "firebase/firestore";
 import { revalidatePath } from "next/cache";
@@ -228,6 +227,27 @@ export async function deleteTimelineEventAction(userId: string, timelineId: stri
   }
 
   await deleteTimelineEventDbOp(timelineId, eventId);
+  const username = timelineDocSnap.data()?.username;
+  if (username) {
+    revalidatePath(`/${username}/${timelineId}`);
+  }
+}
+
+export async function restoreTimelineAction(userId: string, timelineId: string): Promise<void> {
+  if (!userId) {
+    throw new Error("User ID is required.");
+  }
+  if (!timelineId) {
+    throw new Error("Timeline ID is required.");
+  }
+  const timelineDocRef = doc(db, "timelines", timelineId);
+  const timelineDocSnap = await getDoc(timelineDocRef);
+
+  if (!timelineDocSnap.exists() || timelineDocSnap.data()?.userId !== userId) {
+    throw new Error("Unauthorized or timeline not found.");
+  }
+  await restoreTimelineDbOp(timelineId);
+  revalidatePath("/dashboard");
   const username = timelineDocSnap.data()?.username;
   if (username) {
     revalidatePath(`/${username}/${timelineId}`);

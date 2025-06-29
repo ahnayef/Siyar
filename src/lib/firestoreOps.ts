@@ -42,12 +42,19 @@ const processTimelineEvent = (docSnap: any): TimelineEvent => {
 
 const processTimeline = (docSnap: any): Timeline => {
     const data = docSnap.data() as any;
-    return {
+    const result = {
       id: docSnap.id,
       ...data,
       createdAt: data.createdAt instanceof FirebaseTimestamp ? data.createdAt.toDate() : new Date(data.createdAt),
       updatedAt: data.updatedAt instanceof FirebaseTimestamp ? data.updatedAt.toDate() : new Date(data.updatedAt),
-    } as Timeline; 
+    } as Timeline;
+    
+    // For backward compatibility - support both deleted and isInTrash
+    if (data.deleted !== undefined && data.isInTrash === undefined) {
+      result.isInTrash = data.deleted;
+    }
+    
+    return result;
 }
 
 
@@ -71,21 +78,49 @@ export const createTimeline = async (userId: string, username: string, title: st
   return processTimeline(newTimelineSnap);
 };
 
-export const getUserTimelines = async (userId: string): Promise<Timeline[]> => {
+export const getUserTimelines = async (userId: string, includeDeleted: boolean = false): Promise<Timeline[]> => {
   const timelinesColRef = collection(db, 'timelines');
-  const q = query(timelinesColRef, where('userId', '==', userId), orderBy('createdAt', 'desc'));
+  let q;
+  
+  if (includeDeleted) {
+    // Show all timelines including those in trash
+    q = query(timelinesColRef, where('userId', '==', userId), orderBy('createdAt', 'desc'));
+  } else {
+    // Filter out timelines in trash (default behavior)
+    // Need to check both deleted and isInTrash for backward compatibility
+    q = query(
+      timelinesColRef, 
+      where('userId', '==', userId),
+      where('deleted', 'in', [false, null]), // Include both false and null (for timelines that don't have the field yet)
+      orderBy('createdAt', 'desc')
+    );
+  }
+  
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => processTimeline(doc));
 };
 
-export const getTimelineById = async (timelineId: string): Promise<Timeline | null> => {
+export const getTimelineById = async (timelineId: string, userId?: string): Promise<Timeline | null> => {
   const timelineDocRef = doc(db, 'timelines', timelineId);
   const docSnap = await getDoc(timelineDocRef);
-  return docSnap.exists() ? processTimeline(docSnap) : null;
+  
+  if (!docSnap.exists()) {
+    return null;
+  }
+  
+  const timeline = processTimeline(docSnap);
+  
+  // If timeline is in trash, only allow access to the owner
+  const isInTrash = timeline.isInTrash || timeline.deleted;
+  if (isInTrash && timeline.userId !== userId) {
+    return null;
+  }
+  
+  return timeline;
 };
 
-export const getTimelineByUsernameAndId = async (username: string, timelineId: string): Promise<Timeline | null> => {
-  const timeline = await getTimelineById(timelineId);
+export const getTimelineByUsernameAndId = async (username: string, timelineId: string, userId?: string): Promise<Timeline | null> => {
+  const timeline = await getTimelineById(timelineId, userId);
   if (timeline && timeline.username === username) {
     return timeline;
   }
@@ -101,18 +136,22 @@ export const updateTimelineVisibility = async (timelineId: string, isPublic: boo
 };
 
 export const deleteTimeline = async (timelineId: string): Promise<void> => {
-  // Delete all events in the timeline first (batched delete)
-  const eventsColRef = collection(db, 'timelines', timelineId, 'events');
-  const eventsSnapshot = await getDocs(eventsColRef);
-  const batch = writeBatch(db);
-  eventsSnapshot.docs.forEach(eventDoc => {
-    batch.delete(eventDoc.ref);
-  });
-  await batch.commit();
-
-  // Then delete the timeline document itself
+  // Soft delete: mark the timeline as in trash instead of permanently deleting it
   const timelineDocRef = doc(db, 'timelines', timelineId);
-  await deleteDoc(timelineDocRef);
+  await updateDoc(timelineDocRef, {
+    deleted: true,
+    isInTrash: true,
+    updatedAt: serverTimestamp(),
+  });
+};
+
+export const restoreTimeline = async (timelineId: string): Promise<void> => {
+  const timelineDocRef = doc(db, 'timelines', timelineId);
+  await updateDoc(timelineDocRef, {
+    deleted: false,
+    isInTrash: false,
+    updatedAt: serverTimestamp(),
+  });
 };
 
 
@@ -176,6 +215,7 @@ export const getPublicTimelinesByUsername = async (username: string): Promise<Ti
       timelinesColRef, 
       where('username', '==', username), 
       where('isPublic', '==', true), 
+      where('deleted', 'in', [false, null]), // Exclude trashed timelines
       orderBy('createdAt', 'desc')
     );
     const snapshot = await getDocs(q);
@@ -192,7 +232,7 @@ export const getPublicTimelinesByUsername = async (username: string): Promise<Ti
       // Filter and sort in memory
       const timelines = snapshot.docs
         .map(doc => processTimeline(doc))
-        .filter(timeline => timeline.isPublic)
+        .filter(timeline => timeline.isPublic && !timeline.deleted && !timeline.isInTrash)
         .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
       
       return timelines;

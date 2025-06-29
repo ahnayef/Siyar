@@ -59,10 +59,11 @@ export default function TimelineViewPage() {
         }
         setOwnerProfile(fetchedOwnerProfile);
 
-        const timelineData = await getTimelineByUsernameAndId(username, timelineId);
+        // Pass authUser.uid to allow owners to see their own trashed timelines
+        const timelineData = await getTimelineByUsernameAndId(username, timelineId, authUser?.uid);
 
         if (!timelineData) {
-          setError(`Timeline not found with ID '${timelineId}' for user '${username}', or URL is incorrect. Please check the link.`);
+          setError(`Timeline not found with ID '${timelineId}', or URL is incorrect. Please check the link.`);
           setIsLoading(false);
           return;
         }
@@ -225,6 +226,43 @@ export default function TimelineViewPage() {
           <h2 className="text-3xl font-bold mb-2 text-muted-foreground">Timeline Loading...</h2>
           <p className="text-muted-foreground mb-6 text-body-md">Just a moment, fetching the details. If this persists, the timeline might not exist or there could be an issue.</p>
            <Button onClick={() => router.push('/dashboard')} className="neo-button">Go to Dashboard</Button>
+        </div>
+      </div>
+    );
+  }
+  
+  // Show a special message if the timeline is in the trash
+  if (timeline && (timeline.deleted || timeline.isInTrash)) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <div className="neo-card p-8 border-yellow-500 border-dashed">
+          <div className="bg-yellow-50 p-4 rounded-lg mb-6">
+            <CalendarClock className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-2 text-yellow-700">Timeline in Trash</h2>
+            <p className="text-yellow-600 mb-6">
+              This timeline is currently in your trash. It's only visible to you. 
+              You can restore it from your dashboard or continue viewing it here.
+            </p>
+            <div className="flex gap-4 justify-center">
+              <Button 
+                onClick={() => router.push('/dashboard')} 
+                variant="outline"
+                className="neo-button-outline"
+              >
+                Go to Dashboard
+              </Button>
+              {isOwner && (
+                <Button 
+                  onClick={() => {
+                    router.push('/trash');
+                  }}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white"
+                >
+                  Go to Trash
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     );

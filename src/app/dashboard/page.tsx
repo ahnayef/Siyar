@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -8,15 +7,20 @@ import TimelineCard from '@/components/dashboard/TimelineCard';
 import CreateTimelineModal from '@/components/dashboard/CreateTimelineModal';
 import type { Timeline } from '@/types';
 import { getUserTimelines } from '@/lib/firestoreOps';
+import { restoreTimelineAction } from '@/actions/timelineActions';
 import { Skeleton } from '@/components/ui/skeleton';
-import { PlusCircle, Search, SortAsc, SortDesc, Filter, X } from 'lucide-react';
+import { PlusCircle, Search, SortAsc, SortDesc, Filter, X, RefreshCw, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 function DashboardContent() {
   const { user, userProfile } = useAuth();
+  const { toast } = useToast();
   const [timelines, setTimelines] = useState<Timeline[]>([]);
   const [filteredTimelines, setFilteredTimelines] = useState<Timeline[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,7 +31,7 @@ function DashboardContent() {
   useEffect(() => {
     if (user) {
       setIsLoading(true);
-      getUserTimelines(user.uid)
+      getUserTimelines(user.uid, false) // Never show deleted items in dashboard
         .then(fetchedTimelines => {
           setTimelines(fetchedTimelines);
           setFilteredTimelines(fetchedTimelines);
@@ -82,6 +86,23 @@ function DashboardContent() {
     setTimelines(prevTimelines => prevTimelines.filter(timeline => timeline.id !== deletedTimelineId));
   };
 
+  const handleRestoreTimeline = async (timelineId: string) => {
+    if (!user) {
+      return;
+    }
+    try {
+      await restoreTimelineAction(user.uid, timelineId);
+      // Refresh the timelines list
+      setIsLoading(true);
+      const fetchedTimelines = await getUserTimelines(user.uid, false);
+      setTimelines(fetchedTimelines);
+      setFilteredTimelines(fetchedTimelines);
+      setIsLoading(false);
+    } catch (error: any) {
+      console.error("Error restoring timeline:", error);
+    }
+  };
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
@@ -97,6 +118,59 @@ function DashboardContent() {
   const handleFilterChange = (value: 'all' | 'public' | 'private') => {
     setFilterOption(value);
   };
+
+  // Check for a restore parameter in the URL to handle restoring from timeline view
+  useEffect(() => {
+    const checkForRestoreParam = async () => {
+      if (!user) return;
+      
+      // Check if we're in the browser environment
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const restoreTimelineId = urlParams.get('restore');
+        
+        if (restoreTimelineId) {
+          try {
+            // First check if the timeline exists and is in trash
+            const allTimelines = await getUserTimelines(user.uid, true);
+            const timelineToRestore = allTimelines.find(t => 
+              t.id === restoreTimelineId && (t.deleted || t.isInTrash)
+            );
+            
+            if (timelineToRestore) {
+              // Attempt to restore
+              await restoreTimelineAction(user.uid, restoreTimelineId);
+              
+              // Refresh the timelines list
+              const fetchedTimelines = await getUserTimelines(user.uid, false);
+              setTimelines(fetchedTimelines);
+              setFilteredTimelines(fetchedTimelines);
+              
+              // Show success message
+              toast({
+                title: "Restored from Trash", 
+                description: `"${timelineToRestore.title}" has been restored from trash.`,
+                variant: "default"
+              });
+              
+              // Remove the parameter from URL
+              const newUrl = window.location.pathname;
+              window.history.replaceState({}, document.title, newUrl);
+            }
+          } catch (error: any) {
+            console.error("Error restoring timeline from URL parameter:", error);
+            toast({
+              title: "Error Restoring Timeline", 
+              description: error.message || "Could not restore the timeline",
+              variant: "destructive"
+            });
+          }
+        }
+      }
+    };
+    
+    checkForRestoreParam();
+  }, [user, toast]);
 
   if (isLoading) {
     return (
@@ -116,95 +190,112 @@ function DashboardContent() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        <h1 className="text-3xl md:text-4xl font-extrabold text-foreground">Your Timelines</h1>
-        {userProfile && <CreateTimelineModal onTimelineCreated={handleTimelineCreated} />}
+        <div>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-foreground">Your Timelines</h1>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" asChild className="neo-button-outline">
+            <Link href="/trash">
+              <Trash2 className="mr-2 h-4 w-4" /> Trash Bin
+            </Link>
+          </Button>
+          {userProfile && <CreateTimelineModal onTimelineCreated={handleTimelineCreated} />}
+        </div>
       </div>
       
-      {/* Search, Sort and Filter Controls */}
-      <div className="mb-8 space-y-4">
-        <div className="flex flex-col sm:flex-row gap-4 w-full">
-          {/* Search Input */}
-          <div className="relative flex-1 border border-muted border-black rounded-md">
-            <Input
-              type="text"
-              placeholder="Search timelines..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-              className="neo-input-outline w-full pl-10 pr-10"
-            />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            {searchQuery && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6" 
-                onClick={handleClearSearch}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-          
-          {/* Sort Dropdown */}
+      {/* Search, Sort, Filter Controls */}
+      <div className="flex flex-col md:flex-row gap-3 mb-6 items-start md:items-center">
+        <div className="relative w-full md:w-auto flex-1">
+          <Input
+            placeholder="Search timelines..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="neo-input py-5 pl-9 pr-10"
+          />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          {searchQuery && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6" 
+              onClick={handleClearSearch}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+        
+        <div className="flex gap-2 justify-end w-full md:w-auto">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="neo-button-outline gap-2 min-w-[140px]">
-                {sortOption === 'newest' && <SortDesc className="h-4 w-4" />}
-                {sortOption === 'oldest' && <SortAsc className="h-4 w-4" />}
-                {sortOption === 'a-z' && <SortAsc className="h-4 w-4" />}
-                {sortOption === 'z-a' && <SortDesc className="h-4 w-4" />}
-                
-                {sortOption === 'newest' && 'Newest First'}
-                {sortOption === 'oldest' && 'Oldest First'}
-                {sortOption === 'a-z' && 'A to Z'}
-                {sortOption === 'z-a' && 'Z to A'}
+              <Button variant="outline" className="neo-button-outline">
+                <SortAsc className="mr-2 h-4 w-4" />
+                Sort
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="neo-card">
-              <DropdownMenuItem onClick={() => handleSortChange('newest')}>
+              <DropdownMenuItem 
+                onClick={() => handleSortChange('newest')} 
+                className={`cursor-pointer ${sortOption === 'newest' ? 'font-semibold bg-primary/5' : ''}`}
+              >
                 <SortDesc className="mr-2 h-4 w-4" /> Newest First
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleSortChange('oldest')}>
+              <DropdownMenuItem 
+                onClick={() => handleSortChange('oldest')} 
+                className={`cursor-pointer ${sortOption === 'oldest' ? 'font-semibold bg-primary/5' : ''}`}
+              >
                 <SortAsc className="mr-2 h-4 w-4" /> Oldest First
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleSortChange('a-z')}>
-                <SortAsc className="mr-2 h-4 w-4" /> A to Z
+              <DropdownMenuItem 
+                onClick={() => handleSortChange('a-z')} 
+                className={`cursor-pointer ${sortOption === 'a-z' ? 'font-semibold bg-primary/5' : ''}`}
+              >
+                <SortAsc className="mr-2 h-4 w-4" /> A-Z
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleSortChange('z-a')}>
-                <SortDesc className="mr-2 h-4 w-4" /> Z to A
+              <DropdownMenuItem 
+                onClick={() => handleSortChange('z-a')} 
+                className={`cursor-pointer ${sortOption === 'z-a' ? 'font-semibold bg-primary/5' : ''}`}
+              >
+                <SortDesc className="mr-2 h-4 w-4" /> Z-A
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           
-          {/* Filter Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="neo-button-outline gap-2 min-w-[120px]">
-                <Filter className="h-4 w-4" />
-                {filterOption === 'all' && 'All'}
-                {filterOption === 'public' && 'Public'}
-                {filterOption === 'private' && 'Private'}
+              <Button variant="outline" className="neo-button-outline">
+                <Filter className="mr-2 h-4 w-4" />
+                Filter
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="neo-card">
-              <DropdownMenuItem onClick={() => handleFilterChange('all')}>
+              <DropdownMenuItem 
+                onClick={() => handleFilterChange('all')} 
+                className={`cursor-pointer ${filterOption === 'all' ? 'font-semibold bg-primary/5' : ''}`}
+              >
                 All Timelines
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('public')}>
+              <DropdownMenuItem 
+                onClick={() => handleFilterChange('public')} 
+                className={`cursor-pointer ${filterOption === 'public' ? 'font-semibold bg-primary/5' : ''}`}
+              >
                 Public Only
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('private')}>
+              <DropdownMenuItem 
+                onClick={() => handleFilterChange('private')} 
+                className={`cursor-pointer ${filterOption === 'private' ? 'font-semibold bg-primary/5' : ''}`}
+              >
                 Private Only
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
         
-        {/* Active Filters Display */}
-        {(searchQuery || filterOption !== 'all') && (
-          <div className="flex flex-wrap gap-2">
+        {/* Active Filter Badges */}
+        {(searchQuery || filterOption !== 'all' || sortOption !== 'newest') && (
+          <div className="flex flex-wrap gap-2 mt-3 md:mt-0">
             {searchQuery && (
-              <Badge variant="outline" className="flex items-center gap-1 neo-badge">
+              <Badge variant="secondary" className="bg-secondary/20 text-secondary-foreground">
                 Search: {searchQuery}
                 <Button variant="ghost" size="icon" className="h-4 w-4 ml-1" onClick={handleClearSearch}>
                   <X className="h-3 w-3" />
@@ -212,7 +303,7 @@ function DashboardContent() {
               </Badge>
             )}
             {filterOption !== 'all' && (
-              <Badge variant="outline" className="flex items-center gap-1 neo-badge">
+              <Badge variant="secondary" className="bg-secondary/20 text-secondary-foreground">
                 {filterOption === 'public' ? 'Public Only' : 'Private Only'}
                 <Button variant="ghost" size="icon" className="h-4 w-4 ml-1" onClick={() => handleFilterChange('all')}>
                   <X className="h-3 w-3" />
@@ -228,19 +319,20 @@ function DashboardContent() {
           {timelines.length === 0 ? (
             <>
               <PlusCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h2 className="text-2xl font-semibold mb-2 text-foreground">No Timelines Yet!</h2>
-              <p className="text-muted-foreground mb-4 text-body-md">Get started by creating your first timeline.</p>
-              {userProfile && <CreateTimelineModal onTimelineCreated={handleTimelineCreated} />}
+              <h2 className="text-2xl font-semibold mb-2 text-foreground">Create Your First Timeline</h2>
+              <p className="text-muted-foreground mb-4 text-body-md">
+                Your journey starts here. Create your first timeline to start mapping out your events and milestones.
+              </p>
+              {userProfile && <CreateTimelineModal buttonText="Create Your First Timeline" onTimelineCreated={handleTimelineCreated} />}
             </>
           ) : (
             <>
               <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h2 className="text-2xl font-semibold mb-2 text-foreground">No Matching Timelines</h2>
-              <p className="text-muted-foreground mb-4 text-body-md">Try adjusting your search or filters.</p>
-              <Button variant="outline" onClick={() => {
-                setSearchQuery('');
-                setFilterOption('all');
-              }} className="neo-button-outline">
+              <p className="text-muted-foreground mb-4 text-body-md">
+                No timelines matched your current search or filters. Try adjusting your criteria.
+              </p>
+              <Button variant="outline" onClick={handleClearSearch} className="neo-button-outline">
                 Clear All Filters
               </Button>
             </>
@@ -249,7 +341,7 @@ function DashboardContent() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredTimelines.map((timeline) => (
-            <TimelineCard key={timeline.id} timeline={timeline} onTimelineDeleted={handleTimelineDeleted} />
+            <TimelineCard key={timeline.id} timeline={timeline} onTimelineDeleted={handleTimelineDeleted} onTimelineRestored={handleRestoreTimeline} />
           ))}
         </div>
       )}
