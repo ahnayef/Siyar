@@ -51,7 +51,7 @@ export default function TrashPage() {
     };
 
     loadTrashTimelines();
-  }, [user, authLoading, router, toast]);
+  }, [user, authLoading, router, toast, searchParams]); // Added searchParams to dependencies
 
   const handleTimelineRestored = (timelineId: string) => {
     setTimelines(prev => prev.filter(t => t.id !== timelineId));
