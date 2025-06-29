@@ -41,7 +41,7 @@ export default function HomePage() {
                 </Button>
               )}
               <Button variant="outline" size="lg" asChild className="neo-button-outline text-lg px-8 py-6 font-bold w-full sm:w-auto">
-                <Link href="/about">Learn More</Link>
+                <Link href="/about" title='Learn more about Siyar'>Learn More About Siyar</Link>
               </Button>
             </div>
           </div>
