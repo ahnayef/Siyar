@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { LogOut, UserCircle, LayoutDashboard, Workflow, Menu, X, Trash2 } from 'lucide-react'; 
+import { LogOut, UserCircle, LayoutDashboard, Menu, X, Trash2, Info } from 'lucide-react'; 
 import { useState } from 'react';
 import {
   DropdownMenu,
@@ -35,48 +35,95 @@ export default function Navbar() {
     }
   };
 
-  const commonLinks = (isMobile = false) => (
+  const DesktopUserMenu = () => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="neo-button-outline px-3 py-1.5 text-sm flex items-center gap-1.5">
+          <UserCircle className="h-5 w-5" /> 
+          <span className="hidden md:inline">{userProfile?.username || user?.email?.split('@')[0] || 'Account'}</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="neo-card mt-2 w-56">
+        <DropdownMenuLabel className="font-archivo text-foreground">My Account</DropdownMenuLabel>
+        <DropdownMenuSeparator className="bg-border" />
+        <DropdownMenuItem asChild className="cursor-pointer hover:bg-muted">
+          <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
+            <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild className="cursor-pointer hover:bg-muted">
+          <Link href="/trash" onClick={() => setIsMobileMenuOpen(false)}>
+            <Trash2 className="mr-2 h-4 w-4" /> Trash Bin
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild className="cursor-pointer hover:bg-muted">
+          <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)}>
+            <UserCircle className="mr-2 h-4 w-4" /> Profile
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator className="bg-border" />
+        <DropdownMenuItem asChild className="cursor-pointer hover:bg-muted">
+          <Link href="/about" onClick={() => setIsMobileMenuOpen(false)}>
+            <Info className="mr-2 h-4 w-4" /> About Siyar
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator className="bg-border" />
+        <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive">
+          <LogOut className="mr-2 h-4 w-4" /> Sign Out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
+  const MobileUserProfile = () => (
+    <div className="w-full">
+      <div className="flex items-center justify-center mb-4 p-3 border-b border-border">
+        <UserCircle className="h-6 w-6 mr-2" />
+        <span className="font-medium text-lg">{userProfile?.username || user?.email?.split('@')[0] || 'Account'}</span>
+      </div>
+      <div className="flex flex-col space-y-3 w-full">
+        <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center px-3 py-2.5 hover:bg-muted rounded-md transition-colors">
+          <LayoutDashboard className="mr-3 h-5 w-5" /> 
+          <span>Dashboard</span>
+        </Link>
+        <Link href="/trash" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center px-3 py-2.5 hover:bg-muted rounded-md transition-colors">
+          <Trash2 className="mr-3 h-5 w-5" /> 
+          <span>Trash Bin</span>
+        </Link>
+        <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center px-3 py-2.5 hover:bg-muted rounded-md transition-colors">
+          <UserCircle className="mr-3 h-5 w-5" /> 
+          <span>Profile</span>
+        </Link>
+        <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center px-3 py-2.5 hover:bg-muted rounded-md transition-colors">
+          <Info className="mr-3 h-5 w-5" /> 
+          <span>About Siyar</span>
+        </Link>
+        <button 
+          onClick={handleSignOut}
+          className="flex items-center w-full px-3 py-2.5 text-destructive hover:bg-destructive/10 rounded-md transition-colors text-left"
+        >
+          <LogOut className="mr-3 h-5 w-5" /> 
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </div>
+  );
+
+  const NonUserLinks = ({ isMobile = false }) => (
     <>
-      {user ? (
-        <>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="neo-button-outline px-3 py-1.5 text-sm flex items-center gap-1.5">
-                <UserCircle className="h-5 w-5" /> 
-                <span className="hidden md:inline">{userProfile?.username || user.email?.split('@')[0]}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="neo-card mt-2 w-56">
-              <DropdownMenuLabel className="font-archivo text-foreground">My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-border" />
-              <DropdownMenuItem asChild className="cursor-pointer hover:bg-muted">
-                <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
-                  <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild className="cursor-pointer hover:bg-muted">
-                <Link href="/trash" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Trash2 className="mr-2 h-4 w-4" /> Trash Bin
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild className="cursor-pointer hover:bg-muted">
-                <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)}>
-                  <UserCircle className="mr-2 h-4 w-4" /> Profile
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-border" />
-              <DropdownMenuItem asChild className="cursor-pointer hover:bg-muted">
-                <Link href="/about" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Workflow className="mr-2 h-4 w-4" /> About Siyar
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-border" />
-              <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive">
-                <LogOut className="mr-2 h-4 w-4" /> Sign Out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </>
+      {isMobile ? (
+        <div className="flex flex-col space-y-3 w-full">
+          <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center px-3 py-2.5 hover:bg-muted rounded-md transition-colors">
+            <Info className="mr-3 h-5 w-5" /> 
+            <span>About Siyar</span>
+          </Link>
+          <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center px-3 py-2.5 bg-primary/10 hover:bg-primary/20 rounded-md transition-colors">
+            <span>Login</span>
+          </Link>
+          <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center px-3 py-2.5 border border-primary rounded-md hover:bg-primary/10 transition-colors">
+            <span>Sign Up</span>
+          </Link>
+        </div>
       ) : (
         <>
           <Button variant="ghost" size="sm" asChild className="neo-button-ghost text-sm">
@@ -89,6 +136,16 @@ export default function Navbar() {
             <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}>Sign Up</Link>
           </Button>
         </>
+      )}
+    </>
+  );
+
+  const commonLinks = (isMobile = false) => (
+    <>
+      {user ? (
+        isMobile ? <MobileUserProfile /> : <DesktopUserMenu />
+      ) : (
+        <NonUserLinks isMobile={isMobile} />
       )}
     </>
   );
@@ -128,8 +185,8 @@ export default function Navbar() {
 
       {/* Mobile Menu Panel */}
       {isMobileMenuOpen && !loading && (
-        <div className="md:hidden absolute top-16 left-0 right-0 bg-background shadow-lg p-4 border-t-2 border-strong-border-color">
-          <div className="flex flex-col items-center gap-4">
+        <div className="md:hidden absolute top-16 left-0 right-0 bg-background shadow-lg border-t-2 border-strong-border-color z-50 max-h-[calc(100vh-4rem)] overflow-y-auto">
+          <div className="p-4">
             {commonLinks(true)}
           </div>
         </div>
