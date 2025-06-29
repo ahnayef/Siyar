@@ -38,12 +38,12 @@ export default function Navbar() {
   const DesktopUserMenu = () => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="neo-button-outline px-3 py-1.5 text-sm flex items-center gap-1.5">
+        <Button variant="outline" className="neo-button-outline px-3 py-1.5 text-sm flex items-center gap-1.5 shadow-neo-hover hover:shadow-neo active:shadow-neo-active">
           <UserCircle className="h-5 w-5" /> 
           <span className="hidden md:inline">{userProfile?.username || user?.email?.split('@')[0] || 'Account'}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="neo-card mt-2 w-56">
+      <DropdownMenuContent align="end" className="mt-2 w-56 shadow-neo">
         <DropdownMenuLabel className="font-archivo text-foreground">My Account</DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-border" />
         <DropdownMenuItem asChild className="cursor-pointer hover:bg-muted">
@@ -77,30 +77,46 @@ export default function Navbar() {
 
   const MobileUserProfile = () => (
     <div className="w-full">
-      <div className="flex items-center justify-center mb-4 p-3 border-b border-border">
+      <div className="flex items-center mb-5 p-3">
         <UserCircle className="h-6 w-6 mr-2" />
-        <span className="font-medium text-lg">{userProfile?.username || user?.email?.split('@')[0] || 'Account'}</span>
+        <span className="font-medium">{userProfile?.username || user?.email?.split('@')[0] || 'Account'}</span>
       </div>
       <div className="flex flex-col space-y-3 w-full">
-        <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center px-3 py-2.5 hover:bg-muted rounded-md transition-colors">
+        <Link 
+          href="/dashboard" 
+          onClick={() => setIsMobileMenuOpen(false)} 
+          className="flex items-center px-4 py-3 bg-background border border-strong-border-color shadow-neo-hover hover:shadow-neo active:shadow-neo-active rounded-md transition-all font-medium"
+        >
           <LayoutDashboard className="mr-3 h-5 w-5" /> 
           <span>Dashboard</span>
         </Link>
-        <Link href="/trash" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center px-3 py-2.5 hover:bg-muted rounded-md transition-colors">
+        <Link 
+          href="/trash" 
+          onClick={() => setIsMobileMenuOpen(false)} 
+          className="flex items-center px-4 py-3 bg-background border border-strong-border-color shadow-neo-hover hover:shadow-neo active:shadow-neo-active rounded-md transition-all font-medium"
+        >
           <Trash2 className="mr-3 h-5 w-5" /> 
           <span>Trash Bin</span>
         </Link>
-        <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center px-3 py-2.5 hover:bg-muted rounded-md transition-colors">
+        <Link 
+          href="/profile" 
+          onClick={() => setIsMobileMenuOpen(false)} 
+          className="flex items-center px-4 py-3 bg-background border border-strong-border-color shadow-neo-hover hover:shadow-neo active:shadow-neo-active rounded-md transition-all font-medium"
+        >
           <UserCircle className="mr-3 h-5 w-5" /> 
           <span>Profile</span>
         </Link>
-        <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center px-3 py-2.5 hover:bg-muted rounded-md transition-colors">
+        <Link 
+          href="/about" 
+          onClick={() => setIsMobileMenuOpen(false)} 
+          className="flex items-center px-4 py-3 bg-background border border-strong-border-color shadow-neo-hover hover:shadow-neo active:shadow-neo-active rounded-md transition-all font-medium"
+        >
           <Info className="mr-3 h-5 w-5" /> 
           <span>About Siyar</span>
         </Link>
         <button 
           onClick={handleSignOut}
-          className="flex items-center w-full px-3 py-2.5 text-destructive hover:bg-destructive/10 rounded-md transition-colors text-left"
+          className="flex items-center w-full px-4 py-3 bg-destructive/10 border border-destructive text-destructive font-medium shadow-neo-hover hover:shadow-neo active:shadow-neo-active rounded-md transition-all text-left"
         >
           <LogOut className="mr-3 h-5 w-5" /> 
           <span>Sign Out</span>
@@ -113,26 +129,38 @@ export default function Navbar() {
     <>
       {isMobile ? (
         <div className="flex flex-col space-y-3 w-full">
-          <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center px-3 py-2.5 hover:bg-muted rounded-md transition-colors">
+          <Link 
+            href="/about" 
+            onClick={() => setIsMobileMenuOpen(false)} 
+            className="flex items-center justify-center px-4 py-3 bg-background border border-strong-border-color shadow-neo-hover hover:shadow-neo active:shadow-neo-active rounded-md transition-all font-medium"
+          >
             <Info className="mr-3 h-5 w-5" /> 
             <span>About Siyar</span>
           </Link>
-          <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center px-3 py-2.5 bg-primary/10 hover:bg-primary/20 rounded-md transition-colors">
+          <Link 
+            href="/login" 
+            onClick={() => setIsMobileMenuOpen(false)} 
+            className=" flex items-center justify-center px-4 py-3 bg-primary/10 border border-primary shadow-neo-hover hover:shadow-neo active:shadow-neo-active rounded-md transition-all font-medium"
+          >
             <span>Login</span>
           </Link>
-          <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center px-3 py-2.5 border border-primary rounded-md hover:bg-primary/10 transition-colors">
+          <Link 
+            href="/signup" 
+            onClick={() => setIsMobileMenuOpen(false)} 
+            className="flex items-center justify-center px-4 py-3 bg-primary/5 border border-primary shadow-neo-hover hover:shadow-neo active:shadow-neo-active rounded-md transition-all font-medium"
+          >
             <span>Sign Up</span>
           </Link>
         </div>
       ) : (
         <>
-          <Button variant="ghost" size="sm" asChild className="neo-button-ghost text-sm">
+          <Button variant="outline" size="sm" asChild className="neo-button-outline text-sm border shadow-neo-hover hover:shadow-neo active:shadow-neo-active">
             <Link href="/about" onClick={() => setIsMobileMenuOpen(false)}>About</Link>
           </Button>
-          <Button variant="ghost" size="sm" asChild className="neo-button px-4 py-1.5 text-sm">
+          <Button variant="outline" size="sm" asChild className="neo-button-outline text-sm border border-primary bg-primary/10 shadow-neo-hover hover:shadow-neo active:shadow-neo-active">
             <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>Login</Link>
           </Button>
-          <Button variant="ghost" size="sm" asChild className="neo-button-outline px-3 py-1.5 text-sm">
+          <Button variant="outline" size="sm" asChild className="neo-button-outline text-sm border shadow-neo-hover hover:shadow-neo active:shadow-neo-active">
             <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}>Sign Up</Link>
           </Button>
         </>
@@ -152,10 +180,9 @@ export default function Navbar() {
 
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md shadow-sm border-b-2 border-strong-border-color">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md shadow-sm border-b border-strong-border-color">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="text-2xl font-archivo text-primary hover:opacity-80 transition-opacity flex items-center gap-2">
-          {/* <Workflow className="h-7 w-7 text-primary"/> */}
           <Logo className="h-7 w-7 text-primary" />
           Siyar
         </Link>
@@ -185,9 +212,11 @@ export default function Navbar() {
 
       {/* Mobile Menu Panel */}
       {isMobileMenuOpen && !loading && (
-        <div className="md:hidden absolute top-16 left-0 right-0 bg-background shadow-lg border-t-2 border-strong-border-color z-50 max-h-[calc(100vh-4rem)] overflow-y-auto">
-          <div className="p-4">
-            {commonLinks(true)}
+        <div className="md:hidden absolute top-16 left-0 right-0 bg-background shadow-neo border-t border-strong-border-color z-50 max-h-[calc(100vh-4rem)] overflow-y-auto">
+          <div className="py-5 px-4 sm:px-6">
+            <div className="mx-auto max-w-md">
+              {commonLinks(true)}
+            </div>
           </div>
         </div>
       )}
