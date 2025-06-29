@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/firebase";
-import { createTimeline as createTimelineDbOp, deleteTimeline as deleteTimelineDbOp, restoreTimeline as restoreTimelineDbOp, updateTimelineVisibility as updateTimelineVisibilityDbOp, getTimelineEvents, deleteTimelineEvent as deleteTimelineEventDbOp } from "@/lib/firestoreOps";
+import { createTimeline as createTimelineDbOp, deleteTimeline as deleteTimelineDbOp, restoreTimeline as restoreTimelineDbOp, updateTimelineVisibility as updateTimelineVisibilityDbOp, getTimelineEvents, deleteTimelineEvent as deleteTimelineEventDbOp, renameTimeline as renameTimelineDbOp } from "@/lib/firestoreOps";
 import type { Timeline, TimelineEvent } from "@/types"; 
 import { Timestamp, collection, doc, serverTimestamp, getDocs, query, where, updateDoc, getDoc, setDoc } from "firebase/firestore";
 import { revalidatePath } from "next/cache";
@@ -10,6 +10,10 @@ import { z } from "zod";
 const CreateTimelineSchema = z.object({
   userId: z.string().min(1),
   username: z.string().min(1),
+  title: z.string().min(1, "Title is required.").max(100, "Title cannot exceed 100 characters."),
+});
+
+const RenameTimelineSchema = z.object({
   title: z.string().min(1, "Title is required.").max(100, "Title cannot exceed 100 characters."),
 });
 
@@ -251,6 +255,38 @@ export async function restoreTimelineAction(userId: string, timelineId: string):
   const username = timelineDocSnap.data()?.username;
   if (username) {
     revalidatePath(`/${username}/${timelineId}`);
+  }
+}
+
+export async function renameTimelineAction(userId: string, timelineId: string, newTitle: string): Promise<void> {
+  if (!userId) {
+    throw new Error("User ID is required.");
+  }
+  if (!timelineId) {
+    throw new Error("Timeline ID is required.");
+  }
+  
+  const validationResult = RenameTimelineSchema.safeParse({ title: newTitle });
+  if (!validationResult.success) {
+    throw new Error(validationResult.error.errors.map(e => e.message).join(", "));
+  }
+  
+  const timelineDocRef = doc(db, "timelines", timelineId);
+  const timelineDocSnap = await getDoc(timelineDocRef);
+
+  if (!timelineDocSnap.exists() || timelineDocSnap.data()?.userId !== userId) {
+    throw new Error("Unauthorized or timeline not found.");
+  }
+  
+  await renameTimelineDbOp(timelineId, newTitle);
+  
+  revalidatePath("/dashboard");
+  revalidatePath("/trash");
+  
+  const username = timelineDocSnap.data()?.username;
+  if (username) {
+    revalidatePath(`/${username}/${timelineId}`);
+    revalidatePath(`/u/${username}`);
   }
 }
 

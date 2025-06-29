@@ -36,6 +36,7 @@ export default function TimelineViewPage() {
   const [eventToEdit, setEventToEdit] = useState<TimelineEvent | null>(null);
   
   const [ownerProfile, setOwnerProfile] = useState<UserProfile | null>(null);
+  const [timelineTitle, setTimelineTitle] = useState<string>('');
 
   useEffect(() => {
     if (!username || !timelineId) {
@@ -82,6 +83,7 @@ export default function TimelineViewPage() {
         }
         
         setTimeline(timelineData);
+        setTimelineTitle(timelineData.title);
         logAnalyticsEvent('view_timeline', { timeline_id: timelineId, user_id: authUser?.uid, owner_username: username });
 
         const eventData = await getTimelineEvents(timelineId);
@@ -162,6 +164,11 @@ export default function TimelineViewPage() {
         return newEventsList.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
       });
     }
+  };
+  
+  const handleTimelineRenamed = (newTitle: string) => {
+    setTimelineTitle(newTitle);
+    document.title = `${newTitle} | Siyar`;
   };
   
   const nextUpcomingEventId = useMemo(() => {
@@ -270,7 +277,11 @@ export default function TimelineViewPage() {
   
   return (
     <div className="bg-background min-h-screen">
-      <HeaderBar timeline={timeline} onAddEventClick={handleAddEventClick} />
+      <HeaderBar 
+        timeline={timeline} 
+        onAddEventClick={handleAddEventClick} 
+        onTimelineRenamed={handleTimelineRenamed}
+      />
       <div className="container mx-auto px-4 py-8">
         {events.length === 0 && timeline ? ( 
           <div className="text-center py-12 neo-card">

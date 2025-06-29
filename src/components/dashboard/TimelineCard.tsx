@@ -13,13 +13,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Lock, Unlock, CalendarDays, ArrowRight, MoreVertical, Trash2, Share2, Copy, RefreshCw } from 'lucide-react';
+import { Lock, Unlock, CalendarDays, ArrowRight, MoreVertical, Trash2, Share2, Pencil, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuth } from '@/hooks/useAuth';
 import { deleteTimelineAction, restoreTimelineAction } from '@/actions/timelineActions'; 
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import ShareTimelineModal from './ShareTimelineModal'; 
+import RenameTimelineModal from './RenameTimelineModal';
 import { logAnalyticsEvent } from '@/lib/analytics';
 
 interface TimelineCardProps {
@@ -35,6 +36,8 @@ export default function TimelineCard({ timeline, onTimelineDeleted, onTimelineRe
   const isOwner = !isReadOnly && user?.uid === timeline.userId;
   const isInTrash = timeline.isInTrash === true || timeline.deleted === true;
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
+  const [timelineTitle, setTimelineTitle] = useState(timeline.title);
 
   const handleDelete = async () => {
     if (!user) {
@@ -75,6 +78,15 @@ export default function TimelineCard({ timeline, onTimelineDeleted, onTimelineRe
     logAnalyticsEvent('open_share_timeline_modal', { timeline_id: timeline.id, user_id: user?.uid });
   }
 
+  const handleOpenRenameModal = () => {
+    setIsRenameModalOpen(true);
+    logAnalyticsEvent('open_rename_timeline_modal', { timeline_id: timeline.id, user_id: user?.uid });
+  }
+
+  const handleRenamed = (newTitle: string) => {
+    setTimelineTitle(newTitle);
+  }
+
   const shareLink = typeof window !== 'undefined' ? `${window.location.origin}/${timeline.username}/${timeline.id}` : '';
 
 
@@ -89,10 +101,10 @@ export default function TimelineCard({ timeline, onTimelineDeleted, onTimelineRe
               )}
               <CardTitle className={`text-xl font-archivo leading-tight ${isInTrash ? 'text-muted-foreground line-through' : 'text-primary hover:text-primary/80'}`}>
                 {isInTrash ? (
-                  timeline.title
+                  timelineTitle
                 ) : (
                   <Link href={`/${timeline.username}/${timeline.id}`}>
-                    {timeline.title}
+                    {timelineTitle}
                   </Link>
                 )}
               </CardTitle>
@@ -119,6 +131,9 @@ export default function TimelineCard({ timeline, onTimelineDeleted, onTimelineRe
                                     <DropdownMenuItem onClick={handleOpenShareModal} className="cursor-pointer">
                                         <Share2 className="mr-2 h-4 w-4" /> Share
                                     </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={handleOpenRenameModal} className="cursor-pointer">
+                                        <Pencil className="mr-2 h-4 w-4" /> Rename
+                                    </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild>
@@ -130,7 +145,7 @@ export default function TimelineCard({ timeline, onTimelineDeleted, onTimelineRe
                                         <AlertDialogHeader>
                                             <AlertDialogTitle className="font-archivo">Move to Trash?</AlertDialogTitle>
                                             <AlertDialogDescription className="text-body-md">
-                                            This will move the timeline "{timeline.title}" to your trash.
+                                            This will move the timeline "{timelineTitle}" to your trash.
                                             You can restore it later if needed.
                                             </AlertDialogDescription>
                                         </AlertDialogHeader>
@@ -176,8 +191,17 @@ export default function TimelineCard({ timeline, onTimelineDeleted, onTimelineRe
         <ShareTimelineModal 
             isOpen={isShareModalOpen} 
             setIsOpen={setIsShareModalOpen} 
-            timelineTitle={timeline.title}
+            timelineTitle={timelineTitle}
             shareUrl={shareLink}
+        />
+      )}
+      {isOwner && (
+        <RenameTimelineModal 
+            isOpen={isRenameModalOpen} 
+            setIsOpen={setIsRenameModalOpen} 
+            timelineId={timeline.id}
+            currentTitle={timelineTitle}
+            onRenamed={handleRenamed}
         />
       )}
     </>

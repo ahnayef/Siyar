@@ -154,6 +154,13 @@ export const restoreTimeline = async (timelineId: string): Promise<void> => {
   });
 };
 
+export const renameTimeline = async (timelineId: string, newTitle: string): Promise<void> => {
+  const timelineDocRef = doc(db, 'timelines', timelineId);
+  await updateDoc(timelineDocRef, {
+    title: newTitle,
+    updatedAt: serverTimestamp(),
+  });
+};
 
 // Events
 export const addEventToTimeline = async (timelineId: string, eventData: Omit<TimelineEvent, 'id' | 'timelineId' | 'createdAt' | 'updatedAt'>): Promise<string> => {
