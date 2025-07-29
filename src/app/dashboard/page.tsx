@@ -193,7 +193,7 @@ function DashboardContent() {
         <div>
           <h1 className="text-3xl md:text-4xl font-extrabold text-foreground">Your Timelines</h1>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col md:flex-row items-center gap-3">
           <Button variant="outline" asChild className="neo-button-outline">
             <Link href="/trash">
               <Trash2 className="mr-2 h-4 w-4" /> Trash Bin
@@ -210,9 +210,8 @@ function DashboardContent() {
             placeholder="Search timelines..."
             value={searchQuery}
             onChange={handleSearchChange}
-            className="neo-input py-5 pl-9 pr-10"
+            className="neo-input py-5 pl-5 pr-5"
           />
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           {searchQuery && (
             <Button 
               variant="ghost" 
@@ -323,7 +322,7 @@ function DashboardContent() {
               <p className="text-muted-foreground mb-4 text-body-md">
                 Your journey starts here. Create your first timeline to start mapping out your events and milestones.
               </p>
-              {userProfile && <CreateTimelineModal buttonText="Create Your First Timeline" onTimelineCreated={handleTimelineCreated} />}
+              {userProfile && <CreateTimelineModal onTimelineCreated={handleTimelineCreated} />}
             </>
           ) : (
             <>
