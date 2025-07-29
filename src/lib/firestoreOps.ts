@@ -66,6 +66,7 @@ export const createTimeline = async (userId: string, username: string, title: st
     username,
     title,
     isPublic: false,
+    isInTrash: false,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   };
