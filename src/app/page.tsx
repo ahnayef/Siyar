@@ -8,9 +8,18 @@ import Image from 'next/image';
 import { Siyar } from '@/constant/images';
 import Logo from '@/Icon/Logo';
 import { useAuth } from '@/hooks/useAuth';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+    useEffect(() => {
+      if (!authLoading && user) {
+        router.push('/dashboard');
+      }
+    }, [user, authLoading, router]);
   
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground overflow-hidden">
