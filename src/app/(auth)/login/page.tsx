@@ -61,6 +61,11 @@ export default function LoginPage() {
         <p className="text-muted-foreground mt-2 text-body-md">Access your timelines and stay organized.</p>
       </div>
       <AuthForm mode="login" onSubmit={handleLogin} />
+      <div className="mt-4 text-center">
+        <Link href="/forgot-password" className="text-sm text-muted-foreground hover:text-primary hover:underline transition-colors">
+          Forgot your password?
+        </Link>
+      </div>
       <p className="mt-6 text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{' '}
         <Link href="/signup" className="font-semibold text-primary hover:underline">
