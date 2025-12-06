@@ -193,10 +193,13 @@ function DashboardContent() {
         <div>
           <h1 className="text-3xl md:text-4xl font-extrabold text-foreground">Your Timelines</h1>
         </div>
-        <div className="flex flex-col md:flex-row items-center gap-3">
+        <div className="flex flex-row items-center gap-3">
           <Button variant="outline" asChild className="neo-button-outline">
             <Link href="/trash">
-              <Trash2 className="mr-2 h-4 w-4" /> Trash Bin
+              <Trash2 className="mr-2 h-4 w-4" />
+              <p className='hidden md:block'>
+              Trash Bin
+              </p>
             </Link>
           </Button>
           {userProfile && <CreateTimelineModal onTimelineCreated={handleTimelineCreated} />}
@@ -224,7 +227,7 @@ function DashboardContent() {
           )}
         </div>
         
-        <div className="flex gap-2 justify-end w-full md:w-auto">
+        <div className="flex gap-2 justify-start md:justify-end w-full md:w-auto">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="neo-button-outline">
