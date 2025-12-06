@@ -70,7 +70,7 @@ export default function CreateTimelineModal({ onTimelineCreated }: CreateTimelin
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button className="neo-button">
-          <PlusCircle className="mr-2 h-5 w-5" /> Create New Timeline
+          <PlusCircle className="mr-2 h-5 w-5" /> New Timeline
         </Button>
       </DialogTrigger>
       <DialogContent className="neo-card sm:max-w-[425px]">

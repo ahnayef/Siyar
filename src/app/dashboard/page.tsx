@@ -188,21 +188,32 @@ function DashboardContent() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-foreground">Your Timelines</h1>
-        </div>
-        <div className="flex flex-row items-center gap-3">
-          <Button variant="outline" asChild className="neo-button-outline">
-            <Link href="/trash">
-              <Trash2 className="mr-2 h-4 w-4" />
-              <p className='hidden md:block'>
-              Trash Bin
-              </p>
-            </Link>
-          </Button>
-          {userProfile && <CreateTimelineModal onTimelineCreated={handleTimelineCreated} />}
+    <div className="container mx-auto px-4 py-4 md:py-6">
+      {/* Mobile-first Header */}
+      <div className="mb-6">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-2xl md:text-4xl font-extrabold text-foreground font-archivo">
+              Hi, <span className="text-primary">{userProfile?.username || 'there'}</span>!
+            </h1>
+            <p className="text-sm md:text-base text-muted-foreground mt-1">
+              Manage your timelines
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-2 self-start md:self-auto">
+            <Button variant="outline" asChild className="neo-button-outline flex-1 md:flex-none">
+              <Link href="/trash" className="flex items-center justify-center gap-2">
+                <Trash2 className="h-4 w-4" />
+                <span className="text-sm">Trash</span>
+              </Link>
+            </Button>
+            {userProfile && (
+              <div className="flex-1 md:flex-none">
+                <CreateTimelineModal onTimelineCreated={handleTimelineCreated} />
+              </div>
+            )}
+          </div>
         </div>
       </div>
       
