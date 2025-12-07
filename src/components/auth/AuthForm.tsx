@@ -12,11 +12,19 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 
+const passwordSchema = z
+  .string()
+  .min(8, "Password must be at least 8 characters")
+  .regex(/[a-z]/, "Password must contain at least one lowercase character")
+  .regex(/[A-Z]/, "Password must contain at least one uppercase character")
+  .regex(/[0-9]/, "Password must contain at least one number")
+  .regex(/[^a-zA-Z0-9]/, "Password must contain at least one special character");
+
 const signupSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters").max(20, "Username too long"),
   email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string().min(6, "Password must be at least 6 characters"),
+  password: passwordSchema,
+  confirmPassword: z.string().min(1, "Please confirm your password"),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -24,7 +32,7 @@ const signupSchema = z.object({
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(1, "Password is required"),
 });
 
 type SignupFormData = z.infer<typeof signupSchema>;
@@ -39,7 +47,7 @@ interface AuthFormProps {
 
 export default function AuthForm({ mode, onSubmit, socialLogins }: AuthFormProps) {
   const schema = mode === 'signup' ? signupSchema : loginSchema;
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, formState: { errors } } = useForm<any>({
     resolver: zodResolver(schema),
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -47,7 +55,7 @@ export default function AuthForm({ mode, onSubmit, socialLogins }: AuthFormProps
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { toast } = useToast();
 
-  const handleFormSubmit: SubmitHandler<FormData> = async (data) => {
+  const handleFormSubmit: SubmitHandler<any> = async (data) => {
     setIsLoading(true);
     try {
       await onSubmit(data);
@@ -64,13 +72,13 @@ export default function AuthForm({ mode, onSubmit, socialLogins }: AuthFormProps
         <div className="space-y-1">
           <Label htmlFor="username" className="text-card-foreground font-semibold font-inter">Username</Label>
           <Input id="username" type="text" {...register('username')} className="neo-input" placeholder="your_username" />
-          {errors.username && <p className="text-sm text-destructive">{errors.username.message}</p>}
+          {errors.username && <p className="text-sm text-destructive">{String(errors.username.message)}</p>}
         </div>
       )}
       <div className="space-y-1">
         <Label htmlFor="email" className="text-card-foreground font-semibold font-inter">Email</Label>
         <Input id="email" type="email" {...register('email')} className="neo-input" placeholder="you@example.com" />
-        {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+        {errors.email && <p className="text-sm text-destructive">{String(errors.email.message)}</p>}
       </div>
       <div className="space-y-1 relative">
         <Label htmlFor="password" className="text-card-foreground font-semibold font-inter">Password</Label>
@@ -85,7 +93,7 @@ export default function AuthForm({ mode, onSubmit, socialLogins }: AuthFormProps
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             <span className="sr-only">{showPassword ? 'Hide password' : 'Show password'}</span>
           </Button>
-        {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
+        {errors.password && <p className="text-sm text-destructive">{String(errors.password.message)}</p>}
       </div>
       {mode === 'signup' && (
         <div className="space-y-1 relative">
@@ -101,7 +109,7 @@ export default function AuthForm({ mode, onSubmit, socialLogins }: AuthFormProps
               {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               <span className="sr-only">{showConfirmPassword ? 'Hide password' : 'Show password'}</span>
             </Button>
-          {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>}
+          {errors.confirmPassword && <p className="text-sm text-destructive">{String(errors.confirmPassword.message)}</p>}
         </div>
       )}
       <Button type="submit" disabled={isLoading} className="w-full neo-button text-lg py-3">
