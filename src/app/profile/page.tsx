@@ -22,7 +22,6 @@ import {
   AlertDialogTitle, 
   AlertDialogTrigger 
 } from "@/components/ui/alert-dialog";
-import { auth } from "@/lib/firebase";
 import { deleteUser } from "firebase/auth";
 import { useRouter } from "next/navigation";
 

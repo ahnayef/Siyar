@@ -19,7 +19,6 @@ import { format } from 'date-fns';
 import { addEventToTimelineAction, updateTimelineEventAction } from '@/actions/timelineActions';
 import { useAuth } from '@/hooks/useAuth';
 import { enhanceEventDetails } from '@/ai/flows/enhance-event-details-flow';
-import type { EnhanceEventDetailsInput } from '@/ai/flows/enhance-event-details-flow';
 import { logAnalyticsEvent } from '@/lib/analytics';
 
 const eventSchema = z.object({
@@ -29,10 +28,7 @@ const eventSchema = z.object({
 });
 type EventFormData = z.infer<typeof eventSchema>;
 
-// Define the type for the form's internal state, allowing dueDate to be undefined initially
-type EventFormState = Omit<EventFormData, 'dueDate'> & {
-  dueDate?: Date;
-};
+
 
 
 interface AddEventModalProps {

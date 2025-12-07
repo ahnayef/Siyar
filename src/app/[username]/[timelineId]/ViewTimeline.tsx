@@ -315,7 +315,7 @@ export default function TimelineViewPage() {
             <CalendarClock className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold mb-2 text-yellow-700">Timeline in Trash</h2>
             <p className="text-yellow-600 mb-6">
-              This timeline is currently in your trash. It's only visible to you. 
+              This timeline is currently in your trash. It&apos;s only visible to you. 
               You can restore it from your dashboard or continue viewing it here.
             </p>
             <div className="flex gap-4 justify-center">

@@ -36,9 +36,9 @@ export default function ShareTimelineModal({ isOpen, setIsOpen, timelineTitle, s
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="neo-card sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-archivo text-primary">Share "{timelineTitle}"</DialogTitle>
+          <DialogTitle className="text-2xl font-archivo text-primary">Share &apos;{timelineTitle}&apos;</DialogTitle>
           <DialogDescription className="text-body-md text-muted-foreground pt-2">
-            Anyone with this link can view this timeline if it's public.
+            Anyone with this link can view this timeline if it&apos;s public.
           </DialogDescription>
         </DialogHeader>
         <div className="py-4 space-y-2">

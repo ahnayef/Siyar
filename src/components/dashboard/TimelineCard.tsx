@@ -163,7 +163,7 @@ export default function TimelineCard({ timeline, onTimelineDeleted, onTimelineRe
                                         <AlertDialogHeader>
                                             <AlertDialogTitle className="font-archivo">Move to Trash?</AlertDialogTitle>
                                             <AlertDialogDescription className="text-body-md">
-                                            This will move the timeline "{timelineTitle}" to your trash.
+                                            This will move the timeline &apos;{timelineTitle}&apos; to your trash.
                                             You can restore it later if needed.
                                             </AlertDialogDescription>
                                         </AlertDialogHeader>

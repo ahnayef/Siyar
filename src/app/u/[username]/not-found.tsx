@@ -9,7 +9,7 @@ export default function NotFound() {
         <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-4" />
         <h2 className="text-3xl font-bold mb-2 text-destructive">User Not Found</h2>
         <p className="text-muted-foreground mb-6 text-body-md">
-          The user profile you're looking for doesn't exist or has been removed.
+          The user profile you&apos;re looking for doesn&apos;t exist or has been removed.
         </p>
         <Button asChild className="neo-button">
           <Link href="/">

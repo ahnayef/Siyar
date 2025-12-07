@@ -29,7 +29,6 @@ function Calendar({
     if (!onChange) return
 
     if (selectedDay) {
-      const newDateTime = new Date(selectedDay) // DayPicker returns date at 00:00:00 UTC, then localized.
       // Ensure we are working with local time parts for hours/minutes.
       // Create date with year, month, day from selectedDay.
       const finalNewDateTime = new Date(

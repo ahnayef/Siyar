@@ -89,7 +89,7 @@ export default function TrashPage() {
           <Trash2 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <h2 className="text-2xl font-semibold mb-2 text-foreground">Trash is Empty</h2>
           <p className="text-muted-foreground mb-4 text-body-md">
-            You don't have any timelines in the trash.
+            You don&apos;t have any timelines in the trash.
           </p>
           <Button asChild className="neo-button mt-4">
             <Link href="/dashboard">Go to Dashboard</Link>

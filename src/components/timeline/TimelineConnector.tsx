@@ -13,7 +13,7 @@ interface TimelineConnectorProps {
 // The main line can be a pseudo-element on the parent container.
 // This component can represent the "dot" on the line for each event.
 
-export default function TimelineConnector({ orientation, isFirst, isLast, className }: TimelineConnectorProps) {
+export default function TimelineConnector({ orientation, className }: TimelineConnectorProps) {
   // For a simple dot on the line
   return (
     <div className={cn(

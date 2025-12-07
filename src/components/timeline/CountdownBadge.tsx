@@ -5,7 +5,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { differenceInSeconds, intervalToDuration, differenceInDays, isPast } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-import { Hourglass, CheckCircle2, AlertTriangle, Zap, Clock } from 'lucide-react'; // Added Clock
+import { Hourglass, AlertTriangle, Zap, Clock } from 'lucide-react'; // Added Clock
 import { cn } from '@/lib/utils';
 
 interface CountdownBadgeProps {

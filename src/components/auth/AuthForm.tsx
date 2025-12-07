@@ -53,7 +53,6 @@ export default function AuthForm({ mode, onSubmit, socialLogins }: AuthFormProps
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { toast } = useToast();
 
   const handleFormSubmit: SubmitHandler<any> = async (data) => {
     setIsLoading(true);

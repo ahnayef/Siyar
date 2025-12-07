@@ -16,7 +16,6 @@ import {
   SortDesc,
   Filter,
   X,
-  RefreshCw,
   Trash2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -29,7 +28,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
 function DashboardContent() {

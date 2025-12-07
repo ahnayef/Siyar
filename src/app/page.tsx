@@ -3,9 +3,8 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Zap, BarChart3, Users, Workflow, Calendar, Clock, Share2, CheckCircle, ArrowRight } from 'lucide-react';
+import { Calendar, Clock, Share2, CheckCircle, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
-import { Siyar } from '@/constant/images';
 import Logo from '@/Icon/Logo';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
@@ -33,7 +32,7 @@ export default function HomePage() {
               <span className="bg-black text-white px-2">Organize</span> Your Life.
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto font-inter">
-              The timeline manager for today's creative minds. Neo-brutalist clarity for your academic and personal commitments.
+              The timeline manager for today&apos;s creative minds. Neo-brutalist clarity for your academic and personal commitments.
             </p>
             <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
               {user ? (
@@ -175,7 +174,7 @@ export default function HomePage() {
             Ready to <span className="text-primary">Upgrade</span> Your Planning Game?
           </h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto text-muted-foreground">
-            Join Siyar today and transform how you manage your time. It's completely free, today and always.
+            Join Siyar today and transform how you manage your time. It&apos;s completely free, today and always.
           </p>
           <Button asChild size="lg" className="neo-button text-lg px-8 py-6 font-bold">
             <Link href="/signup">Create Your First Timeline</Link>

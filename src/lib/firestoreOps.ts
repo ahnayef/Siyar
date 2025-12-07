@@ -11,23 +11,10 @@ import {
   orderBy,
   serverTimestamp,
   Timestamp as FirebaseTimestamp, 
-  runTransaction,
-  writeBatch,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Timeline, TimelineEvent, UserProfile } from '@/types';
 
-const processDoc = <T extends { id: string }>(docSnap: any): T => {
-  const data = docSnap.data() as any;
-  if (!data) return { id: docSnap.id, ...data } as T; 
-  const processedData: any = { id: docSnap.id, ...data };
-  for (const key in processedData) {
-    if (processedData[key] instanceof FirebaseTimestamp) {
-      processedData[key] = processedData[key].toDate();
-    }
-  }
-  return processedData as T;
-};
 
 const processTimelineEvent = (docSnap: any): TimelineEvent => {
   const data = docSnap.data() as any;

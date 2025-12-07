@@ -1,9 +1,9 @@
 "use server";
 
 import { db } from "@/lib/firebase";
-import { createTimeline as createTimelineDbOp, deleteTimeline as deleteTimelineDbOp, restoreTimeline as restoreTimelineDbOp, updateTimelineVisibility as updateTimelineVisibilityDbOp, getTimelineEvents, deleteTimelineEvent as deleteTimelineEventDbOp, renameTimeline as renameTimelineDbOp } from "@/lib/firestoreOps";
+import { createTimeline as createTimelineDbOp, deleteTimeline as deleteTimelineDbOp, restoreTimeline as restoreTimelineDbOp, updateTimelineVisibility as updateTimelineVisibilityDbOp, deleteTimelineEvent as deleteTimelineEventDbOp, renameTimeline as renameTimelineDbOp } from "@/lib/firestoreOps";
 import type { Timeline, TimelineEvent } from "@/types"; 
-import { Timestamp, collection, doc, serverTimestamp, getDocs, query, where, updateDoc, getDoc, setDoc } from "firebase/firestore";
+import { Timestamp, collection, doc, serverTimestamp, updateDoc, getDoc, setDoc } from "firebase/firestore";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 

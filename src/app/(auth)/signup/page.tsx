@@ -187,12 +187,12 @@ export default function SignupPage() {
                 className="w-full neo-button"
                 onClick={handleCheckVerification}
               >
-                I've Verified My Email
+                I&apos;ve Verified My Email
               </Button>
 
               <div className="text-center">
                 <p className="text-sm text-muted-foreground mb-2">
-                  Didn't receive the email?
+                  Didn&apos;t receive the email?
                 </p>
                 <Button 
                   variant="outline" 

@@ -2,7 +2,7 @@
 "use server";
 
 import { db } from "@/lib/firebase";
-import { doc, updateDoc, getDoc, collection, query, where, writeBatch, getDocs, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, writeBatch, getDocs } from "firebase/firestore";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 

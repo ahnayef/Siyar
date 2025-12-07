@@ -1,7 +1,7 @@
 import React from 'react'
 import TimelineCard from '@/components/dashboard/TimelineCard'
 import { Skeleton } from '@/components/ui/skeleton'
-import { AlertTriangle, Clock, Database } from 'lucide-react'
+import { Clock, Database } from 'lucide-react'
 import type { Timeline } from '@/types'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
@@ -35,7 +35,7 @@ export default function Timelines({
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
           <h1 className="text-3xl md:text-4xl font-extrabold text-foreground">
-            {username}'s Public Timelines
+            {username}&apos;s Public Timelines
           </h1>
         </div>
         <div className="text-center py-12 neo-card">
@@ -56,7 +56,7 @@ export default function Timelines({
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
         <h1 className="text-3xl md:text-4xl font-extrabold text-foreground">
-          {username}'s Public Timelines
+          {username}&apos;s Public Timelines
         </h1>
       </div>
 
@@ -65,7 +65,7 @@ export default function Timelines({
           <Clock className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <h2 className="text-2xl font-semibold mb-2 text-foreground">No Public Timelines</h2>
           <p className="text-muted-foreground mb-4 text-body-md">
-            {username} hasn't published any public timelines yet.
+            {username} hasn&apos;t published any public timelines yet.
           </p>
         </div>
       ) : (

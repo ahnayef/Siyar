@@ -1,5 +1,5 @@
 
-import type { Timestamp as FirebaseTimestamp } from 'firebase/firestore'; // Keep for server-side if needed, but client types use Date
+
 
 export interface UserProfile {
   uid: string;
