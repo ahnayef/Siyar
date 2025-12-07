@@ -25,9 +25,24 @@ export default function LoginPage() {
 
   const handleLogin = async (data: any) => {
     try {
-      await signInWithEmailAndPassword(auth, data.email, data.password);
+      const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
+      const loggedInUser = userCredential.user;
+      
+      // Check if email is verified
+      if (!loggedInUser.emailVerified) {
+        toast({ 
+          title: "Email Not Verified", 
+          description: "Please verify your email before logging in. Redirecting to verification page...",
+          variant: "destructive"
+        });
+        logAnalyticsEvent('login_failed', { method: 'email_password', reason: 'email_not_verified', user_id: loggedInUser.uid });
+        // Redirect to signup page which will show verification screen
+        router.push('/signup');
+        return;
+      }
+      
       toast({ title: "Login Successful", description: "Welcome back!" });
-      logAnalyticsEvent('login', { method: 'email_password', user_id: auth.currentUser?.uid });
+      logAnalyticsEvent('login', { method: 'email_password', user_id: loggedInUser.uid });
       router.push('/dashboard');
     } catch (error: any) {
       let errorMessage = "Failed to login. Please check your credentials.";

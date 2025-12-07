@@ -30,6 +30,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserProfile = useCallback(async (firebaseUser: FirebaseUser | null) => {
     if (firebaseUser) {
+      // Reload user to get latest email verification status
+      await firebaseUser.reload();
+      
       const userDocRef = doc(db, "users", firebaseUser.uid);
       const userDocSnap = await getDoc(userDocRef);
       if (userDocSnap.exists()) {
@@ -44,6 +47,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // Ensure we have the latest email verification status
+        await firebaseUser.reload();
+      }
       setUser(firebaseUser);
       await fetchUserProfile(firebaseUser);
       setLoading(false);
