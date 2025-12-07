@@ -16,6 +16,10 @@ const signupSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters").max(20, "Username too long"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string().min(6, "Password must be at least 6 characters"),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
 const loginSchema = z.object({
@@ -40,6 +44,7 @@ export default function AuthForm({ mode, onSubmit, socialLogins }: AuthFormProps
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { toast } = useToast();
 
   const handleFormSubmit: SubmitHandler<FormData> = async (data) => {
@@ -82,6 +87,23 @@ export default function AuthForm({ mode, onSubmit, socialLogins }: AuthFormProps
           </Button>
         {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
       </div>
+      {mode === 'signup' && (
+        <div className="space-y-1 relative">
+          <Label htmlFor="confirmPassword" className="text-card-foreground font-semibold font-inter">Confirm Password</Label>
+          <Input id="confirmPassword" type={showConfirmPassword ? "text" : "password"} {...register('confirmPassword')} className="neo-input pr-10" placeholder="••••••••" />
+          <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute right-1 top-7 h-7 w-7 text-muted-foreground hover:text-foreground"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              <span className="sr-only">{showConfirmPassword ? 'Hide password' : 'Show password'}</span>
+            </Button>
+          {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>}
+        </div>
+      )}
       <Button type="submit" disabled={isLoading} className="w-full neo-button text-lg py-3">
         {isLoading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
         {mode === 'login' ? 'Log In' : 'Sign Up'}
